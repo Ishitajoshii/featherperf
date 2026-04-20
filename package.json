@@ -1,0 +1,14 @@
+{
+  "name": "featherperf-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FeatherPerf: A performance-focused Vite plugin and runtime.",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "dev": "pnpm -r dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
