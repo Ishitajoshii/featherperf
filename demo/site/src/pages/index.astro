@@ -1,14 +1,128 @@
 ---
+const cards = Array.from({ length: 84 }, (_, i) => i + 1);
 ---
+
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>FeatherPerf Demo</title>
+		<title>FeatherPerf Baseline Demo</title>
+		<style>
+			:root {
+				--bg-a: #f9f4e9;
+				--bg-b: #dce7f6;
+				--ink: #1e1d1f;
+				--muted: #575460;
+				--card: rgba(255, 255, 255, 0.72);
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				font-family: Georgia, "Times New Roman", serif;
+				color: var(--ink);
+				background:
+					radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8), transparent 42%),
+					radial-gradient(circle at 85% 20%, rgba(255, 200, 120, 0.22), transparent 38%),
+					linear-gradient(155deg, var(--bg-a), var(--bg-b));
+			}
+
+			main {
+				max-width: 1080px;
+				padding: 28px 18px 96px;
+				margin: 0 auto;
+			}
+
+			h1 {
+				font-size: clamp(2rem, 5vw, 3.7rem);
+				line-height: 1.05;
+				margin: 0 0 12px;
+			}
+
+			p {
+				margin: 0;
+				color: var(--muted);
+				font-size: 1.05rem;
+				max-width: 62ch;
+			}
+
+			.panel {
+				margin-top: 28px;
+				padding: 18px;
+				border: 1px solid rgba(30, 29, 31, 0.2);
+				border-radius: 16px;
+				background: var(--card);
+				backdrop-filter: blur(3px);
+			}
+
+			.grid {
+				margin-top: 32px;
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+				gap: 10px;
+			}
+
+			.orb {
+				height: 96px;
+				border-radius: 18px;
+				border: 1px solid rgba(30, 29, 31, 0.18);
+				background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(229, 233, 240, 0.88));
+				display: grid;
+				place-items: center;
+				font-size: 0.95rem;
+			}
+
+			#lottie-host {
+				width: 100%;
+				height: 210px;
+				border-radius: 14px;
+				border: 1px dashed rgba(30, 29, 31, 0.33);
+				margin-top: 14px;
+				display: grid;
+				place-items: center;
+				font-size: 1rem;
+				background: rgba(255, 255, 255, 0.45);
+			}
+
+			.notice {
+				margin-top: 14px;
+				font-size: 0.93rem;
+				color: var(--muted);
+			}
+
+			@media (max-width: 720px) {
+				.grid {
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+				}
+			}
+		</style>
 	</head>
 	<body>
-		<h1>FeatherPerf Demo</h1>
+		<main>
+			<h1>FeatherPerf Baseline: Intentionally JS-Heavy</h1>
+			<p>
+				This baseline intentionally loads GSAP and Lottie JavaScript on first paint. It has no
+				heavy image assets and no webfont downloads, so most of the overhead should come from JavaScript.
+			</p>
+
+			<section class="panel">
+				<strong>Animation Mount</strong>
+				<div id="lottie-host">Loading lottie-web...</div>
+				<div class="notice">Used to force Lottie runtime initialization in baseline mode.</div>
+			</section>
+
+			<section class="grid" id="grid">
+				{cards.map((card) => <div class="orb">Tile {card}</div>)}
+			</section>
+		</main>
+
+		<script>
+			import { runBaselineAnimations } from '../scripts/baseline';
+			runBaselineAnimations();
+		</script>
 	</body>
 </html>

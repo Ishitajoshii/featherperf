@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build and cache outputs
+dist/
+build/
+coverage/
+.cache/
+.astro/
+.vite/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Lighthouse and benchmark outputs
+baseline.json
+baseline-*.json
+lighthouse-*.json
+
+# PRD drafts
+prd.md
+docs/prd.md
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/settings.json
+.vscode/*.code-workspace
