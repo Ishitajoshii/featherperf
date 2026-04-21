@@ -62,6 +62,20 @@ function getAverage(numbers, digits = 2) {
   return round(total / validNumbers.length, digits);
 }
 
+function getMedian(numbers, digits = 2) {
+  const validNumbers = numbers.filter((value) => Number.isFinite(value)).sort((a, b) => a - b);
+  if (!validNumbers.length) {
+    return null;
+  }
+
+  const middle = Math.floor(validNumbers.length / 2);
+  if (validNumbers.length % 2 === 1) {
+    return round(validNumbers[middle], digits);
+  }
+
+  return round((validNumbers[middle - 1] + validNumbers[middle]) / 2, digits);
+}
+
 export function parseLighthouse(report) {
   const diagnostics = report?.audits?.diagnostics?.details?.items?.[0] ?? {};
   const resourceTotals = getResourceTotals(report);
@@ -122,6 +136,15 @@ export function summarizeRuns(reports) {
       tbtMs: getAverage(parsedRuns.map((run) => run.metrics.tbtMs), 0),
       cls: getAverage(parsedRuns.map((run) => run.metrics.cls), 3),
       totalMb: getAverage(parsedRuns.map((run) => run.byteWeight.totalMb), 1)
+    },
+    medians: {
+      performanceScore: getMedian(parsedRuns.map((run) => run.performanceScore), 1),
+      fcpMs: getMedian(parsedRuns.map((run) => run.metrics.fcpMs), 0),
+      lcpMs: getMedian(parsedRuns.map((run) => run.metrics.lcpMs), 0),
+      speedIndexMs: getMedian(parsedRuns.map((run) => run.metrics.speedIndexMs), 0),
+      tbtMs: getMedian(parsedRuns.map((run) => run.metrics.tbtMs), 0),
+      cls: getMedian(parsedRuns.map((run) => run.metrics.cls), 3),
+      totalMb: getMedian(parsedRuns.map((run) => run.byteWeight.totalMb), 1)
     }
   };
 }

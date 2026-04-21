@@ -1,0 +1,1153 @@
+{
+  "label": "acmvit-baseline-fresh-5x",
+  "url": "https://www.acmvit.in/",
+  "chromePath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "generatedAt": "2026-04-21T16:55:44.469Z",
+  "method": {
+    "runs": 5,
+    "freshProfilePerRun": true,
+    "screenshotsCaptured": true,
+    "lighthouseStorageReset": true,
+    "aggregation": "median"
+  },
+  "runs": [
+    {
+      "lighthouseVersion": "13.1.0",
+      "requestedUrl": "https://www.acmvit.in/",
+      "fetchTime": "2026-04-21T16:53:00.356Z",
+      "performanceScore": 70,
+      "metrics": {
+        "fcpMs": 3266,
+        "lcpMs": 4707,
+        "speedIndexMs": 3696,
+        "tbtMs": 225,
+        "cls": 0.079
+      },
+      "byteWeight": {
+        "totalMb": 90,
+        "scriptKb": 123.4,
+        "fontKb": 97.2,
+        "imageMb": 74.2,
+        "mediaMb": 15.5
+      },
+      "requestCounts": {
+        "total": 117,
+        "scripts": 20,
+        "fonts": 8,
+        "stylesheets": 2
+      },
+      "taskCounts": {
+        "totalTasks": 8391,
+        "tasksOver10ms": 32,
+        "tasksOver25ms": 9,
+        "tasksOver50ms": 3,
+        "totalTaskTimeMs": 4182.9
+      },
+      "bootupTimeMs": 2230,
+      "mainThreadBreakdown": [
+        {
+          "groupLabel": "Other",
+          "durationMs": 7269
+        },
+        {
+          "groupLabel": "Style & Layout",
+          "durationMs": 4977.2
+        },
+        {
+          "groupLabel": "Script Evaluation",
+          "durationMs": 2283.5
+        },
+        {
+          "groupLabel": "Rendering",
+          "durationMs": 2082.3
+        },
+        {
+          "groupLabel": "Parse HTML & CSS",
+          "durationMs": 62.5
+        },
+        {
+          "groupLabel": "Garbage Collection",
+          "durationMs": 50.4
+        },
+        {
+          "groupLabel": "Script Parsing & Compilation",
+          "durationMs": 6.5
+        }
+      ],
+      "topRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/ACM_25%20Board%20pics/_DSC0054.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 15308.7,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Reverse%20Coding/DSC_0254.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 12298.3,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://www.acmvit.in/ACMWebsiteVid.webm",
+          "resourceType": "Media",
+          "transferSizeKb": 10530.6,
+          "statusCode": 206,
+          "mimeType": "video/webm"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Women_s%20day/DSC02591.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 7849.1,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Women_s%20day/DSC02199.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 7688.9,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://www.acmvit.in/ACMWebsiteVid.webm",
+          "resourceType": "Media",
+          "transferSizeKb": 5362.3,
+          "statusCode": 206,
+          "mimeType": "video/webm"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Turf/IMG_8061.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 5116.2,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/ACM_25%20Board%20pics/IMG_20250228_222031430.jpg",
+          "resourceType": "Image",
+          "transferSizeKb": 2938.5,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Reverse%20Coding/20250207_114342.jpg",
+          "resourceType": "Image",
+          "transferSizeKb": 2897.9,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Nightslip/DSC00816.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 2519.9,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        }
+      ],
+      "topScriptRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/lottie_light.COqd-Z14.js",
+          "resourceType": "Script",
+          "transferSizeKb": 45.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/index.tUWw1UFN.js",
+          "resourceType": "Script",
+          "transferSizeKb": 27.2,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/ScrollTrigger.Cv03IO65.js",
+          "resourceType": "Script",
+          "transferSizeKb": 18,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/SWork.astro_astro_type_script_index_0_lang.BYuXfOUN.js",
+          "resourceType": "Script",
+          "transferSizeKb": 5.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/hero.astro_astro_type_script_index_0_lang.D-sz62Nc.js",
+          "resourceType": "Script",
+          "transferSizeKb": 4.7,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Preloader.astro_astro_type_script_index_0_lang.Ch3Pop8p.js",
+          "resourceType": "Script",
+          "transferSizeKb": 3.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Domains_Phone.astro_astro_type_script_index_0_lang.Bva3wuk6.js",
+          "resourceType": "Script",
+          "transferSizeKb": 3.2,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Header.astro_astro_type_script_index_0_lang.DJd6t-G-.js",
+          "resourceType": "Script",
+          "transferSizeKb": 2.4,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Blogs.astro_astro_type_script_index_0_lang.aFeDO3Hp.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.4,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Board.astro_astro_type_script_index_0_lang.CyHA1Dvz.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.3,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ],
+      "animationScriptRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/lottie_light.COqd-Z14.js",
+          "resourceType": "Script",
+          "transferSizeKb": 45.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/ScrollTrigger.Cv03IO65.js",
+          "resourceType": "Script",
+          "transferSizeKb": 18,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ]
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "requestedUrl": "https://www.acmvit.in/",
+      "fetchTime": "2026-04-21T16:53:30.164Z",
+      "performanceScore": 58,
+      "metrics": {
+        "fcpMs": 3921,
+        "lcpMs": 5443,
+        "speedIndexMs": 5614,
+        "tbtMs": 371,
+        "cls": 0.079
+      },
+      "byteWeight": {
+        "totalMb": 89.2,
+        "scriptKb": 123.5,
+        "fontKb": 97.2,
+        "imageMb": 72.8,
+        "mediaMb": 16.1
+      },
+      "requestCounts": {
+        "total": 115,
+        "scripts": 20,
+        "fonts": 8,
+        "stylesheets": 2
+      },
+      "taskCounts": {
+        "totalTasks": 8367,
+        "tasksOver10ms": 19,
+        "tasksOver25ms": 4,
+        "tasksOver50ms": 3,
+        "totalTaskTimeMs": 3387.9
+      },
+      "bootupTimeMs": 1758,
+      "mainThreadBreakdown": [
+        {
+          "groupLabel": "Other",
+          "durationMs": 5927.2
+        },
+        {
+          "groupLabel": "Style & Layout",
+          "durationMs": 3954.6
+        },
+        {
+          "groupLabel": "Script Evaluation",
+          "durationMs": 1828.2
+        },
+        {
+          "groupLabel": "Rendering",
+          "durationMs": 1728.6
+        },
+        {
+          "groupLabel": "Parse HTML & CSS",
+          "durationMs": 73.4
+        },
+        {
+          "groupLabel": "Garbage Collection",
+          "durationMs": 33.9
+        },
+        {
+          "groupLabel": "Script Parsing & Compilation",
+          "durationMs": 5.8
+        }
+      ],
+      "topRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/ACM_25%20Board%20pics/_DSC0054.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 15308.3,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Reverse%20Coding/DSC_0254.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 12298.1,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://www.acmvit.in/ACMWebsiteVid.webm",
+          "resourceType": "Media",
+          "transferSizeKb": 9617.1,
+          "statusCode": 206,
+          "mimeType": "video/webm"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Women_s%20day/DSC02591.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 7849,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Women_s%20day/DSC02199.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 7688.8,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://www.acmvit.in/ACMWebsiteVid.webm",
+          "resourceType": "Media",
+          "transferSizeKb": 6880.7,
+          "statusCode": 206,
+          "mimeType": "video/webm"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Turf/IMG_8061.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 5116.1,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/ACM_25%20Board%20pics/IMG_20250228_222031430.jpg",
+          "resourceType": "Image",
+          "transferSizeKb": 2938.5,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Reverse%20Coding/20250207_114342.jpg",
+          "resourceType": "Image",
+          "transferSizeKb": 2897.8,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Nightslip/DSC00816.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 2519.9,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        }
+      ],
+      "topScriptRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/lottie_light.COqd-Z14.js",
+          "resourceType": "Script",
+          "transferSizeKb": 45.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/index.tUWw1UFN.js",
+          "resourceType": "Script",
+          "transferSizeKb": 27.2,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/ScrollTrigger.Cv03IO65.js",
+          "resourceType": "Script",
+          "transferSizeKb": 18.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/SWork.astro_astro_type_script_index_0_lang.BYuXfOUN.js",
+          "resourceType": "Script",
+          "transferSizeKb": 5.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/hero.astro_astro_type_script_index_0_lang.D-sz62Nc.js",
+          "resourceType": "Script",
+          "transferSizeKb": 4.7,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Preloader.astro_astro_type_script_index_0_lang.Ch3Pop8p.js",
+          "resourceType": "Script",
+          "transferSizeKb": 3.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Domains_Phone.astro_astro_type_script_index_0_lang.Bva3wuk6.js",
+          "resourceType": "Script",
+          "transferSizeKb": 3.2,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Header.astro_astro_type_script_index_0_lang.DJd6t-G-.js",
+          "resourceType": "Script",
+          "transferSizeKb": 2.5,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Blogs.astro_astro_type_script_index_0_lang.aFeDO3Hp.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.4,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Board.astro_astro_type_script_index_0_lang.CyHA1Dvz.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.3,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ],
+      "animationScriptRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/lottie_light.COqd-Z14.js",
+          "resourceType": "Script",
+          "transferSizeKb": 45.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/ScrollTrigger.Cv03IO65.js",
+          "resourceType": "Script",
+          "transferSizeKb": 18.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ]
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "requestedUrl": "https://www.acmvit.in/",
+      "fetchTime": "2026-04-21T16:53:59.701Z",
+      "performanceScore": 66,
+      "metrics": {
+        "fcpMs": 2434,
+        "lcpMs": 5043,
+        "speedIndexMs": 3183,
+        "tbtMs": 419,
+        "cls": 0.079
+      },
+      "byteWeight": {
+        "totalMb": 89.8,
+        "scriptKb": 123.5,
+        "fontKb": 97.2,
+        "imageMb": 74.2,
+        "mediaMb": 15.3
+      },
+      "requestCounts": {
+        "total": 117,
+        "scripts": 20,
+        "fonts": 8,
+        "stylesheets": 2
+      },
+      "taskCounts": {
+        "totalTasks": 8615,
+        "tasksOver10ms": 31,
+        "tasksOver25ms": 8,
+        "tasksOver50ms": 3,
+        "totalTaskTimeMs": 3962.5
+      },
+      "bootupTimeMs": 2125,
+      "mainThreadBreakdown": [
+        {
+          "groupLabel": "Other",
+          "durationMs": 6920.1
+        },
+        {
+          "groupLabel": "Style & Layout",
+          "durationMs": 4698.1
+        },
+        {
+          "groupLabel": "Script Evaluation",
+          "durationMs": 2151.5
+        },
+        {
+          "groupLabel": "Rendering",
+          "durationMs": 1983.6
+        },
+        {
+          "groupLabel": "Parse HTML & CSS",
+          "durationMs": 59.4
+        },
+        {
+          "groupLabel": "Garbage Collection",
+          "durationMs": 29.1
+        },
+        {
+          "groupLabel": "Script Parsing & Compilation",
+          "durationMs": 8.1
+        }
+      ],
+      "topRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/ACM_25%20Board%20pics/_DSC0054.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 15308.5,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Reverse%20Coding/DSC_0254.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 12298.3,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://www.acmvit.in/ACMWebsiteVid.webm",
+          "resourceType": "Media",
+          "transferSizeKb": 8937.7,
+          "statusCode": 206,
+          "mimeType": "video/webm"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Women_s%20day/DSC02591.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 7849.1,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Women_s%20day/DSC02199.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 7689,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://www.acmvit.in/ACMWebsiteVid.webm",
+          "resourceType": "Media",
+          "transferSizeKb": 6779,
+          "statusCode": 206,
+          "mimeType": "video/webm"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Turf/IMG_8061.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 5116.3,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/ACM_25%20Board%20pics/IMG_20250228_222031430.jpg",
+          "resourceType": "Image",
+          "transferSizeKb": 2938.5,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Reverse%20Coding/20250207_114342.jpg",
+          "resourceType": "Image",
+          "transferSizeKb": 2898.1,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Nightslip/DSC00816.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 2519.9,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        }
+      ],
+      "topScriptRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/lottie_light.COqd-Z14.js",
+          "resourceType": "Script",
+          "transferSizeKb": 45.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/index.tUWw1UFN.js",
+          "resourceType": "Script",
+          "transferSizeKb": 27.2,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/ScrollTrigger.Cv03IO65.js",
+          "resourceType": "Script",
+          "transferSizeKb": 18.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/SWork.astro_astro_type_script_index_0_lang.BYuXfOUN.js",
+          "resourceType": "Script",
+          "transferSizeKb": 5.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/hero.astro_astro_type_script_index_0_lang.D-sz62Nc.js",
+          "resourceType": "Script",
+          "transferSizeKb": 4.7,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Preloader.astro_astro_type_script_index_0_lang.Ch3Pop8p.js",
+          "resourceType": "Script",
+          "transferSizeKb": 3.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Domains_Phone.astro_astro_type_script_index_0_lang.Bva3wuk6.js",
+          "resourceType": "Script",
+          "transferSizeKb": 3.2,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Header.astro_astro_type_script_index_0_lang.DJd6t-G-.js",
+          "resourceType": "Script",
+          "transferSizeKb": 2.5,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Blogs.astro_astro_type_script_index_0_lang.aFeDO3Hp.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.4,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Board.astro_astro_type_script_index_0_lang.CyHA1Dvz.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.3,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ],
+      "animationScriptRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/lottie_light.COqd-Z14.js",
+          "resourceType": "Script",
+          "transferSizeKb": 45.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/ScrollTrigger.Cv03IO65.js",
+          "resourceType": "Script",
+          "transferSizeKb": 18.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ]
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "requestedUrl": "https://www.acmvit.in/",
+      "fetchTime": "2026-04-21T16:54:29.506Z",
+      "performanceScore": 68,
+      "metrics": {
+        "fcpMs": 3255,
+        "lcpMs": 4447,
+        "speedIndexMs": 3660,
+        "tbtMs": 322,
+        "cls": 0.087
+      },
+      "byteWeight": {
+        "totalMb": 89.6,
+        "scriptKb": 123.5,
+        "fontKb": 97.2,
+        "imageMb": 74.2,
+        "mediaMb": 15.1
+      },
+      "requestCounts": {
+        "total": 117,
+        "scripts": 20,
+        "fonts": 8,
+        "stylesheets": 2
+      },
+      "taskCounts": {
+        "totalTasks": 8344,
+        "tasksOver10ms": 29,
+        "tasksOver25ms": 12,
+        "tasksOver50ms": 4,
+        "totalTaskTimeMs": 4219.7
+      },
+      "bootupTimeMs": 2473,
+      "mainThreadBreakdown": [
+        {
+          "groupLabel": "Other",
+          "durationMs": 7154.9
+        },
+        {
+          "groupLabel": "Style & Layout",
+          "durationMs": 5067.5
+        },
+        {
+          "groupLabel": "Script Evaluation",
+          "durationMs": 2503.9
+        },
+        {
+          "groupLabel": "Rendering",
+          "durationMs": 2035.7
+        },
+        {
+          "groupLabel": "Parse HTML & CSS",
+          "durationMs": 56.6
+        },
+        {
+          "groupLabel": "Garbage Collection",
+          "durationMs": 54
+        },
+        {
+          "groupLabel": "Script Parsing & Compilation",
+          "durationMs": 6
+        }
+      ],
+      "topRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/ACM_25%20Board%20pics/_DSC0054.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 15308.3,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Reverse%20Coding/DSC_0254.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 12298.1,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://www.acmvit.in/ACMWebsiteVid.webm",
+          "resourceType": "Media",
+          "transferSizeKb": 10577.8,
+          "statusCode": 206,
+          "mimeType": "video/webm"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Women_s%20day/DSC02591.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 7849,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Women_s%20day/DSC02199.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 7688.8,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Turf/IMG_8061.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 5116.1,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://www.acmvit.in/ACMWebsiteVid.webm",
+          "resourceType": "Media",
+          "transferSizeKb": 4882.8,
+          "statusCode": 206,
+          "mimeType": "video/webm"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/ACM_25%20Board%20pics/IMG_20250228_222031430.jpg",
+          "resourceType": "Image",
+          "transferSizeKb": 2938.5,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Reverse%20Coding/20250207_114342.jpg",
+          "resourceType": "Image",
+          "transferSizeKb": 2897.8,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Nightslip/DSC00816.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 2519.9,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        }
+      ],
+      "topScriptRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/lottie_light.COqd-Z14.js",
+          "resourceType": "Script",
+          "transferSizeKb": 45.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/index.tUWw1UFN.js",
+          "resourceType": "Script",
+          "transferSizeKb": 27.2,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/ScrollTrigger.Cv03IO65.js",
+          "resourceType": "Script",
+          "transferSizeKb": 18.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/SWork.astro_astro_type_script_index_0_lang.BYuXfOUN.js",
+          "resourceType": "Script",
+          "transferSizeKb": 5.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/hero.astro_astro_type_script_index_0_lang.D-sz62Nc.js",
+          "resourceType": "Script",
+          "transferSizeKb": 4.7,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Preloader.astro_astro_type_script_index_0_lang.Ch3Pop8p.js",
+          "resourceType": "Script",
+          "transferSizeKb": 3.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Domains_Phone.astro_astro_type_script_index_0_lang.Bva3wuk6.js",
+          "resourceType": "Script",
+          "transferSizeKb": 3.2,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Header.astro_astro_type_script_index_0_lang.DJd6t-G-.js",
+          "resourceType": "Script",
+          "transferSizeKb": 2.5,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Blogs.astro_astro_type_script_index_0_lang.aFeDO3Hp.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.4,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Board.astro_astro_type_script_index_0_lang.CyHA1Dvz.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.3,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ],
+      "animationScriptRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/lottie_light.COqd-Z14.js",
+          "resourceType": "Script",
+          "transferSizeKb": 45.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/ScrollTrigger.Cv03IO65.js",
+          "resourceType": "Script",
+          "transferSizeKb": 18.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ]
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "requestedUrl": "https://www.acmvit.in/",
+      "fetchTime": "2026-04-21T16:54:59.541Z",
+      "performanceScore": 70,
+      "metrics": {
+        "fcpMs": 3005,
+        "lcpMs": 4641,
+        "speedIndexMs": 3452,
+        "tbtMs": 273,
+        "cls": 0.079
+      },
+      "byteWeight": {
+        "totalMb": 90,
+        "scriptKb": 123.5,
+        "fontKb": 97.2,
+        "imageMb": 74.2,
+        "mediaMb": 15.5
+      },
+      "requestCounts": {
+        "total": 117,
+        "scripts": 20,
+        "fonts": 8,
+        "stylesheets": 2
+      },
+      "taskCounts": {
+        "totalTasks": 8140,
+        "tasksOver10ms": 29,
+        "tasksOver25ms": 6,
+        "tasksOver50ms": 3,
+        "totalTaskTimeMs": 4377.3
+      },
+      "bootupTimeMs": 2249,
+      "mainThreadBreakdown": [
+        {
+          "groupLabel": "Other",
+          "durationMs": 7753.7
+        },
+        {
+          "groupLabel": "Style & Layout",
+          "durationMs": 5100.4
+        },
+        {
+          "groupLabel": "Script Evaluation",
+          "durationMs": 2314.1
+        },
+        {
+          "groupLabel": "Rendering",
+          "durationMs": 2235.2
+        },
+        {
+          "groupLabel": "Parse HTML & CSS",
+          "durationMs": 61.3
+        },
+        {
+          "groupLabel": "Garbage Collection",
+          "durationMs": 38.5
+        },
+        {
+          "groupLabel": "Script Parsing & Compilation",
+          "durationMs": 6
+        }
+      ],
+      "topRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/ACM_25%20Board%20pics/_DSC0054.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 15308.3,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Reverse%20Coding/DSC_0254.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 12298.2,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://www.acmvit.in/ACMWebsiteVid.webm",
+          "resourceType": "Media",
+          "transferSizeKb": 8648.1,
+          "statusCode": 206,
+          "mimeType": "video/webm"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Women_s%20day/DSC02591.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 7849,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Women_s%20day/DSC02199.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 7688.8,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://www.acmvit.in/ACMWebsiteVid.webm",
+          "resourceType": "Media",
+          "transferSizeKb": 7247.8,
+          "statusCode": 206,
+          "mimeType": "video/webm"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Turf/IMG_8061.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 5116.1,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/ACM_25%20Board%20pics/IMG_20250228_222031430.jpg",
+          "resourceType": "Image",
+          "transferSizeKb": 2938.5,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Reverse%20Coding/20250207_114342.jpg",
+          "resourceType": "Image",
+          "transferSizeKb": 2897.8,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/gallery/Nightslip/DSC00816.JPG",
+          "resourceType": "Image",
+          "transferSizeKb": 2519.9,
+          "statusCode": 200,
+          "mimeType": "image/jpeg"
+        }
+      ],
+      "topScriptRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/lottie_light.COqd-Z14.js",
+          "resourceType": "Script",
+          "transferSizeKb": 45.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/index.tUWw1UFN.js",
+          "resourceType": "Script",
+          "transferSizeKb": 27.2,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/ScrollTrigger.Cv03IO65.js",
+          "resourceType": "Script",
+          "transferSizeKb": 18.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/SWork.astro_astro_type_script_index_0_lang.BYuXfOUN.js",
+          "resourceType": "Script",
+          "transferSizeKb": 5.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/hero.astro_astro_type_script_index_0_lang.D-sz62Nc.js",
+          "resourceType": "Script",
+          "transferSizeKb": 4.7,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Preloader.astro_astro_type_script_index_0_lang.Ch3Pop8p.js",
+          "resourceType": "Script",
+          "transferSizeKb": 3.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Domains_Phone.astro_astro_type_script_index_0_lang.Bva3wuk6.js",
+          "resourceType": "Script",
+          "transferSizeKb": 3.2,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Header.astro_astro_type_script_index_0_lang.DJd6t-G-.js",
+          "resourceType": "Script",
+          "transferSizeKb": 2.5,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Blogs.astro_astro_type_script_index_0_lang.aFeDO3Hp.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.4,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/Board.astro_astro_type_script_index_0_lang.CyHA1Dvz.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.3,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ],
+      "animationScriptRequests": [
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/lottie_light.COqd-Z14.js",
+          "resourceType": "Script",
+          "transferSizeKb": 45.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "https://d3nq00vfgndsnf.cloudfront.net/_astro/ScrollTrigger.Cv03IO65.js",
+          "resourceType": "Script",
+          "transferSizeKb": 18.1,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ]
+    }
+  ],
+  "averages": {
+    "performanceScore": 66.4,
+    "fcpMs": 3176,
+    "lcpMs": 4856,
+    "speedIndexMs": 3921,
+    "tbtMs": 322,
+    "cls": 0.081,
+    "totalMb": 89.7
+  },
+  "medians": {
+    "performanceScore": 68,
+    "fcpMs": 3255,
+    "lcpMs": 4707,
+    "speedIndexMs": 3660,
+    "tbtMs": 322,
+    "cls": 0.079,
+    "totalMb": 89.8
+  }
+}

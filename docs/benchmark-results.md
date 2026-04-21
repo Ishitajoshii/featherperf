@@ -7,33 +7,46 @@
 - Why it fits: the homepage ships GSAP across multiple sections, uses `ScrollTrigger`, and includes a Lottie-based preloader
 - Why it is not a clean-only-JS benchmark: transfer weight is dominated by rich media, especially the hero video and gallery images
 
-## 3x Lighthouse Baseline
+## Tightened Baseline Method
 
-All runs were captured on 2026-04-21 with Lighthouse mobile defaults and local Chrome.
+This baseline supersedes the earlier 3-run snapshot.
+
+- Date: `2026-04-21`
+- Target: `https://www.acmvit.in/`
+- Browser: local Chrome
+- Lighthouse mode: mobile defaults
+- Storage reset: enabled
+- Browser isolation: fresh Chrome profile per run
+- Run count: `5`
+- Reported aggregate: `median`
+
+## 5x Lighthouse Baseline
 
 | Run | Performance | FCP | LCP | TBT | Speed Index | CLS | Total Bytes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 45 | 3.76 s | 5.42 s | 912 ms | 6.45 s | 0.079 | 108.9 MB |
-| 2 | 40 | 4.75 s | 5.68 s | 578 ms | 8.41 s | 0.169 | 108.1 MB |
-| 3 | 49 | 4.20 s | 5.49 s | 593 ms | 6.63 s | 0.079 | 108.9 MB |
-| Avg | 44.7 | 4.24 s | 5.53 s | 694 ms | 7.16 s | 0.109 | 108.6 MB |
+| 1 | 70 | 3.27 s | 4.71 s | 225 ms | 3.70 s | 0.079 | 90.0 MB |
+| 2 | 58 | 3.92 s | 5.44 s | 371 ms | 5.61 s | 0.079 | 89.2 MB |
+| 3 | 66 | 2.43 s | 5.04 s | 419 ms | 3.18 s | 0.079 | 89.8 MB |
+| 4 | 68 | 3.26 s | 4.45 s | 322 ms | 3.66 s | 0.087 | 89.6 MB |
+| 5 | 70 | 3.00 s | 4.64 s | 273 ms | 3.45 s | 0.079 | 90.0 MB |
+| Median | 68 | 3.26 s | 4.71 s | 322 ms | 3.66 s | 0.079 | 89.8 MB |
 
 ## Bottleneck Readout
 
-### Transfer mix from run 1
+### Transfer mix from the median baseline band
 
-- Images: 93.1 MB
-- Media: 15.5 MB
+- Images: about `74.2 MB`
+- Media: about `15.5 MB`
 - Scripts: 123.5 KB
 - Fonts: 97.2 KB
 
-### Main-thread cost from run 1
+### Main-thread cost from the median baseline band
 
-- Bootup time: 6.3 s
-- Total task time: 12.5 s
-- Script evaluation: 6343.6 ms
-- Style and layout: 14510.2 ms
-- Rendering: 5839.2 ms
+- Bootup time: about `2.2 s` to `2.5 s`
+- Total task time: about `4.0 s` to `4.2 s`
+- Script evaluation: about `2.2 s` to `2.5 s`
+- Style and layout: about `4.7 s` to `5.1 s`
+- Rendering: about `2.0 s` to `2.2 s`
 
 ## What This Means for Framing
 
@@ -44,6 +57,8 @@ All runs were captured on 2026-04-21 with Lighthouse mobile defaults and local C
 - Featherperf should stay framed as **smart resource allocation for motion-heavy Astro/Vite pages**, not generic performance optimization.
 - For the MVP, the measurable first win should be moving non-critical GSAP/Lottie/ScrollTrigger work off the critical path and tracking FCP plus TBT as primary proof points.
 - LCP gains on ACM-VIT may be capped unless the site also changes how the hero video and below-the-fold media are scheduled.
+- The tightened method reduces the “warm browser” objection:
+  each Lighthouse pass used a fresh Chrome profile and the recorded baseline is the median of 5 runs, not a single favorable sample.
 
 ## Verified Animation Assets
 
@@ -56,8 +71,8 @@ Observed in the baseline page source and first-load script graph:
 
 ## Saved Artifacts
 
-- Reports: `packages/bench/results/acmvit-baseline/run-{1,2,3}.report.{html,json}`
-- Summary: `packages/bench/results/acmvit-baseline/summary.json`
+- Reports: `packages/bench/results/acmvit-baseline-fresh-5x/run-{1,2,3,4,5}.report.{html,json}`
+- Summary: `packages/bench/results/acmvit-baseline-fresh-5x/summary.json`
 - Screenshots:
-  `packages/bench/results/acmvit-baseline/screenshots/desktop-home.png`
-  `packages/bench/results/acmvit-baseline/screenshots/mobile-home.png`
+  `packages/bench/results/acmvit-baseline-fresh-5x/screenshots/desktop-home.png`
+  `packages/bench/results/acmvit-baseline-fresh-5x/screenshots/mobile-home.png`

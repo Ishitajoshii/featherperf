@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
@@ -18,7 +19,8 @@ function parseArgs(argv) {
     chromePath: process.env.LIGHTHOUSE_CHROME_PATH ?? null,
     resultsDir: resultsRoot,
     saveAssets: true,
-    screenshots: true
+    screenshots: true,
+    freshProfile: false
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -44,6 +46,8 @@ function parseArgs(argv) {
       args.saveAssets = false;
     } else if (arg === "--skip-screenshots") {
       args.screenshots = false;
+    } else if (arg === "--fresh-profile") {
+      args.freshProfile = true;
     }
   }
 
@@ -97,6 +101,8 @@ async function saveScreenshots(chromePath, url, outputDir) {
       "--headless=new",
       "--disable-gpu",
       "--hide-scrollbars",
+      "--virtual-time-budget=10000",
+      "--run-all-compositor-stages-before-draw",
       "--window-size=1440,2200",
       `--screenshot=${desktopScreenshot}`,
       url
@@ -110,12 +116,19 @@ async function saveScreenshots(chromePath, url, outputDir) {
       "--headless=new",
       "--disable-gpu",
       "--hide-scrollbars",
+      "--virtual-time-budget=10000",
+      "--run-all-compositor-stages-before-draw",
       "--window-size=390,1600",
       `--screenshot=${mobileScreenshot}`,
       url
     ],
     "mobile screenshot"
   );
+}
+
+async function createFreshProfileDir() {
+  const tempRoot = path.join(os.tmpdir(), "featherperf-lighthouse-");
+  return mkdtemp(tempRoot);
 }
 
 async function main() {
@@ -150,7 +163,20 @@ async function main() {
     }
 
     console.log(`Running Lighthouse pass ${runNumber}/${args.runs}...`);
-    await runProcess(process.execPath, lighthouseArgs, `lighthouse run ${runNumber}`);
+    let freshProfileDir = null;
+
+    try {
+      if (args.freshProfile) {
+        freshProfileDir = await createFreshProfileDir();
+        lighthouseArgs.push(`--chrome-flags=--user-data-dir=${freshProfileDir}`);
+      }
+
+      await runProcess(process.execPath, lighthouseArgs, `lighthouse run ${runNumber}`);
+    } finally {
+      if (freshProfileDir) {
+        await rm(freshProfileDir, { recursive: true, force: true });
+      }
+    }
   }
 
   if (args.screenshots) {
@@ -169,6 +195,13 @@ async function main() {
     url: args.url,
     chromePath,
     generatedAt: new Date().toISOString(),
+    method: {
+      runs: args.runs,
+      freshProfilePerRun: args.freshProfile,
+      screenshotsCaptured: args.screenshots,
+      lighthouseStorageReset: true,
+      aggregation: "median"
+    },
     ...summarizeRuns(reports)
   };
 
@@ -176,7 +209,7 @@ async function main() {
   await writeFile(summaryPath, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
 
   console.log(`Saved summary to ${summaryPath}`);
-  console.log(JSON.stringify(summary.averages, null, 2));
+  console.log(JSON.stringify(summary.medians, null, 2));
 }
 
 main().catch((error) => {
