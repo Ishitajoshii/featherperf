@@ -25,6 +25,8 @@ yarn-error.log*
 baseline.json
 baseline-*.json
 lighthouse-*.json
+*.trace.json
+*.devtoolslog.json
 
 # PRD drafts
 prd.md

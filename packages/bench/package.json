@@ -5,5 +5,8 @@
   "type": "module",
   "scripts": {
     "bench": "node src/run-benchmark.mjs"
+  },
+  "devDependencies": {
+    "lighthouse": "^13.1.0"
   }
 }
