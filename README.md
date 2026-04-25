@@ -8,6 +8,12 @@ Secondary validation target: `https://www.acmvit.in/`
 
 The project is being framed around smart resource allocation for motion-heavy Astro/Vite sites, starting with GSAP, ScrollTrigger, and Lottie deferral backed by Lighthouse baselines.
 
+Current locked MVP scope:
+
+- target only `gsap`, `ScrollTrigger`, and `lottie-web`
+- only defer safe, non-critical client modules
+- ignore everything else for now
+
 ## Benchmark Workflow
 
 Use the local benchmark as the default proof because it removes CDN, network, and remote-server variance while keeping Lighthouse's mobile throttling model.

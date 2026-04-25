@@ -8,6 +8,8 @@ coverage/
 .cache/
 .astro/
 .vite/
+demo/site/dist-featherperf-off/
+demo/site/dist-featherperf-on/
 
 # Logs
 *.log
@@ -27,6 +29,7 @@ baseline-*.json
 lighthouse-*.json
 *.trace.json
 *.devtoolslog.json
+packages/bench/results/*/screenshots/
 
 # PRD drafts
 prd.md

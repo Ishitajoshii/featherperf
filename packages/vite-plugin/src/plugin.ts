@@ -143,6 +143,12 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
         }
 
         candidates.push(...createCandidates(index, detectedImport, detectedImport.bindings));
+
+        if (options.debug) {
+          this.warn(
+            `${PLUGIN_NAME}: detected ${path.relative(process.cwd(), stripQuery(resolvedImport.id))} via ${source}`
+          );
+        }
       }
 
       const transformed = transformCode(code, candidates, options);
@@ -151,7 +157,10 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
       }
 
       if (options.debug) {
-        this.warn(`${PLUGIN_NAME}: deferred ${path.relative(process.cwd(), cleanId)}`);
+        const deferredTargets = candidates.map((candidate) => candidate.source).join(', ');
+        this.warn(
+          `${PLUGIN_NAME}: deferred ${path.relative(process.cwd(), cleanId)} -> ${deferredTargets}`
+        );
       }
 
       return {

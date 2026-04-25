@@ -1,5 +1,17 @@
 import { defineConfig } from 'astro/config';
+import { featherperf } from '@featherperf/vite-plugin';
+
+const featherperfFlag = process.env.FEATHERPERF ?? 'off';
+const featherperfEnabled = featherperfFlag === 'on';
 
 export default defineConfig({
-  // Astro configuration
+  vite: {
+    plugins: featherperfEnabled
+      ? [
+          featherperf({
+            debug: true
+          })
+        ]
+      : []
+  }
 });

@@ -11,6 +11,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@featherperf/vite-plugin": "workspace:*",
     "astro": "^4.0.0",
     "gsap": "^3.13.0",
     "lottie-web": "^5.12.2"
