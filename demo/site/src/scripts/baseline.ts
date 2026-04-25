@@ -9,11 +9,17 @@ function runCpuWarmup(iterations = 1_500_000): number {
   return checksum;
 }
 
-export function runBaselineAnimations(): void {
-  const tiles = Array.from(document.querySelectorAll<HTMLElement>('.orb'));
-  const host = document.querySelector<HTMLElement>('#lottie-host');
+export function runBaselineAnimations(rootSelector = '#deferred-showcase'): void {
+  const root = document.querySelector<HTMLElement>(rootSelector);
+  const scope = root?.parentElement?.parentElement ?? document;
+  const tiles = Array.from(scope.querySelectorAll<HTMLElement>('.orb'));
+  const host = scope.querySelector<HTMLElement>('#lottie-host');
 
-  // Intentionally front-load animation library work to create a measurable baseline.
+  if (!root || tiles.length === 0 || !host) {
+    return;
+  }
+
+  // Intentionally heavy work, but scoped to a section that should be considered non-critical.
   const checksum = runCpuWarmup();
 
   gsap.set(tiles, { opacity: 0, y: 26, rotateZ: -1.5 });

@@ -1,0 +1,568 @@
+{
+  "label": "local-featherperf-viewport-on-fresh-5x",
+  "url": "http://127.0.0.1:4321/",
+  "chromePath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "generatedAt": "2026-04-25T06:59:31.550Z",
+  "method": {
+    "runs": 5,
+    "freshProfilePerRun": true,
+    "screenshotsCaptured": true,
+    "lighthouseStorageReset": true,
+    "aggregation": "median"
+  },
+  "runs": [
+    {
+      "lighthouseVersion": "13.1.0",
+      "requestedUrl": "http://127.0.0.1:4321/",
+      "fetchTime": "2026-04-25T06:58:25.386Z",
+      "performanceScore": 89,
+      "metrics": {
+        "fcpMs": 1811,
+        "lcpMs": 2863,
+        "speedIndexMs": 1811,
+        "tbtMs": 247,
+        "cls": 0
+      },
+      "byteWeight": {
+        "totalMb": 0.4,
+        "scriptKb": 386.6,
+        "fontKb": 0,
+        "imageMb": 0,
+        "mediaMb": 0
+      },
+      "requestCounts": {
+        "total": 4,
+        "scripts": 2,
+        "fonts": 0,
+        "stylesheets": 0
+      },
+      "taskCounts": {
+        "totalTasks": 661,
+        "tasksOver10ms": 2,
+        "tasksOver25ms": 2,
+        "tasksOver50ms": 1,
+        "totalTaskTimeMs": 390.7
+      },
+      "bootupTimeMs": 531,
+      "mainThreadBreakdown": [
+        {
+          "groupLabel": "Other",
+          "durationMs": 581.4
+        },
+        {
+          "groupLabel": "Script Evaluation",
+          "durationMs": 536.6
+        },
+        {
+          "groupLabel": "Style & Layout",
+          "durationMs": 227.2
+        },
+        {
+          "groupLabel": "Rendering",
+          "durationMs": 207.7
+        },
+        {
+          "groupLabel": "Parse HTML & CSS",
+          "durationMs": 6
+        },
+        {
+          "groupLabel": "Script Parsing & Compilation",
+          "durationMs": 3.8
+        }
+      ],
+      "topRequests": [
+        {
+          "url": "http://127.0.0.1:4321/_astro/baseline.mNpi0xwj.js",
+          "resourceType": "Script",
+          "transferSizeKb": 384.8,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/",
+          "resourceType": "Document",
+          "transferSizeKb": 9.4,
+          "statusCode": 200,
+          "mimeType": "text/html"
+        },
+        {
+          "url": "http://127.0.0.1:4321/_astro/hoisted.Cb7vwDoP.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/favicon.ico",
+          "resourceType": "Other",
+          "transferSizeKb": 0.2,
+          "statusCode": 404,
+          "mimeType": "text/plain"
+        }
+      ],
+      "topScriptRequests": [
+        {
+          "url": "http://127.0.0.1:4321/_astro/baseline.mNpi0xwj.js",
+          "resourceType": "Script",
+          "transferSizeKb": 384.8,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/_astro/hoisted.Cb7vwDoP.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ],
+      "animationScriptRequests": []
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "requestedUrl": "http://127.0.0.1:4321/",
+      "fetchTime": "2026-04-25T06:58:38.613Z",
+      "performanceScore": 91,
+      "metrics": {
+        "fcpMs": 1807,
+        "lcpMs": 2859,
+        "speedIndexMs": 1807,
+        "tbtMs": 203,
+        "cls": 0
+      },
+      "byteWeight": {
+        "totalMb": 0.4,
+        "scriptKb": 386.6,
+        "fontKb": 0,
+        "imageMb": 0,
+        "mediaMb": 0
+      },
+      "requestCounts": {
+        "total": 4,
+        "scripts": 2,
+        "fonts": 0,
+        "stylesheets": 0
+      },
+      "taskCounts": {
+        "totalTasks": 671,
+        "tasksOver10ms": 2,
+        "tasksOver25ms": 2,
+        "tasksOver50ms": 1,
+        "totalTaskTimeMs": 412.4
+      },
+      "bootupTimeMs": 556,
+      "mainThreadBreakdown": [
+        {
+          "groupLabel": "Other",
+          "durationMs": 603.1
+        },
+        {
+          "groupLabel": "Script Evaluation",
+          "durationMs": 561.4
+        },
+        {
+          "groupLabel": "Style & Layout",
+          "durationMs": 240.8
+        },
+        {
+          "groupLabel": "Rendering",
+          "durationMs": 235.6
+        },
+        {
+          "groupLabel": "Parse HTML & CSS",
+          "durationMs": 5.3
+        },
+        {
+          "groupLabel": "Script Parsing & Compilation",
+          "durationMs": 3.3
+        }
+      ],
+      "topRequests": [
+        {
+          "url": "http://127.0.0.1:4321/_astro/baseline.mNpi0xwj.js",
+          "resourceType": "Script",
+          "transferSizeKb": 384.8,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/",
+          "resourceType": "Document",
+          "transferSizeKb": 9.4,
+          "statusCode": 200,
+          "mimeType": "text/html"
+        },
+        {
+          "url": "http://127.0.0.1:4321/_astro/hoisted.Cb7vwDoP.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/favicon.ico",
+          "resourceType": "Other",
+          "transferSizeKb": 0.2,
+          "statusCode": 404,
+          "mimeType": "text/plain"
+        }
+      ],
+      "topScriptRequests": [
+        {
+          "url": "http://127.0.0.1:4321/_astro/baseline.mNpi0xwj.js",
+          "resourceType": "Script",
+          "transferSizeKb": 384.8,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/_astro/hoisted.Cb7vwDoP.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ],
+      "animationScriptRequests": []
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "requestedUrl": "http://127.0.0.1:4321/",
+      "fetchTime": "2026-04-25T06:58:52.223Z",
+      "performanceScore": 89,
+      "metrics": {
+        "fcpMs": 1846,
+        "lcpMs": 3047,
+        "speedIndexMs": 1846,
+        "tbtMs": 215,
+        "cls": 0
+      },
+      "byteWeight": {
+        "totalMb": 0.4,
+        "scriptKb": 386.6,
+        "fontKb": 0,
+        "imageMb": 0,
+        "mediaMb": 0
+      },
+      "requestCounts": {
+        "total": 4,
+        "scripts": 2,
+        "fonts": 0,
+        "stylesheets": 0
+      },
+      "taskCounts": {
+        "totalTasks": 663,
+        "tasksOver10ms": 3,
+        "tasksOver25ms": 2,
+        "tasksOver50ms": 1,
+        "totalTaskTimeMs": 417.1
+      },
+      "bootupTimeMs": 574,
+      "mainThreadBreakdown": [
+        {
+          "groupLabel": "Other",
+          "durationMs": 596.2
+        },
+        {
+          "groupLabel": "Script Evaluation",
+          "durationMs": 580.4
+        },
+        {
+          "groupLabel": "Style & Layout",
+          "durationMs": 249.5
+        },
+        {
+          "groupLabel": "Rendering",
+          "durationMs": 233.8
+        },
+        {
+          "groupLabel": "Parse HTML & CSS",
+          "durationMs": 4.5
+        },
+        {
+          "groupLabel": "Script Parsing & Compilation",
+          "durationMs": 3.9
+        }
+      ],
+      "topRequests": [
+        {
+          "url": "http://127.0.0.1:4321/_astro/baseline.mNpi0xwj.js",
+          "resourceType": "Script",
+          "transferSizeKb": 384.8,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/",
+          "resourceType": "Document",
+          "transferSizeKb": 9.4,
+          "statusCode": 200,
+          "mimeType": "text/html"
+        },
+        {
+          "url": "http://127.0.0.1:4321/_astro/hoisted.Cb7vwDoP.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/favicon.ico",
+          "resourceType": "Other",
+          "transferSizeKb": 0.2,
+          "statusCode": 404,
+          "mimeType": "text/plain"
+        }
+      ],
+      "topScriptRequests": [
+        {
+          "url": "http://127.0.0.1:4321/_astro/baseline.mNpi0xwj.js",
+          "resourceType": "Script",
+          "transferSizeKb": 384.8,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/_astro/hoisted.Cb7vwDoP.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ],
+      "animationScriptRequests": []
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "requestedUrl": "http://127.0.0.1:4321/",
+      "fetchTime": "2026-04-25T06:59:05.850Z",
+      "performanceScore": 92,
+      "metrics": {
+        "fcpMs": 1806,
+        "lcpMs": 2857,
+        "speedIndexMs": 1806,
+        "tbtMs": 188,
+        "cls": 0
+      },
+      "byteWeight": {
+        "totalMb": 0.4,
+        "scriptKb": 386.6,
+        "fontKb": 0,
+        "imageMb": 0,
+        "mediaMb": 0
+      },
+      "requestCounts": {
+        "total": 4,
+        "scripts": 2,
+        "fonts": 0,
+        "stylesheets": 0
+      },
+      "taskCounts": {
+        "totalTasks": 659,
+        "tasksOver10ms": 2,
+        "tasksOver25ms": 2,
+        "tasksOver50ms": 1,
+        "totalTaskTimeMs": 408
+      },
+      "bootupTimeMs": 533,
+      "mainThreadBreakdown": [
+        {
+          "groupLabel": "Other",
+          "durationMs": 611.4
+        },
+        {
+          "groupLabel": "Script Evaluation",
+          "durationMs": 539.3
+        },
+        {
+          "groupLabel": "Style & Layout",
+          "durationMs": 242.5
+        },
+        {
+          "groupLabel": "Rendering",
+          "durationMs": 229.7
+        },
+        {
+          "groupLabel": "Parse HTML & CSS",
+          "durationMs": 5.5
+        },
+        {
+          "groupLabel": "Script Parsing & Compilation",
+          "durationMs": 3.7
+        }
+      ],
+      "topRequests": [
+        {
+          "url": "http://127.0.0.1:4321/_astro/baseline.mNpi0xwj.js",
+          "resourceType": "Script",
+          "transferSizeKb": 384.8,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/",
+          "resourceType": "Document",
+          "transferSizeKb": 9.4,
+          "statusCode": 200,
+          "mimeType": "text/html"
+        },
+        {
+          "url": "http://127.0.0.1:4321/_astro/hoisted.Cb7vwDoP.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/favicon.ico",
+          "resourceType": "Other",
+          "transferSizeKb": 0.2,
+          "statusCode": 404,
+          "mimeType": "text/plain"
+        }
+      ],
+      "topScriptRequests": [
+        {
+          "url": "http://127.0.0.1:4321/_astro/baseline.mNpi0xwj.js",
+          "resourceType": "Script",
+          "transferSizeKb": 384.8,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/_astro/hoisted.Cb7vwDoP.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ],
+      "animationScriptRequests": []
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "requestedUrl": "http://127.0.0.1:4321/",
+      "fetchTime": "2026-04-25T06:59:19.496Z",
+      "performanceScore": 91,
+      "metrics": {
+        "fcpMs": 1806,
+        "lcpMs": 2857,
+        "speedIndexMs": 1806,
+        "tbtMs": 206,
+        "cls": 0
+      },
+      "byteWeight": {
+        "totalMb": 0.4,
+        "scriptKb": 386.6,
+        "fontKb": 0,
+        "imageMb": 0,
+        "mediaMb": 0
+      },
+      "requestCounts": {
+        "total": 4,
+        "scripts": 2,
+        "fonts": 0,
+        "stylesheets": 0
+      },
+      "taskCounts": {
+        "totalTasks": 667,
+        "tasksOver10ms": 2,
+        "tasksOver25ms": 2,
+        "tasksOver50ms": 1,
+        "totalTaskTimeMs": 379.9
+      },
+      "bootupTimeMs": 534,
+      "mainThreadBreakdown": [
+        {
+          "groupLabel": "Other",
+          "durationMs": 557.2
+        },
+        {
+          "groupLabel": "Script Evaluation",
+          "durationMs": 542.6
+        },
+        {
+          "groupLabel": "Style & Layout",
+          "durationMs": 213.4
+        },
+        {
+          "groupLabel": "Rendering",
+          "durationMs": 197
+        },
+        {
+          "groupLabel": "Parse HTML & CSS",
+          "durationMs": 6.4
+        },
+        {
+          "groupLabel": "Script Parsing & Compilation",
+          "durationMs": 3.1
+        }
+      ],
+      "topRequests": [
+        {
+          "url": "http://127.0.0.1:4321/_astro/baseline.mNpi0xwj.js",
+          "resourceType": "Script",
+          "transferSizeKb": 384.8,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/",
+          "resourceType": "Document",
+          "transferSizeKb": 9.4,
+          "statusCode": 200,
+          "mimeType": "text/html"
+        },
+        {
+          "url": "http://127.0.0.1:4321/_astro/hoisted.Cb7vwDoP.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/favicon.ico",
+          "resourceType": "Other",
+          "transferSizeKb": 0.2,
+          "statusCode": 404,
+          "mimeType": "text/plain"
+        }
+      ],
+      "topScriptRequests": [
+        {
+          "url": "http://127.0.0.1:4321/_astro/baseline.mNpi0xwj.js",
+          "resourceType": "Script",
+          "transferSizeKb": 384.8,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        },
+        {
+          "url": "http://127.0.0.1:4321/_astro/hoisted.Cb7vwDoP.js",
+          "resourceType": "Script",
+          "transferSizeKb": 1.9,
+          "statusCode": 200,
+          "mimeType": "text/javascript"
+        }
+      ],
+      "animationScriptRequests": []
+    }
+  ],
+  "averages": {
+    "performanceScore": 90.4,
+    "fcpMs": 1815,
+    "lcpMs": 2897,
+    "speedIndexMs": 1815,
+    "tbtMs": 212,
+    "cls": 0,
+    "totalMb": 0.4
+  },
+  "medians": {
+    "performanceScore": 91,
+    "fcpMs": 1807,
+    "lcpMs": 2859,
+    "speedIndexMs": 1807,
+    "tbtMs": 206,
+    "cls": 0,
+    "totalMb": 0.4
+  }
+}

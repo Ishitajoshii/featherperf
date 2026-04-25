@@ -94,7 +94,79 @@ const cards = Array.from({ length: 84 }, (_, i) => i + 1);
 				color: var(--muted);
 			}
 
+			.hero {
+				min-height: 118vh;
+				display: grid;
+				align-content: start;
+				padding-top: 6vh;
+			}
+
+			.kicker {
+				display: inline-flex;
+				width: fit-content;
+				padding: 0.4rem 0.75rem;
+				border-radius: 999px;
+				background: rgba(255, 255, 255, 0.72);
+				border: 1px solid rgba(30, 29, 31, 0.15);
+				font-size: 0.78rem;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: var(--muted);
+			}
+
+			.lead {
+				margin-top: 18px;
+			}
+
+			.metrics {
+				margin-top: 28px;
+				display: grid;
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				gap: 12px;
+			}
+
+			.metric {
+				padding: 16px;
+				border-radius: 16px;
+				background: rgba(255, 255, 255, 0.58);
+				border: 1px solid rgba(30, 29, 31, 0.14);
+			}
+
+			.metric strong {
+				display: block;
+				font-size: 1.35rem;
+				margin-bottom: 4px;
+			}
+
+			.metric span {
+				font-size: 0.9rem;
+				color: var(--muted);
+			}
+
+			.deferred-shell {
+				margin-top: 18vh;
+				padding-top: 24px;
+				border-top: 1px solid rgba(30, 29, 31, 0.12);
+			}
+
+			.shell-copy {
+				margin-top: 10px;
+				margin-bottom: 18px;
+			}
+
 			@media (max-width: 720px) {
+				.hero {
+					min-height: 138vh;
+				}
+
+				.deferred-shell {
+					margin-top: 24vh;
+				}
+
+				.metrics {
+					grid-template-columns: 1fr;
+				}
+
 				.grid {
 					grid-template-columns: repeat(2, minmax(0, 1fr));
 				}
@@ -103,26 +175,54 @@ const cards = Array.from({ length: 84 }, (_, i) => i + 1);
 	</head>
 	<body>
 		<main>
-			<h1>FeatherPerf Baseline: Intentionally JS-Heavy</h1>
-			<p>
-				This baseline intentionally loads GSAP and Lottie JavaScript on first paint. It has no
-				heavy image assets and no webfont downloads, so most of the overhead should come from JavaScript.
-			</p>
+			<section class="hero">
+				<div class="kicker">Critical content first</div>
+				<h1>FeatherPerf Demo: Below-the-Fold Motion</h1>
+				<p class="lead">
+					The hero stays useful without waiting for GSAP or lottie-web. The heavy motion module
+					belongs to a lower section and should only wake up when that section is close to view.
+				</p>
 
-			<section class="panel">
-				<strong>Animation Mount</strong>
-				<div id="lottie-host">Loading lottie-web...</div>
-				<div class="notice">Used to force Lottie runtime initialization in baseline mode.</div>
+				<div class="metrics">
+					<div class="metric">
+						<strong>FCP</strong>
+						<span>Primary proof for this first win.</span>
+					</div>
+					<div class="metric">
+						<strong>TBT</strong>
+						<span>Needs to improve when the motion code is truly non-critical.</span>
+					</div>
+					<div class="metric">
+						<strong>LCP</strong>
+						<span>Nice to have here, but not the core claim.</span>
+					</div>
+				</div>
 			</section>
 
-			<section class="grid" id="grid">
+			<section class="deferred-shell" id="deferred-showcase">
+				<h2>Deferred Motion Section</h2>
+				<p class="shell-copy">
+					This section is intentionally below the fold. It contains the GSAP tile reveal plus the
+					lottie-web initialization mount used for the benchmark.
+				</p>
+			</section>
+
+			<section class="panel" id="deferred-panel">
+				<strong>Animation Mount</strong>
+				<div id="lottie-host">Loading lottie-web...</div>
+				<div class="notice">
+					Used to force lottie-web runtime initialization only when the deferred section gets close.
+				</div>
+			</section>
+
+			<section class="grid" id="deferred-grid">
 				{cards.map((card) => <div class="orb">Tile {card}</div>)}
 			</section>
 		</main>
 
 		<script>
 			import { runBaselineAnimations } from '../scripts/baseline';
-			runBaselineAnimations();
+			runBaselineAnimations('#deferred-panel');
 		</script>
 	</body>
 </html>

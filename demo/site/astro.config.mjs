@@ -8,8 +8,9 @@ export default defineConfig({
   vite: {
     plugins: featherperfEnabled
       ? [
-          featherperf({
-            debug: true
+        featherperf({
+            debug: true,
+            lookaheadPx: 0
           })
         ]
       : []

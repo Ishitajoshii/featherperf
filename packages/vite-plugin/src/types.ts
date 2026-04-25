@@ -1,6 +1,7 @@
 export interface FeatherPerfOptions {
   debug?: boolean;
   idleTimeoutMs?: number;
+  lookaheadPx?: number;
 }
 
 export type SupportedHeavyPackage = 'gsap' | 'ScrollTrigger' | 'lottie-web';

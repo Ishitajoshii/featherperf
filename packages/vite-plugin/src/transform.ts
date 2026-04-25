@@ -27,12 +27,66 @@ function findDeferredCall(line: string, binding: ImportBinding): { args: string;
   };
 }
 
+function findFirstArgument(args: string): string | null {
+  if (!args.trim()) {
+    return null;
+  }
+
+  let depth = 0;
+  let quote: string | null = null;
+  let escaped = false;
+
+  for (let index = 0; index < args.length; index += 1) {
+    const character = args[index];
+
+    if (quote) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+
+      if (character === '\\') {
+        escaped = true;
+        continue;
+      }
+
+      if (character === quote) {
+        quote = null;
+      }
+
+      continue;
+    }
+
+    if (character === "'" || character === '"' || character === '`') {
+      quote = character;
+      continue;
+    }
+
+    if (character === '(' || character === '[' || character === '{') {
+      depth += 1;
+      continue;
+    }
+
+    if (character === ')' || character === ']' || character === '}') {
+      depth -= 1;
+      continue;
+    }
+
+    if (character === ',' && depth === 0) {
+      return args.slice(0, index).trim();
+    }
+  }
+
+  return args.trim();
+}
+
 function createDeferredReplacement(
   source: string,
   binding: ImportBinding,
   args: string,
   indent: string
 ): string[] {
+  const firstArgument = findFirstArgument(args) ?? 'undefined';
   const importBinding =
     binding.kind === 'default'
       ? `const { default: ${binding.localName} } = await import(${JSON.stringify(source)});`
@@ -41,16 +95,16 @@ function createDeferredReplacement(
   const callExpression = `${binding.localName}(${args});`;
 
   return [
-    `${indent}__featherperfDefer(async () => {`,
+    `${indent}__featherperfDefer(${firstArgument}, async () => {`,
     `${indent}  ${importBinding}`,
     `${indent}  ${callExpression}`,
     `${indent}});`
   ];
 }
 
-function createDeferredHelper(idleTimeoutMs: number): string {
+function createDeferredHelper(idleTimeoutMs: number, lookaheadPx: number): string {
   return [
-    `const __featherperfDefer = (load) => {`,
+    `const __featherperfDefer = (trigger, load) => {`,
     `  const run = () => {`,
     `    void load();`,
     `  };`,
@@ -64,6 +118,22 @@ function createDeferredHelper(idleTimeoutMs: number): string {
     `  if (typeof window === 'undefined') {`,
     `    run();`,
     `    return;`,
+    `  }`,
+    `  if (typeof trigger === 'string' && 'IntersectionObserver' in window) {`,
+    `    const target = document.querySelector(trigger);`,
+    `    if (target) {`,
+    `      const observer = new window.IntersectionObserver(`,
+    `        (entries) => {`,
+    `          if (entries.some((entry) => entry.isIntersecting)) {`,
+    `            observer.disconnect();`,
+    `            run();`,
+    `          }`,
+    `        },`,
+    `        { rootMargin: '0px 0px ${lookaheadPx}px 0px' }`,
+    `      );`,
+    `      observer.observe(target);`,
+    `      return;`,
+    `    }`,
     `  }`,
     `  if (document.readyState === 'complete') {`,
     `    schedule();`,
@@ -122,6 +192,6 @@ export function transformCode(
     return code;
   }
 
-  const helper = createDeferredHelper(options.idleTimeoutMs ?? 1500);
+  const helper = createDeferredHelper(options.idleTimeoutMs ?? 1500, options.lookaheadPx ?? 300);
   return `${helper}\n\n${lines.join('\n')}`;
 }
