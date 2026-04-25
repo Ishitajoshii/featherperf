@@ -1,6 +1,55 @@
 # Benchmark Results
 
-## Baseline Locked: ACM-VIT Homepage
+## Benchmark Policy
+
+- Primary proof: local demo site benchmark via `corepack pnpm bench:local`
+- Why primary: stable, repeatable, and focused on JavaScript scheduling instead of internet or CDN variance
+- Secondary proof: ACM-VIT homepage benchmark via `corepack pnpm bench:acmvit`
+- Why secondary: validates category fit on a real Astro site, but its numbers are materially affected by heavy media payloads and remote delivery
+
+The committed metrics below are the current ACM-VIT secondary-validation baseline captured on `2026-04-21`.
+
+## Primary Local Baseline
+
+- Date: `2026-04-24`
+- Target: `http://127.0.0.1:4321/`
+- Source: production build of `demo/site`
+- Browser: local Chrome
+- Lighthouse mode: mobile defaults
+- Storage reset: enabled
+- Browser isolation: fresh Chrome profile per run
+- Run count: `5`
+- Reported aggregate: `median`
+
+| Metric | Median |
+| --- | --- |
+| Performance | `89` |
+| FCP | `2.705 s` |
+| LCP | `2.944 s` |
+| TBT | `136 ms` |
+| Speed Index | `2.705 s` |
+| CLS | `0` |
+| Total Bytes | `0.4 MB` |
+
+### Local Readout
+
+- Requests: `3` total
+- Dominant transfer: one hoisted client bundle at about `384.6 KB`
+- Images: `0 MB`
+- Media: `0 MB`
+- Fonts: `0 KB`
+- Bootup time band: about `730 ms` to `768 ms`
+- Script evaluation band: about `731 ms` to `768 ms`
+
+### Local Artifacts
+
+- Reports: `packages/bench/results/local-baseline-fresh-5x/run-{1,2,3,4,5}.report.{html,json}`
+- Summary: `packages/bench/results/local-baseline-fresh-5x/summary.json`
+- Screenshots:
+  `packages/bench/results/local-baseline-fresh-5x/screenshots/desktop-home.png`
+  `packages/bench/results/local-baseline-fresh-5x/screenshots/mobile-home.png`
+
+## Secondary Validation Baseline: ACM-VIT Homepage
 
 - Chosen demo site: `https://www.acmvit.in/`
 - Stack fit: Astro site with many client-side islands and `_astro/*.js` bundles

@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "bench": "node src/run-benchmark.mjs"
+    "bench": "node src/run-benchmark.mjs",
+    "bench:local": "node src/run-local-benchmark.mjs",
+    "bench:acmvit": "node src/run-benchmark.mjs --url https://www.acmvit.in/ --label acmvit-baseline-fresh-5x --runs 5 --fresh-profile"
   },
   "devDependencies": {
     "lighthouse": "^13.1.0"

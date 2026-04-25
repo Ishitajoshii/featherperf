@@ -5,6 +5,8 @@
   "description": "FeatherPerf: A performance-focused Vite plugin and runtime.",
   "scripts": {
     "build": "pnpm -r build",
+    "bench:local": "pnpm --filter @featherperf/bench bench:local",
+    "bench:acmvit": "pnpm --filter @featherperf/bench bench:acmvit",
     "test": "pnpm -r test",
     "dev": "pnpm -r dev"
   },
