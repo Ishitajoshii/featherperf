@@ -31,10 +31,10 @@ The local demo is controlled by `FEATHERPERF` in `demo/site/astro.config.mjs`.
 
 ```powershell
 $env:FEATHERPERF='off'
-corepack pnpm --filter @featherperf/bench bench:local -- --label local-featherperf-off-fresh-5x
+corepack pnpm --filter @featherperf/bench bench:local -- --label local-featherperf-off-post-tbt-pass-5x
 
 $env:FEATHERPERF='on'
-corepack pnpm --filter @featherperf/bench bench:local -- --label local-featherperf-on-fresh-5x
+corepack pnpm --filter @featherperf/bench bench:local -- --label local-featherperf-on-post-tbt-pass-5x
 
 Remove-Item Env:FEATHERPERF
 ```
@@ -94,27 +94,27 @@ Artifacts:
 
 ### Local comparison: FeatherPerf off vs on
 
-- Date: `2026-04-25`
-- Labels: `local-featherperf-off-fresh-5x` and `local-featherperf-on-fresh-5x`
+- Date: `2026-04-26`
+- Labels: `local-featherperf-off-post-tbt-pass-5x` and `local-featherperf-on-post-tbt-pass-5x`
 - Aggregate: `median of 5`
 
 | Mode | Performance | FCP | LCP | TBT | Speed Index | CLS | Total Bytes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Off | `91` | `2.708 s` | `2.914 s` | `64 ms` | `2.708 s` | `0` | `0.4 MB` |
-| On | `93` | `1.804 s` | `2.854 s` | `132 ms` | `1.804 s` | `0` | `0.4 MB` |
-| Delta | `+2` | `-904 ms` | `-60 ms` | `+68 ms` | `-904 ms` | `0` | `0 MB` |
+| Off | `92` | `2.705 s` | `2.761 s` | `64 ms` | `2.705 s` | `0` | `0.4 MB` |
+| On | `100` | `0.757 s` | `0.907 s` | `0 ms` | `0.757 s` | `0` | `0 MB` |
+| Delta | `+8` | `-1.948 s` | `-1.854 s` | `-64 ms` | `-1.948 s` | `0` | `-0.4 MB` |
 
 What this means:
 
-- The current prototype clearly improves first paint on the controlled demo.
-- It does not yet beat the `off` run on TBT, so the docs should not overclaim "faster across the board".
-- Byte weight is basically unchanged. This is a scheduling story, not a bundle-size story.
-- The `on` run adds one small extra request, with request count moving from `3` to `4`.
+- The current prototype now beats the `off` run on both first paint and total blocking time on the controlled demo.
+- The win comes from keeping the heavy motion bundle out of the initial Lighthouse load window instead of merely shifting its execution later on the main thread.
+- Initial-load transfer collapses to the document plus a ~`2 KB` helper script in the `on` run, while the deferred motion chunk is not requested before the measured load settles.
+- This is still a scheduling story, not a universal bundle-size claim. The heavy code still exists; it is just held back until the deferred section is genuinely eligible.
 
 Artifacts:
 
-- Off summary: `packages/bench/results/local-featherperf-off-fresh-5x/summary.json`
-- On summary: `packages/bench/results/local-featherperf-on-fresh-5x/summary.json`
+- Off summary: `packages/bench/results/local-featherperf-off-post-tbt-pass-5x/summary.json`
+- On summary: `packages/bench/results/local-featherperf-on-post-tbt-pass-5x/summary.json`
 
 ## Secondary Validation Baseline: ACM-VIT Homepage
 
