@@ -1,5 +1,33 @@
+import { readFile, readdir } from 'node:fs/promises';
+import path from 'node:path';
 import { IMPORT_LINE_PATTERN, SIDE_EFFECT_IMPORT_LINE_PATTERN, SUPPORTED_HEAVY_IMPORTS } from './constants';
-import type { DetectedImport, ImportBinding, ModuleDetectionResult, SupportedHeavyPackage } from './types';
+import type {
+  DetectedImport,
+  HeavyImportReportEntry,
+  ImportBinding,
+  ModuleDetectionResult,
+  SupportedHeavyPackage
+} from './types';
+
+const SCANNED_SOURCE_EXTENSIONS = new Set([
+  '.astro',
+  '.js',
+  '.jsx',
+  '.mjs',
+  '.mts',
+  '.ts',
+  '.tsx'
+]);
+
+const SKIPPED_DIRECTORIES = new Set([
+  '.git',
+  '.idea',
+  '.turbo',
+  '.vscode',
+  'coverage',
+  'dist',
+  'node_modules'
+]);
 
 function normalizeSupportedPackage(source: string): SupportedHeavyPackage | null {
   if (source === SUPPORTED_HEAVY_IMPORTS.gsap) {
@@ -121,4 +149,65 @@ export function detectHeavyComponents(code: string): ModuleDetectionResult {
     imports,
     hasSupportedImports: supportedPackages.length > 0
   };
+}
+
+function shouldScanFile(filePath: string): boolean {
+  return SCANNED_SOURCE_EXTENSIONS.has(path.extname(filePath));
+}
+
+async function collectSourceFiles(rootDir: string): Promise<string[]> {
+  const sourceFiles: string[] = [];
+  const pendingDirectories = [rootDir];
+
+  while (pendingDirectories.length > 0) {
+    const currentDir = pendingDirectories.pop();
+    if (!currentDir) {
+      continue;
+    }
+
+    const entries = await readdir(currentDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name.startsWith('.') && entry.name !== '.astro') {
+        continue;
+      }
+
+      const absolutePath = path.join(currentDir, entry.name);
+
+      if (entry.isDirectory()) {
+        if (SKIPPED_DIRECTORIES.has(entry.name)) {
+          continue;
+        }
+
+        pendingDirectories.push(absolutePath);
+        continue;
+      }
+
+      if (entry.isFile() && shouldScanFile(absolutePath)) {
+        sourceFiles.push(absolutePath);
+      }
+    }
+  }
+
+  return sourceFiles.sort((left, right) => left.localeCompare(right));
+}
+
+export async function scanHeavyImportReport(rootDir: string): Promise<HeavyImportReportEntry[]> {
+  const sourceFiles = await collectSourceFiles(rootDir);
+  const report: HeavyImportReportEntry[] = [];
+
+  for (const sourceFile of sourceFiles) {
+    const code = await readFile(sourceFile, 'utf8');
+    const detection = detectHeavyComponents(code);
+
+    if (!detection.hasSupportedImports) {
+      continue;
+    }
+
+    report.push({
+      filePath: sourceFile,
+      packages: detection.supportedPackages
+    });
+  }
+
+  return report;
 }

@@ -1,7 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import type { ResolvedConfig } from 'vite';
 import type { Plugin } from 'vite';
 import { PLUGIN_NAME } from './constants';
+import { scanHeavyImportReport } from './detector';
 import { checkSafety } from './safety';
 import { transformCode } from './transform';
 import type { DeferredImportCandidate, DetectedImport, FeatherPerfOptions, ImportBinding } from './types';
@@ -35,9 +37,38 @@ function createCandidates(
 }
 
 export function featherperf(options: FeatherPerfOptions = {}): Plugin {
+  let resolvedConfig: ResolvedConfig | null = null;
+
   return {
     name: PLUGIN_NAME,
     apply: 'build',
+    configResolved(config) {
+      resolvedConfig = config;
+    },
+    async buildStart() {
+      const projectRoot = resolvedConfig?.root ?? process.cwd();
+      if (!resolvedConfig?.build?.ssr) {
+        return;
+      }
+      const report = await scanHeavyImportReport(projectRoot);
+
+      if (report.length === 0) {
+        this.warn(`${PLUGIN_NAME}: no gsap, ScrollTrigger, or lottie-web imports found in ${projectRoot}`);
+        return;
+      }
+
+      for (const entry of report) {
+        const relativeFilePath = path.relative(projectRoot, entry.filePath) || path.basename(entry.filePath);
+
+        for (const supportedPackage of entry.packages) {
+          this.warn(`${PLUGIN_NAME}: found ${supportedPackage} in ${relativeFilePath}`);
+        }
+      }
+
+      this.warn(
+        `${PLUGIN_NAME}: report complete (${report.length} file${report.length === 1 ? '' : 's'})`
+      );
+    },
     async transform(code, id) {
       const cleanId = stripQuery(id);
       if (cleanId.includes('node_modules')) {

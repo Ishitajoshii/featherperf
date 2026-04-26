@@ -24,6 +24,11 @@ export interface ModuleDetectionResult {
   hasSupportedImports: boolean;
 }
 
+export interface HeavyImportReportEntry {
+  filePath: string;
+  packages: SupportedHeavyPackage[];
+}
+
 export interface SafetyCheckResult {
   isClientModule: boolean;
   isSafeToDefer: boolean;
