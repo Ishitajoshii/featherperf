@@ -1,6 +1,6 @@
-import { CLIENT_MODULE_EXTENSIONS } from './constants';
-import { detectHeavyComponents } from './detector';
-import type { SafetyCheckResult } from './types';
+import { CLIENT_MODULE_EXTENSIONS } from './constants.js';
+import { detectHeavyComponents } from './detector.js';
+import type { SafetyCheckResult } from './types.js';
 
 const TOP_LEVEL_BLOCK_PATTERNS = [
   /\b(?:document|window|localStorage|sessionStorage|history|location)\s*\./,

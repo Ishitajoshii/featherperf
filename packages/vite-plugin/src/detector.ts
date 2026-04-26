@@ -1,13 +1,13 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
-import { IMPORT_LINE_PATTERN, SIDE_EFFECT_IMPORT_LINE_PATTERN, SUPPORTED_HEAVY_IMPORTS } from './constants';
+import { IMPORT_LINE_PATTERN, SIDE_EFFECT_IMPORT_LINE_PATTERN, SUPPORTED_HEAVY_IMPORTS } from './constants.js';
 import type {
   DetectedImport,
   HeavyImportReportEntry,
   ImportBinding,
   ModuleDetectionResult,
   SupportedHeavyPackage
-} from './types';
+} from './types.js';
 
 const SCANNED_SOURCE_EXTENSIONS = new Set([
   '.astro',

@@ -1,4 +1,4 @@
-import type { DeferredImportCandidate, FeatherPerfOptions, ImportBinding } from './types';
+import type { DeferredImportCandidate, FeatherPerfOptions, ImportBinding } from './types.js';
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

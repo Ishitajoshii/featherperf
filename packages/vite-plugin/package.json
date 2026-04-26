@@ -11,7 +11,8 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsc",
-    "dev": "tsc -w"
+    "dev": "tsc -w",
+    "report": "node ./dist/report.js"
   },
   "peerDependencies": {
     "vite": "^5.0.0 || ^6.0.0"
