@@ -1,10 +1,23 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import { PLUGIN_NAME } from './constants.js';
 import { checkSafety } from './safety.js';
 import { transformCode } from './transform.js';
 import type { DeferredImportCandidate, DetectedImport, FeatherPerfOptions, ImportBinding } from './types.js';
+
+const VIRTUAL_RUNTIME_PUBLIC_ID = 'virtual:featherperf-runtime';
+const VIRTUAL_RUNTIME_RESOLVED_ID = '\0virtual:featherperf-runtime';
+
+function getRuntimeEntryHref(): string {
+  const runtimeEntryPath = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../runtime/dist/index.js'
+  );
+
+  return pathToFileURL(runtimeEntryPath).href;
+}
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -12,6 +25,10 @@ function escapeRegExp(value: string): string {
 
 function stripQuery(id: string): string {
   return id.split('?')[0].split('#')[0];
+}
+
+function normalizePath(id: string): string {
+  return stripQuery(id).replace(/\\/g, '/');
 }
 
 function isRelativeImport(source: string): boolean {
@@ -110,9 +127,29 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
   return {
     name: PLUGIN_NAME,
     apply: 'build',
+    resolveId(source) {
+      if (source === VIRTUAL_RUNTIME_PUBLIC_ID) {
+        return VIRTUAL_RUNTIME_RESOLVED_ID;
+      }
+
+      return null;
+    },
+    load(id) {
+      if (id !== VIRTUAL_RUNTIME_RESOLVED_ID) {
+        return null;
+      }
+
+      return `export { deferModuleEntry } from ${JSON.stringify(getRuntimeEntryHref())};`;
+    },
     async transform(code, id) {
       const cleanId = stripQuery(id);
-      if (cleanId.includes('node_modules')) {
+      const normalizedId = normalizePath(id);
+
+      if (
+        normalizedId.includes('/node_modules/') ||
+        normalizedId.includes('/packages/runtime/dist/') ||
+        normalizedId.includes('/packages/runtime/src/')
+      ) {
         return null;
       }
 

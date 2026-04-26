@@ -84,7 +84,8 @@ function createDeferredReplacement(
   source: string,
   binding: ImportBinding,
   args: string,
-  indent: string
+  indent: string,
+  options: FeatherPerfOptions
 ): string[] {
   const firstArgument = findFirstArgument(args) ?? 'undefined';
   const importBinding =
@@ -93,71 +94,20 @@ function createDeferredReplacement(
       : `const { ${binding.importedName}: ${binding.localName} } = await import(${JSON.stringify(source)});`;
 
   const callExpression = `${binding.localName}(${args});`;
+  const label = `${binding.localName} from ${source}`;
 
   return [
-    `${indent}__featherperfDefer(${firstArgument}, async () => {`,
+    `${indent}__featherperfDefer({`,
+    `${indent}  trigger: ${firstArgument},`,
+    `${indent}  idleTimeoutMs: ${options.idleTimeoutMs ?? 1500},`,
+    `${indent}  lookaheadPx: ${options.lookaheadPx ?? 300},`,
+    `${indent}  debug: ${options.debug ? 'true' : 'false'},`,
+    `${indent}  label: ${JSON.stringify(label)}`,
+    `${indent}}, async () => {`,
     `${indent}  ${importBinding}`,
     `${indent}  ${callExpression}`,
     `${indent}});`
   ];
-}
-
-function createDeferredHelper(idleTimeoutMs: number, lookaheadPx: number): string {
-  return [
-    `const __featherperfDefer = (trigger, load) => {`,
-    `  let hasLoaded = false;`,
-    `  let isScheduled = false;`,
-    `  const run = () => {`,
-    `    if (hasLoaded) {`,
-    `      return;`,
-    `    }`,
-    `    hasLoaded = true;`,
-    `    void load();`,
-    `  };`,
-    `  const schedule = () => {`,
-    `    if (hasLoaded || isScheduled) {`,
-    `      return;`,
-    `    }`,
-    `    isScheduled = true;`,
-    `    const dispatch = () => {`,
-    `      window.requestAnimationFrame(() => run());`,
-    `    };`,
-    `    if ('requestIdleCallback' in window) {`,
-    `      window.requestIdleCallback(() => dispatch(), { timeout: ${idleTimeoutMs} });`,
-    `      return;`,
-    `    }`,
-    `    window.setTimeout(dispatch, ${idleTimeoutMs});`,
-    `  };`,
-    `  const scheduleAfterLoad = () => {`,
-    `    if (document.readyState === 'complete') {`,
-    `      schedule();`,
-    `      return;`,
-    `    }`,
-    `    window.addEventListener('load', () => schedule(), { once: true });`,
-    `  };`,
-    `  if (typeof window === 'undefined') {`,
-    `    run();`,
-    `    return;`,
-    `  }`,
-    `  if (typeof trigger === 'string' && 'IntersectionObserver' in window) {`,
-    `    const target = document.querySelector(trigger);`,
-    `    if (target) {`,
-    `      const observer = new window.IntersectionObserver(`,
-    `        (entries) => {`,
-    `          if (entries.some((entry) => entry.isIntersecting)) {`,
-    `            observer.disconnect();`,
-    `            scheduleAfterLoad();`,
-    `          }`,
-    `        },`,
-    `        { rootMargin: '0px 0px ${lookaheadPx}px 0px' }`,
-    `      );`,
-    `      observer.observe(target);`,
-    `      return;`,
-    `    }`,
-    `  }`,
-    `  scheduleAfterLoad();`,
-    `};`
-  ].join('\n');
 }
 
 export function transformCode(
@@ -190,7 +140,8 @@ export function transformCode(
         candidate.source,
         candidate.binding,
         deferredCall.args,
-        deferredCall.indent
+        deferredCall.indent,
+        options
       ).join('\n');
 
       lines[candidate.importLineIndex] = '';
@@ -208,6 +159,6 @@ export function transformCode(
     return code;
   }
 
-  const helper = createDeferredHelper(options.idleTimeoutMs ?? 1500, options.lookaheadPx ?? 300);
-  return `${helper}\n\n${lines.join('\n')}`;
+  const runtimeImport = `import { deferModuleEntry as __featherperfDefer } from 'virtual:featherperf-runtime';`;
+  return `${runtimeImport}\n\n${lines.join('\n')}`;
 }

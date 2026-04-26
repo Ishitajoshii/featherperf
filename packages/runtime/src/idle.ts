@@ -1,7 +1,11 @@
-export function onIdle(callback: () => void) {
+import type { IdleScheduleMode } from './types.js';
+
+export function scheduleOnIdle(callback: () => void, timeoutMs: number): IdleScheduleMode {
   if ('requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(callback);
-  } else {
-    setTimeout(callback, 1);
+    window.requestIdleCallback(() => callback(), { timeout: timeoutMs });
+    return 'requestIdleCallback';
   }
+
+  globalThis.setTimeout(callback, timeoutMs);
+  return 'timeout';
 }
