@@ -6,6 +6,10 @@ import { checkSafety } from './safety.js';
 import { transformCode } from './transform.js';
 import type { DeferredImportCandidate, DetectedImport, FeatherPerfOptions, ImportBinding } from './types.js';
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function stripQuery(id: string): string {
   return id.split('?')[0].split('#')[0];
 }
@@ -32,6 +36,74 @@ function createCandidates(
     source: detectedImport.source,
     binding
   }));
+}
+
+function findDeferredCall(line: string, binding: ImportBinding): { args: string; indent: string } | null {
+  const match = line.match(
+    new RegExp(`^(\\s*)${escapeRegExp(binding.localName)}\\((.*)\\);\\s*$`)
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    indent: match[1],
+    args: match[2].trim()
+  };
+}
+
+function findFirstArgument(args: string): string | null {
+  if (!args.trim()) {
+    return null;
+  }
+
+  let depth = 0;
+  let quote: string | null = null;
+  let escaped = false;
+
+  for (let index = 0; index < args.length; index += 1) {
+    const character = args[index];
+
+    if (quote) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+
+      if (character === '\\') {
+        escaped = true;
+        continue;
+      }
+
+      if (character === quote) {
+        quote = null;
+      }
+
+      continue;
+    }
+
+    if (character === '\'' || character === '"' || character === '`') {
+      quote = character;
+      continue;
+    }
+
+    if (character === '(' || character === '[' || character === '{') {
+      depth += 1;
+      continue;
+    }
+
+    if (character === ')' || character === ']' || character === '}') {
+      depth -= 1;
+      continue;
+    }
+
+    if (character === ',' && depth === 0) {
+      return args.slice(0, index).trim();
+    }
+  }
+
+  return args.trim();
 }
 
 export function featherperf(options: FeatherPerfOptions = {}): Plugin {
@@ -62,21 +134,6 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
 
         const resolvedImport = await this.resolve(source, id);
         if (!resolvedImport?.id) {
-          continue;
-        }
-
-        const importedCode = await readResolvedCode(resolvedImport.id);
-        if (!importedCode) {
-          continue;
-        }
-
-        const safety = checkSafety(importedCode, resolvedImport.id);
-        if (!safety.isSafeToDefer) {
-          if (options.debug) {
-            this.warn(
-              `${PLUGIN_NAME}: skipped ${path.relative(process.cwd(), stripQuery(resolvedImport.id))} (${safety.reasons.join(', ')})`
-            );
-          }
           continue;
         }
 
@@ -142,7 +199,46 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
           continue;
         }
 
-        candidates.push(...createCandidates(index, detectedImport, detectedImport.bindings));
+        const importedCode = await readResolvedCode(resolvedImport.id);
+        if (!importedCode) {
+          continue;
+        }
+
+        for (const binding of detectedImport.bindings) {
+          let deferredCallArgs: string | null = null;
+
+          for (const candidateLine of lines) {
+            const deferredCall = findDeferredCall(candidateLine, binding);
+            if (!deferredCall) {
+              continue;
+            }
+
+            deferredCallArgs = deferredCall.args;
+            break;
+          }
+
+          if (deferredCallArgs === null) {
+            continue;
+          }
+
+          const safety = checkSafety(importedCode, resolvedImport.id, {
+            importerId: cleanId,
+            triggerArgument: findFirstArgument(deferredCallArgs)
+          });
+
+          if (!safety.isSafeToDefer) {
+            if (options.debug) {
+              this.warn(
+                `${PLUGIN_NAME}: skipped ${path.relative(process.cwd(), stripQuery(resolvedImport.id))} (${safety.reasons.join(', ')})`
+              );
+            }
+            continue;
+          }
+
+          candidates.push(
+            ...createCandidates(index, detectedImport, [binding])
+          );
+        }
 
         if (options.debug) {
           this.warn(

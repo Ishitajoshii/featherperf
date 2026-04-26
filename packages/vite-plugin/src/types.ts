@@ -29,6 +29,11 @@ export interface HeavyImportReportEntry {
   packages: SupportedHeavyPackage[];
 }
 
+export interface SafetyCheckContext {
+  importerId: string;
+  triggerArgument: string | null;
+}
+
 export interface SafetyCheckResult {
   isClientModule: boolean;
   isSafeToDefer: boolean;
