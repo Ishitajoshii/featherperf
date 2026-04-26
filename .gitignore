@@ -34,6 +34,7 @@ packages/bench/results/*/screenshots/
 # PRD drafts
 prd.md
 docs/prd.md
+docs/demo-script.md
 
 # OS/editor files
 .DS_Store
