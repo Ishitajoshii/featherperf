@@ -4,7 +4,7 @@ function createDeferredReplacement(
   candidate: DeferredImportCandidate,
   options: FeatherPerfOptions
 ): string[] {
-  const { source, binding, callArguments, callIndent, triggerArgument } = candidate;
+  const { source, binding, callExpressionText, callIndent, triggerArgument } = candidate;
   const firstArgument = triggerArgument ?? 'undefined';
   const importBinding =
     binding.kind === 'default'
@@ -13,7 +13,7 @@ function createDeferredReplacement(
         ? `const ${binding.localName} = await import(${JSON.stringify(source)});`
       : `const { ${binding.importedName}: ${binding.localName} } = await import(${JSON.stringify(source)});`;
 
-  const callExpression = `${binding.localName}(${callArguments});`;
+  const callExpression = `${callExpressionText};`;
   const label = `${binding.localName} from ${source}`;
 
   return [

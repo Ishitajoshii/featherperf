@@ -52,6 +52,7 @@ export interface DeferredImportCandidate {
   importEnd: number;
   callStart: number;
   callEnd: number;
+  callExpressionText: string;
   callArguments: string;
   triggerArgument: string | null;
   callIndent: string;

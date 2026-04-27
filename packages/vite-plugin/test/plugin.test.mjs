@@ -69,6 +69,40 @@ test('collectDeferredImportCandidates finds aliased imported calls via AST parsi
   assert.equal(candidates[0].triggerArgument, "'#gallery'");
 });
 
+test('collectDeferredImportCandidates supports namespace member calls', () => {
+  const code = [
+    "import * as showcaseMotion from './motion';",
+    '',
+    "showcaseMotion.runAnimations('#gallery');"
+  ].join('\n');
+
+  const candidates = collectDeferredImportCandidates(code, 'src/page.ts');
+
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].binding.kind, 'namespace');
+  assert.equal(candidates[0].binding.localName, 'showcaseMotion');
+  assert.equal(candidates[0].callExpressionText, "showcaseMotion.runAnimations('#gallery')");
+});
+
+test('transformCode rewrites namespace member calls without changing the member access', () => {
+  const code = [
+    "import * as showcaseMotion from './motion';",
+    "showcaseMotion.runAnimations('#gallery');"
+  ].join('\n');
+
+  const candidates = collectDeferredImportCandidates(code, 'src/page.ts');
+  const transformed = transformCode(code, candidates, {});
+
+  assert.match(
+    transformed,
+    /const showcaseMotion = await import\("\.\/motion"\);/
+  );
+  assert.match(
+    transformed,
+    /showcaseMotion\.runAnimations\('#gallery'\);/
+  );
+});
+
 test('checkSafety respects caller-defined critical selectors', () => {
   const code = [
     "import { gsap } from 'gsap';",

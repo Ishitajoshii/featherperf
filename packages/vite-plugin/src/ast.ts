@@ -11,6 +11,7 @@ interface CallRecord {
   localName: string;
   callStart: number;
   callEnd: number;
+  callExpressionText: string;
   callArguments: string;
   triggerArgument: string | null;
   callIndent: string;
@@ -98,6 +99,32 @@ function getIndent(code: string, position: number): string {
   return indentMatch?.[0] ?? '';
 }
 
+function unwrapExpression(expression: ts.Expression): ts.Expression {
+  if (ts.isParenthesizedExpression(expression) || ts.isNonNullExpression(expression)) {
+    return unwrapExpression(expression.expression);
+  }
+
+  if (ts.isAsExpression(expression) || ts.isTypeAssertionExpression(expression)) {
+    return unwrapExpression(expression.expression);
+  }
+
+  return expression;
+}
+
+function getImportedBindingNameFromCallee(callee: ts.LeftHandSideExpression): string | null {
+  const normalizedCallee = unwrapExpression(callee);
+
+  if (ts.isIdentifier(normalizedCallee)) {
+    return normalizedCallee.text;
+  }
+
+  if (ts.isPropertyAccessExpression(normalizedCallee) || ts.isElementAccessExpression(normalizedCallee)) {
+    return getImportedBindingNameFromCallee(normalizedCallee.expression);
+  }
+
+  return null;
+}
+
 function collectCallRecord(
   statement: ts.ExpressionStatement,
   sourceFile: ts.SourceFile,
@@ -109,15 +136,17 @@ function collectCallRecord(
 
   const expression = statement.expression;
   const callee = expression.expression;
+  const localName = getImportedBindingNameFromCallee(callee);
 
-  if (!ts.isIdentifier(callee)) {
+  if (!localName) {
     return null;
   }
 
   return {
-    localName: callee.text,
+    localName,
     callStart: statement.getStart(sourceFile),
     callEnd: statement.getEnd(),
+    callExpressionText: expression.getText(sourceFile),
     callArguments: code.slice(expression.arguments.pos, expression.arguments.end),
     triggerArgument: expression.arguments[0]?.getText(sourceFile) ?? null,
     callIndent: getIndent(code, statement.getStart(sourceFile))
@@ -176,6 +205,7 @@ export function collectDeferredImportCandidates(code: string, id: string): Defer
         importEnd: importRecord.importEnd,
         callStart: callRecord.callStart,
         callEnd: callRecord.callEnd,
+        callExpressionText: callRecord.callExpressionText,
         callArguments: callRecord.callArguments,
         triggerArgument: callRecord.triggerArgument,
         callIndent: callRecord.callIndent
