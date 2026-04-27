@@ -1,15 +1,32 @@
 # FeatherPerf
 
-FeatherPerf is a conservative Vite plugin for deferring safe, below-the-fold motion code so real pages paint sooner without asking teams to rewrite their animation stack.
+FeatherPerf is a conservative Vite plugin that defers safe, below-the-fold motion code so pages become interactive faster without forcing teams to rewrite their animation stack.
 
-Current scope:
+Today it is built for:
 
-- Vite projects first
-- Astro works because it sits on Vite
-- targets motion-heavy modules that use `gsap`, `ScrollTrigger`, or `lottie-web`
-- only defers client modules that look safe and non-critical
+- Vite applications
+- Astro sites, since Astro uses Vite underneath
+- motion-heavy pages using `gsap`, `ScrollTrigger`, or `lottie-web`
 
-This is intentionally not a blanket lazy-loader. The product thesis is: ship first-paint content now, wake up heavy motion when the user is close to the section that needs it.
+It is intentionally not a generic lazy-loader for everything on the page. The product idea is narrower and more useful: keep first-paint content light, and wake up expensive motion only when the user is near the section that needs it.
+
+## Why It Exists
+
+Modern marketing and editorial sites often pay a tax for below-the-fold motion before the user ever sees it:
+
+- GSAP bundles initialize during first load
+- Lottie runtime work lands on the main thread too early
+- showcase sections compete with hero content for CPU and network budget
+
+FeatherPerf targets that specific problem. It looks for safe importer patterns and rewrites them into deferred runtime loads backed by viewport proximity and idle scheduling.
+
+## What You Get
+
+- npm-installable package for Vite-based sites
+- conservative AST-based import and call detection
+- built-in runtime scheduler for idle and near-viewport loading
+- guardrails that skip risky or likely-critical code
+- explicit include/exclude controls
 
 ## Install
 
@@ -17,9 +34,11 @@ This is intentionally not a blanket lazy-loader. The product thesis is: ship fir
 npm install @featherperf/vite-plugin
 ```
 
-`@featherperf/runtime` is pulled in automatically by the plugin package.
+`@featherperf/runtime` is installed automatically as a dependency of the plugin.
 
-## Use
+## Quick Start
+
+### Vite
 
 ```ts
 import { defineConfig } from 'vite';
@@ -35,20 +54,38 @@ export default defineConfig({
 });
 ```
 
-A module is a good fit when:
+### Astro
 
-- the importer calls it with a static selector like `runAnimations('#gallery')`
-- the target section is below the fold
-- the deferred module pulls in `gsap`, `ScrollTrigger`, or `lottie-web`
-- the deferred module does not execute risky top-level work
+```ts
+import { defineConfig } from 'astro/config';
+import { featherperf } from '@featherperf/vite-plugin';
 
-Example:
+export default defineConfig({
+  vite: {
+    plugins: [
+      featherperf({
+        include: ['src/pages/', 'src/components/motion/'],
+        exclude: [/hero/i],
+        criticalSelectors: ['body', 'main', '.hero']
+      })
+    ]
+  }
+});
+```
+
+## What A Good Candidate Looks Like
+
+FeatherPerf works best when a page imports a non-critical motion module and triggers it using a static selector for a section that is below the fold.
+
+Example importer:
 
 ```ts
 import { runShowcaseMotion } from './motion/showcase';
 
 runShowcaseMotion('#showcase');
 ```
+
+Example motion module:
 
 ```ts
 import { gsap } from 'gsap';
@@ -66,6 +103,47 @@ export function runShowcaseMotion(rootSelector: string): void {
 }
 ```
 
+At build time, FeatherPerf can rewrite that importer so the motion module is loaded later, not during first paint.
+
+## Supported Import And Call Shapes
+
+The current AST pass intentionally supports a small, safe set of patterns:
+
+- direct named import calls like `runMotion('#gallery')`
+- aliased named import calls like `runShowcase('#gallery')`
+- namespace member calls like `showcaseMotion.run('#gallery')`
+
+Examples:
+
+```ts
+import { runMotion } from './motion';
+runMotion('#gallery');
+```
+
+```ts
+import { runMotion as runShowcase } from './motion';
+runShowcase('#gallery');
+```
+
+```ts
+import * as showcaseMotion from './motion';
+showcaseMotion.runMotion('#gallery');
+```
+
+## Deliberate Non-Support
+
+The current product stays conservative on purpose. FeatherPerf will skip patterns that are harder to rewrite safely or are likely to be first-paint critical:
+
+- mixed import lines like `import foo, { bar } from './motion'`
+- non-static selectors
+- calls whose return value matters
+- modules with top-level side effects
+- hero/header/app/root targets
+- unsupported third-party dependencies
+- risky sync layout or scroll-sensitive behavior
+
+This is a product decision, not an oversight. For a performance plugin, skipping uncertain cases is better than silently breaking production pages.
+
 ## Options
 
 ```ts
@@ -79,7 +157,7 @@ featherperf({
 })
 ```
 
-- `debug`: logs why modules were deferred or skipped during build/runtime
+- `debug`: logs why modules were deferred or skipped during build and runtime
 - `lookaheadPx`: starts loading shortly before the trigger enters view
 - `idleTimeoutMs`: idle budget used before executing the deferred import
 - `include`: optional importer path filters; if set, only matching files are processed
@@ -88,17 +166,19 @@ featherperf({
 
 ## Safety Model
 
-FeatherPerf refuses to defer modules when it sees signals that the code is probably first-paint critical or behaviorally risky. Current blockers include:
+FeatherPerf only defers modules that look both non-critical and behaviorally safe.
 
-- non-static trigger selectors
-- hero/header/app/root style selectors
+Current blockers include:
+
+- trigger is not a static selector string
+- trigger points at critical UI like hero/header/root/app shells
+- module or importer path looks hero-critical
 - side-effect imports
-- unsupported third-party imports
-- obvious top-level side effects or control flow
-- synchronous layout or scroll-sensitive runtime behavior
-- mixed import lines such as `import foo, { bar } from './motion'`
+- unsupported external dependencies
+- top-level side effects or control flow
+- synchronous layout-sensitive behavior
 
-That last rule is deliberate for now. The current release stays conservative instead of rewriting multi-binding imports in ways that could break production code.
+This is the core product promise: safe wins first, aggressive coverage second.
 
 ## Benchmarks
 
@@ -117,28 +197,64 @@ Recorded local medians on `2026-04-25`:
 - `off`: Performance `91`, FCP `2.708 s`, LCP `2.914 s`, TBT `64 ms`
 - `on`: Performance `93`, FCP `1.804 s`, LCP `2.854 s`, TBT `132 ms`
 
-Interpretation:
+What that means right now:
 
-- the prototype clearly improves first paint
-- it does not yet beat the baseline on TBT
-- the next product milestone is proving both safer paint timing and better main-thread behavior
+- first paint clearly improves
+- LCP improves slightly
+- TBT is still worse than baseline
 
-Detailed method and committed result sets live in [docs/benchmark-results.md](docs/benchmark-results.md).
+So the current product claim is narrow and honest: FeatherPerf already helps delay non-critical motion for better paint timing, but it still needs stronger main-thread wins before it can claim full production maturity.
 
-## Dev
+Detailed benchmark method and committed result sets live in [docs/benchmark-results.md](docs/benchmark-results.md).
+
+## Current Maturity
+
+FeatherPerf is past the “hacky benchmark script” phase and now has:
+
+- published-package-oriented runtime wiring
+- AST-based importer analysis
+- automated tests for runtime loading and transform behavior
+- workspace build coverage across the demo and packages
+
+It is not yet at “install blindly on every site” maturity.
+
+## Who Should Try It Now
+
+- teams with Astro or Vite landing pages
+- motion-heavy marketing sites
+- developers who already know some sections are non-critical
+- hackathon judges or early adopters looking for a focused performance product with a real safety story
+
+## Who Should Wait
+
+- teams expecting framework-agnostic support
+- apps that need React/Next-specific integration guarantees
+- codebases with highly dynamic selectors and motion orchestration patterns
+- teams that need proven TBT and INP wins before rollout
+
+## Local Demo
+
+The repo includes a demo Astro site under `demo/site` plus a benchmark harness.
+
+Useful commands:
 
 ```powershell
 corepack pnpm build
 corepack pnpm test
-corepack pnpm --filter @featherperf/vite-plugin report
+corepack pnpm bench:local
 ```
 
-## Product Gaps
+## Roadmap
 
-The repo is now closer to a real package, but not finished. The highest-value next steps are:
+Highest-value next steps:
 
-1. Extend AST analysis to broader syntax patterns and reduce the remaining regex-based safety heuristics.
-2. Add framework examples for plain Vite, Astro, and React.
-3. Introduce config-file support and clearer opt-in annotations for sections that are safe to defer.
-4. Prove wins on TBT and INP, not only FCP.
-5. Add CI, publish workflow, semver discipline, and integration fixtures.
+1. Broaden AST support to more real-world import and call shapes.
+2. Reduce remaining regex-heavy safety heuristics.
+3. Add polished examples for plain Vite, Astro, and React.
+4. Introduce explicit config-file support and opt-in annotations.
+5. Prove wins on TBT and INP, not only FCP.
+6. Add CI, publish workflow, semver discipline, and integration fixtures.
+
+## License
+
+MIT
