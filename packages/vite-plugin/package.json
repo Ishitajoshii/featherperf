@@ -19,7 +19,8 @@
     "test": "pnpm run build && node --test ./test/plugin.test.mjs"
   },
   "dependencies": {
-    "@featherperf/runtime": "workspace:*"
+    "@featherperf/runtime": "workspace:*",
+    "typescript": "^5.0.0"
   },
   "peerDependencies": {
     "vite": "^5.0.0 || ^6.0.0"

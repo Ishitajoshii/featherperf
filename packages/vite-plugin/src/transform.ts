@@ -1,113 +1,39 @@
 import type { DeferredImportCandidate, FeatherPerfOptions, ImportBinding } from './types.js';
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function bindingUsageCount(lines: string[], localName: string, importLineIndex: number): number {
-  const searchableCode = lines
-    .filter((_, lineIndex) => lineIndex !== importLineIndex)
-    .join('\n');
-  const matches = searchableCode.match(new RegExp(`\\b${escapeRegExp(localName)}\\b`, 'g'));
-  return matches?.length ?? 0;
-}
-
-function findDeferredCall(line: string, binding: ImportBinding): { args: string; indent: string } | null {
-  const match = line.match(
-    new RegExp(`^(\\s*)${escapeRegExp(binding.localName)}\\((.*)\\);\\s*$`)
-  );
-
-  if (!match) {
-    return null;
-  }
-
-  return {
-    indent: match[1],
-    args: match[2].trim()
-  };
-}
-
-function findFirstArgument(args: string): string | null {
-  if (!args.trim()) {
-    return null;
-  }
-
-  let depth = 0;
-  let quote: string | null = null;
-  let escaped = false;
-
-  for (let index = 0; index < args.length; index += 1) {
-    const character = args[index];
-
-    if (quote) {
-      if (escaped) {
-        escaped = false;
-        continue;
-      }
-
-      if (character === '\\') {
-        escaped = true;
-        continue;
-      }
-
-      if (character === quote) {
-        quote = null;
-      }
-
-      continue;
-    }
-
-    if (character === "'" || character === '"' || character === '`') {
-      quote = character;
-      continue;
-    }
-
-    if (character === '(' || character === '[' || character === '{') {
-      depth += 1;
-      continue;
-    }
-
-    if (character === ')' || character === ']' || character === '}') {
-      depth -= 1;
-      continue;
-    }
-
-    if (character === ',' && depth === 0) {
-      return args.slice(0, index).trim();
-    }
-  }
-
-  return args.trim();
-}
-
 function createDeferredReplacement(
-  source: string,
-  binding: ImportBinding,
-  args: string,
-  indent: string,
+  candidate: DeferredImportCandidate,
   options: FeatherPerfOptions
 ): string[] {
-  const firstArgument = findFirstArgument(args) ?? 'undefined';
+  const { source, binding, callArguments, callIndent, triggerArgument } = candidate;
+  const firstArgument = triggerArgument ?? 'undefined';
   const importBinding =
     binding.kind === 'default'
       ? `const { default: ${binding.localName} } = await import(${JSON.stringify(source)});`
+      : binding.kind === 'namespace'
+        ? `const ${binding.localName} = await import(${JSON.stringify(source)});`
       : `const { ${binding.importedName}: ${binding.localName} } = await import(${JSON.stringify(source)});`;
 
-  const callExpression = `${binding.localName}(${args});`;
+  const callExpression = `${binding.localName}(${callArguments});`;
   const label = `${binding.localName} from ${source}`;
 
   return [
-    `${indent}__featherperfDefer({`,
-    `${indent}  trigger: ${firstArgument},`,
-    `${indent}  idleTimeoutMs: ${options.idleTimeoutMs ?? 1500},`,
-    `${indent}  lookaheadPx: ${options.lookaheadPx ?? 300},`,
-    `${indent}  debug: ${options.debug ? 'true' : 'false'},`,
-    `${indent}  label: ${JSON.stringify(label)}`,
-    `${indent}}, async () => {`,
-    `${indent}  ${importBinding}`,
-    `${indent}  ${callExpression}`,
-    `${indent}});`
+    `${callIndent}__featherperfDefer({`,
+    `${callIndent}  trigger: ${firstArgument},`,
+    `${callIndent}  idleTimeoutMs: ${options.idleTimeoutMs ?? 1500},`,
+    `${callIndent}  lookaheadPx: ${options.lookaheadPx ?? 300},`,
+    `${callIndent}  debug: ${options.debug ? 'true' : 'false'},`,
+    `${callIndent}  label: ${JSON.stringify(label)}`,
+    `${callIndent}}, async () => {`,
+    `${callIndent}  ${importBinding}`,
+    `${callIndent}  ${callExpression}`,
+    `${callIndent}});`
   ];
+}
+
+interface Replacement {
+  start: number;
+  end: number;
+  text: string;
 }
 
 export function transformCode(
@@ -119,50 +45,39 @@ export function transformCode(
     return code;
   }
 
-  const lines = code.split(/\r?\n/);
-  const transformedImportLines = new Set<number>();
-  let insertedHelper = false;
+  const replacements: Replacement[] = [];
 
   for (const candidate of candidates) {
     if (candidate.importBindingCount !== 1) {
       continue;
     }
 
-    const importLine = lines[candidate.importLineIndex] ?? '';
-
-    if (bindingUsageCount(lines, candidate.binding.localName, candidate.importLineIndex) !== 1) {
-      continue;
-    }
-
-    for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
-      const deferredCall = findDeferredCall(lines[lineIndex], candidate.binding);
-      if (!deferredCall) {
-        continue;
-      }
-
-      lines[lineIndex] = createDeferredReplacement(
-        candidate.source,
-        candidate.binding,
-        deferredCall.args,
-        deferredCall.indent,
-        options
-      ).join('\n');
-
-      lines[candidate.importLineIndex] = '';
-      transformedImportLines.add(candidate.importLineIndex);
-      insertedHelper = true;
-      break;
-    }
-
-    if (!transformedImportLines.has(candidate.importLineIndex)) {
-      lines[candidate.importLineIndex] = importLine;
-    }
+    replacements.push({
+      start: candidate.importStart,
+      end: candidate.importEnd,
+      text: ''
+    });
+    replacements.push({
+      start: candidate.callStart,
+      end: candidate.callEnd,
+      text: createDeferredReplacement(candidate, options).join('\n')
+    });
   }
 
-  if (!insertedHelper) {
+  if (replacements.length === 0) {
     return code;
   }
 
+  replacements.sort((left, right) => right.start - left.start);
+
+  let transformed = code;
+  for (const replacement of replacements) {
+    transformed =
+      transformed.slice(0, replacement.start) +
+      replacement.text +
+      transformed.slice(replacement.end);
+  }
+
   const runtimeImport = `import { deferModuleEntry as __featherperfDefer } from 'virtual:featherperf-runtime';`;
-  return `${runtimeImport}\n\n${lines.join('\n')}`;
+  return `${runtimeImport}\n\n${transformed}`;
 }

@@ -45,8 +45,14 @@ export interface SafetyCheckResult {
 }
 
 export interface DeferredImportCandidate {
-  importLineIndex: number;
   source: string;
   binding: ImportBinding;
   importBindingCount: number;
+  importStart: number;
+  importEnd: number;
+  callStart: number;
+  callEnd: number;
+  callArguments: string;
+  triggerArgument: string | null;
+  callIndent: string;
 }

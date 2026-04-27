@@ -137,7 +137,7 @@ corepack pnpm --filter @featherperf/vite-plugin report
 
 The repo is now closer to a real package, but not finished. The highest-value next steps are:
 
-1. Replace the regex transform with AST-based analysis and rewriting.
+1. Extend AST analysis to broader syntax patterns and reduce the remaining regex-based safety heuristics.
 2. Add framework examples for plain Vite, Astro, and React.
 3. Introduce config-file support and clearer opt-in annotations for sections that are safe to defer.
 4. Prove wins on TBT and INP, not only FCP.

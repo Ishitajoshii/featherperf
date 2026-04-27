@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { collectDeferredImportCandidates } from '../dist/ast.js';
 import { featherperf } from '../dist/plugin.js';
 import { checkSafety } from '../dist/safety.js';
 import { transformCode } from '../dist/transform.js';
@@ -19,20 +20,11 @@ test('transformCode rewrites a single-binding deferred import', () => {
     "runAnimations('#gallery');"
   ].join('\n');
 
+  const candidates = collectDeferredImportCandidates(code, 'src/page.ts');
+
   const transformed = transformCode(
     code,
-    [
-      {
-        importLineIndex: 0,
-        source: './motion',
-        binding: {
-          importedName: 'runAnimations',
-          localName: 'runAnimations',
-          kind: 'named'
-        },
-        importBindingCount: 1
-      }
-    ],
+    candidates,
     {}
   );
 
@@ -51,24 +43,30 @@ test('transformCode skips mixed-binding imports to avoid breaking remaining bind
     'console.log(bar);'
   ].join('\n');
 
+  const candidates = collectDeferredImportCandidates(code, 'src/page.ts');
+
   const transformed = transformCode(
     code,
-    [
-      {
-        importLineIndex: 0,
-        source: './motion',
-        binding: {
-          importedName: 'default',
-          localName: 'foo',
-          kind: 'default'
-        },
-        importBindingCount: 2
-      }
-    ],
+    candidates,
     {}
   );
 
   assert.equal(transformed, code);
+});
+
+test('collectDeferredImportCandidates finds aliased imported calls via AST parsing', () => {
+  const code = [
+    "import { runAnimations as runShowcase } from './motion';",
+    '',
+    "runShowcase('#gallery');"
+  ].join('\n');
+
+  const candidates = collectDeferredImportCandidates(code, 'src/page.ts');
+
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].binding.localName, 'runShowcase');
+  assert.equal(candidates[0].binding.importedName, 'runAnimations');
+  assert.equal(candidates[0].triggerArgument, "'#gallery'");
 });
 
 test('checkSafety respects caller-defined critical selectors', () => {

@@ -37,6 +37,12 @@ importers:
 
   packages/vite-plugin:
     dependencies:
+      '@featherperf/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
       vite:
         specifier: ^5.0.0 || ^6.0.0
         version: 6.4.2(@types/node@25.6.0)
