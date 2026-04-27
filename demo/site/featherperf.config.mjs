@@ -1,3 +1,5 @@
 export default {
-  // FeatherPerf specific configuration
+  include: ['src/pages/'],
+  exclude: [/hero/i],
+  criticalSelectors: ['body', 'main', '.hero']
 };

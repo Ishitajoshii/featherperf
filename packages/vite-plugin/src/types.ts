@@ -2,6 +2,9 @@ export interface FeatherPerfOptions {
   debug?: boolean;
   idleTimeoutMs?: number;
   lookaheadPx?: number;
+  include?: Array<string | RegExp>;
+  exclude?: Array<string | RegExp>;
+  criticalSelectors?: string[];
 }
 
 export type SupportedHeavyPackage = 'gsap' | 'ScrollTrigger' | 'lottie-web';
@@ -32,6 +35,7 @@ export interface HeavyImportReportEntry {
 export interface SafetyCheckContext {
   importerId: string;
   triggerArgument: string | null;
+  criticalSelectors?: string[];
 }
 
 export interface SafetyCheckResult {
@@ -44,4 +48,5 @@ export interface DeferredImportCandidate {
   importLineIndex: number;
   source: string;
   binding: ImportBinding;
+  importBindingCount: number;
 }

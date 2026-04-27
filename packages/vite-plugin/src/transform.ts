@@ -124,6 +124,10 @@ export function transformCode(
   let insertedHelper = false;
 
   for (const candidate of candidates) {
+    if (candidate.importBindingCount !== 1) {
+      continue;
+    }
+
     const importLine = lines[candidate.importLineIndex] ?? '';
 
     if (bindingUsageCount(lines, candidate.binding.localName, candidate.importLineIndex) !== 1) {

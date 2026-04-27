@@ -1,10 +1,13 @@
 {
   "name": "@featherperf/vite-plugin",
   "version": "0.1.0",
+  "description": "Conservative Vite plugin that defers safe below-the-fold motion modules for faster first paint.",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": "./dist/index.js"
   },
@@ -12,9 +15,21 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
-    "report": "node ./dist/report.js"
+    "report": "node ./dist/report.js",
+    "test": "pnpm run build && node --test ./test/plugin.test.mjs"
+  },
+  "dependencies": {
+    "@featherperf/runtime": "workspace:*"
   },
   "peerDependencies": {
     "vite": "^5.0.0 || ^6.0.0"
-  }
+  },
+  "keywords": [
+    "vite",
+    "performance",
+    "lazy-load",
+    "gsap",
+    "lottie",
+    "astro"
+  ]
 }

@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import { PLUGIN_NAME } from './constants.js';
 import { checkSafety } from './safety.js';
@@ -9,15 +8,6 @@ import type { DeferredImportCandidate, DetectedImport, FeatherPerfOptions, Impor
 
 const VIRTUAL_RUNTIME_PUBLIC_ID = 'virtual:featherperf-runtime';
 const VIRTUAL_RUNTIME_RESOLVED_ID = '\0virtual:featherperf-runtime';
-
-function getRuntimeEntryHref(): string {
-  const runtimeEntryPath = path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    '../../runtime/dist/index.js'
-  );
-
-  return pathToFileURL(runtimeEntryPath).href;
-}
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -33,6 +23,26 @@ function normalizePath(id: string): string {
 
 function isRelativeImport(source: string): boolean {
   return source.startsWith('./') || source.startsWith('../');
+}
+
+function matchesPattern(value: string, pattern: string | RegExp): boolean {
+  if (typeof pattern === 'string') {
+    return value.includes(pattern);
+  }
+
+  return pattern.test(value);
+}
+
+function shouldProcessModule(id: string, options: FeatherPerfOptions): boolean {
+  const normalizedId = normalizePath(id);
+  const includePatterns = options.include ?? [];
+  const excludePatterns = options.exclude ?? [];
+
+  if (includePatterns.length > 0 && !includePatterns.some((pattern) => matchesPattern(normalizedId, pattern))) {
+    return false;
+  }
+
+  return !excludePatterns.some((pattern) => matchesPattern(normalizedId, pattern));
 }
 
 async function readResolvedCode(resolvedId: string): Promise<string | null> {
@@ -51,7 +61,8 @@ function createCandidates(
   return bindings.map((binding) => ({
     importLineIndex,
     source: detectedImport.source,
-    binding
+    binding,
+    importBindingCount: detectedImport.bindings.length
   }));
 }
 
@@ -139,7 +150,7 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
         return null;
       }
 
-      return `export { deferModuleEntry } from ${JSON.stringify(getRuntimeEntryHref())};`;
+      return `export { deferModuleEntry } from '@featherperf/runtime';`;
     },
     async transform(code, id) {
       const cleanId = stripQuery(id);
@@ -150,6 +161,10 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
         normalizedId.includes('/packages/runtime/dist/') ||
         normalizedId.includes('/packages/runtime/src/')
       ) {
+        return null;
+      }
+
+      if (!shouldProcessModule(cleanId, options)) {
         return null;
       }
 
@@ -236,6 +251,15 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
           continue;
         }
 
+        if (detectedImport.bindings.length !== 1) {
+          if (options.debug) {
+            this.warn(
+              `${PLUGIN_NAME}: skipped ${path.relative(process.cwd(), cleanId)} because ${source} uses multiple imported bindings`
+            );
+          }
+          continue;
+        }
+
         const importedCode = await readResolvedCode(resolvedImport.id);
         if (!importedCode) {
           continue;
@@ -260,7 +284,8 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
 
           const safety = checkSafety(importedCode, resolvedImport.id, {
             importerId: cleanId,
-            triggerArgument: findFirstArgument(deferredCallArgs)
+            triggerArgument: findFirstArgument(deferredCallArgs),
+            criticalSelectors: options.criticalSelectors
           });
 
           if (!safety.isSafeToDefer) {

@@ -136,9 +136,13 @@ function getStaticSelector(argument: string | null): string | null {
   return null;
 }
 
-function isCriticalSelector(selector: string): boolean {
+function isCriticalSelector(selector: string, extraCriticalSelectors: string[] = []): boolean {
   const normalizedSelector = selector.trim().toLowerCase();
-  return EXACT_CRITICAL_SELECTORS.has(normalizedSelector) || CRITICAL_SELECTOR_PATTERN.test(normalizedSelector);
+  const hasExactMatch =
+    EXACT_CRITICAL_SELECTORS.has(normalizedSelector) ||
+    extraCriticalSelectors.some((entry) => entry.trim().toLowerCase() === normalizedSelector);
+
+  return hasExactMatch || CRITICAL_SELECTOR_PATTERN.test(normalizedSelector);
 }
 
 function hasRiskySynchronousBehavior(code: string): boolean {
@@ -149,6 +153,7 @@ export function checkSafety(code: string, id: string, context: SafetyCheckContex
   const reasons: string[] = [];
   const clientModule = isClientModule(id);
   const selector = getStaticSelector(context.triggerArgument);
+  const extraCriticalSelectors = context.criticalSelectors ?? [];
 
   if (!clientModule) {
     reasons.push('not a client-side source module');
@@ -163,7 +168,7 @@ export function checkSafety(code: string, id: string, context: SafetyCheckContex
     reasons.push('trigger is not a static selector string');
   }
 
-  if (selector && isCriticalSelector(selector)) {
+  if (selector && isCriticalSelector(selector, extraCriticalSelectors)) {
     reasons.push('trigger targets a critical or first-paint selector');
   }
 
