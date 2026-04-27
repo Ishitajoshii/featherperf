@@ -5,13 +5,12 @@ import { featherperf } from '../dist/plugin.js';
 import { checkSafety } from '../dist/safety.js';
 import { transformCode } from '../dist/transform.js';
 
-test('virtual runtime module points at the published runtime package', () => {
+test('virtual runtime module points at the resolved runtime entry', () => {
   const plugin = featherperf();
+  const virtualModule = plugin.load?.('\0virtual:featherperf-runtime');
 
-  assert.equal(
-    plugin.load?.('\0virtual:featherperf-runtime'),
-    "export { deferModuleEntry } from '@featherperf/runtime';"
-  );
+  assert.equal(typeof virtualModule, 'string');
+  assert.match(virtualModule, /export \{ deferModuleEntry \} from "file:\/\/\/.*runtime\/dist\/index\.js";?/i);
 });
 
 test('transformCode rewrites a single-binding deferred import', () => {

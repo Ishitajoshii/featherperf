@@ -11,6 +11,21 @@ The benchmark story is intentionally narrow: FeatherPerf is trying to improve sc
 
 ## Reproduction Method
 
+### Recommended proof flow
+
+If you want the fastest before/after evaluation path for the repo, run:
+
+```powershell
+corepack pnpm demo:compare
+```
+
+That command runs the local demo twice under the same benchmark method:
+
+- `FEATHERPERF=off`
+- `FEATHERPERF=on`
+
+Then it prints a readable comparison based on the saved median summaries.
+
 ### Local demo default run
 
 ```powershell

@@ -36,6 +36,17 @@ npm install @featherperf/vite-plugin
 
 `@featherperf/runtime` is installed automatically as a dependency of the plugin.
 
+## Evaluate In 5 Minutes
+
+If you want the fastest proof path before touching your own app:
+
+```powershell
+corepack pnpm install
+corepack pnpm demo:compare
+```
+
+That command runs the local demo twice, once with FeatherPerf off and once with FeatherPerf on, then prints a readable median comparison from the saved Lighthouse summaries.
+
 ## Quick Start
 
 ### Vite
@@ -192,6 +203,14 @@ Use the local benchmark as the default proof because it removes CDN, network, an
 corepack pnpm bench:local
 ```
 
+For the recommended product demo flow, use:
+
+```powershell
+corepack pnpm demo:compare
+```
+
+That is the quickest reproducible before/after story for the current repo.
+
 Recorded local medians on `2026-04-25`:
 
 - `off`: Performance `91`, FCP `2.708 s`, LCP `2.914 s`, TBT `64 ms`
@@ -241,8 +260,16 @@ Useful commands:
 ```powershell
 corepack pnpm build
 corepack pnpm test
+corepack pnpm demo:compare
 corepack pnpm bench:local
 ```
+
+## Docs
+
+- Quick evaluation: [docs/getting-started.md](docs/getting-started.md)
+- PRD: [docs/prd.md](docs/prd.md)
+- Benchmark method: [docs/benchmark-results.md](docs/benchmark-results.md)
+- Demo script: [docs/demo-script.md](docs/demo-script.md)
 
 ## Roadmap
 

@@ -1,5 +1,7 @@
 import { readFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import { collectDeferredImportCandidates } from './ast.js';
 import { PLUGIN_NAME } from './constants.js';
@@ -9,6 +11,22 @@ import type { DeferredImportCandidate, FeatherPerfOptions } from './types.js';
 
 const VIRTUAL_RUNTIME_PUBLIC_ID = 'virtual:featherperf-runtime';
 const VIRTUAL_RUNTIME_RESOLVED_ID = '\0virtual:featherperf-runtime';
+const runtimeRequire = createRequire(import.meta.url);
+
+function getRuntimeEntryHref(): string {
+  let runtimeEntryPath: string;
+
+  try {
+    runtimeEntryPath = runtimeRequire.resolve('@featherperf/runtime');
+  } catch {
+    runtimeEntryPath = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      '../../runtime/dist/index.js'
+    );
+  }
+
+  return pathToFileURL(runtimeEntryPath).href;
+}
 
 function stripQuery(id: string): string {
   return id.split('?')[0].split('#')[0];
@@ -66,7 +84,7 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
         return null;
       }
 
-      return `export { deferModuleEntry } from '@featherperf/runtime';`;
+      return `export { deferModuleEntry } from ${JSON.stringify(getRuntimeEntryHref())};`;
     },
     async transform(code, id) {
       const cleanId = stripQuery(id);
