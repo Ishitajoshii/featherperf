@@ -474,7 +474,8 @@ async function applyDesignOverrides(payloads) {
     .replace('"%%BENCHMARK_FALLBACK%%"', JSON.stringify(payloads.fallbackSummary))
     .replace('"%%CONFIG_PAYLOAD%%"', JSON.stringify(payloads.pluginPayload))
     .replace('"%%CONFIG_FALLBACK%%"', JSON.stringify(payloads.fallbackConfig))
-    .replace('href="#">Docs</a>', 'href="/docs/">Docs</a>')
+    .replace('href="#">Docs</a>', 'class="docs-nav-link" href="/docs/">Docs</a>')
+    .replace('<div class="hero-buttons"><a class="btn btn-primary" href="/compare/off/">Run a Live Comparison â†’</a><a class="btn btn-outline" href="/compare/on/">Explore Benchmark Lab</a></div>', '<div class="hero-buttons"><a class="btn btn-primary" href="/compare/off/">Run a Live Comparison â†’</a><a class="btn btn-outline" href="/compare/on/">Explore Benchmark Lab</a><a class="btn btn-outline docs-hero-link" href="/docs/">Read Docs</a></div>')
     .replace('href="#">Supported patterns', 'href="/docs/">Supported patterns');
   await writeFile(path.join(publicRoot, "index.html"), indexHtml, "utf8");
 

@@ -1,8 +1,8 @@
 # Getting Started
 
-## 5-Minute Evaluation
+## Fastest Proof Path
 
-If you want to know whether FeatherPerf is real, do this:
+If you want to verify the product claim before touching a real app, run the controlled demo in this repo:
 
 ```powershell
 corepack pnpm install
@@ -10,30 +10,29 @@ corepack pnpm demo:compare
 corepack pnpm demo:interaction
 ```
 
-Those commands run the local demo twice:
+Those commands run the demo with:
 
-- once with `FEATHERPERF=off`
-- once with `FEATHERPERF=on`
+- `FEATHERPERF=off`
+- `FEATHERPERF=on`
 
-`demo:compare` prints the navigation delta.
+Use `demo:compare` for navigation metrics such as FCP, LCP, and TBT.
 
-`demo:interaction` prints the user-input responsiveness delta.
+Use `demo:interaction` for responsiveness metrics such as Lighthouse timespan INP and browser Event Timing.
 
-## What To Look For
+## What Success Looks Like
 
-FeatherPerf is currently strongest when:
+FeatherPerf is strongest when:
 
-- first paint improves
-- user-input latency stays flat or improves
+- first paint improves materially
 - the deferred section is clearly below the fold
-- the motion module is using `gsap`, `ScrollTrigger`, or `lottie-web`
-- the code shape matches supported importer patterns
+- interaction stays flat or improves
+- the motion module is built around a supported importer shape
 
 Be careful not to overclaim if:
 
-- the demo win disappears on your real page
-- the page is dominated by media bytes instead of JS scheduling
-- the target section is hero-critical
+- the target section is actually hero-critical
+- the page is dominated by media bytes rather than JavaScript scheduling
+- the win disappears on the real page you care about
 
 ## Try It In A Real App
 
@@ -52,9 +51,9 @@ import { featherperf } from '@featherperf/vite-plugin';
 export default defineConfig({
   plugins: [
     featherperf({
-      include: ['src/components/motion/'],
+      include: ['src/pages/', 'src/scripts/'],
       exclude: [/hero/i],
-      criticalSelectors: ['#app', '#hero', '[data-critical]']
+      criticalSelectors: ['body', 'main', '.hero']
     })
   ]
 });
@@ -70,17 +69,16 @@ showcaseMotion.run('#gallery');
 
 ## Adoption Checklist
 
-- keep the target section below the fold
+- keep the deferred section below the fold
 - use static selector strings
 - isolate non-critical motion into its own module
-- avoid mixed import bindings for deferred modules
-- use `include` and `exclude` to stay explicit at first
-- tune `postLoadDelayMs` and `interactionQuietWindowMs` if you see deferred work waking up too early
-- compare off/on under the same navigation and interaction methods
+- keep hero and app-shell selectors protected
+- use `include` and `exclude` to keep rollout narrow at first
+- compare off and on under the same measurement method
 
-## Where To Go Next
+## Next References
 
 - Product overview: [README.md](../README.md)
-- PRD: [prd.md](./prd.md)
 - Benchmark method: [benchmark-results.md](./benchmark-results.md)
 - Demo narrative: [demo-script.md](./demo-script.md)
+- Hosted docs: `https://featherperf.web.app/docs/`

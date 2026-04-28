@@ -10,12 +10,14 @@ body{font-family:'Inter',-apple-system,sans-serif;color:var(--ink);background:va
 .navbar-links{display:flex;align-items:center;gap:32px;list-style:none}
 .navbar-links a{text-decoration:none;color:var(--muted);font-size:.92rem;font-weight:500;transition:color .2s}
 .navbar-links a:hover{color:var(--ink)}
+.navbar-links a.docs-nav-link{color:var(--orange);font-weight:700}
 .btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:var(--radius-pill);padding:.72rem 1.4rem;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;text-decoration:none;transition:transform .18s,box-shadow .18s,background .2s}
 .btn:hover{transform:translateY(-1px)}
 .btn-primary{color:#fff9f2;background:linear-gradient(135deg,var(--teal),var(--green));box-shadow:0 6px 20px rgba(15,76,92,.22)}
 .btn-primary:hover{box-shadow:0 8px 28px rgba(15,76,92,.30)}
 .btn-outline{color:var(--orange);background:transparent;border:1.5px solid var(--orange)}
 .btn-outline:hover{background:var(--orange-light)}
+.docs-hero-link{background:rgba(199,106,29,.08)}
 .btn-cta{color:#fff;background:var(--orange);box-shadow:0 4px 16px rgba(199,106,29,.25)}
 .btn-cta:hover{box-shadow:0 6px 22px rgba(199,106,29,.35)}
 .page{max-width:1320px;margin:0 auto;padding:0 32px 64px}
