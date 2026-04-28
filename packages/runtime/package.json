@@ -2,6 +2,12 @@
   "name": "@featherperf/runtime",
   "version": "0.1.0",
   "description": "Runtime scheduler used by FeatherPerf to defer safe client modules until idle or near-viewport.",
+  "keywords": [
+    "performance",
+    "runtime",
+    "lazy-load",
+    "intersection-observer"
+  ],
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
@@ -11,16 +17,26 @@
   "exports": {
     ".": "./dist/index.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ishitajoshii/featherperf.git",
+    "directory": "packages/runtime"
+  },
+  "bugs": {
+    "url": "https://github.com/Ishitajoshii/featherperf/issues"
+  },
+  "homepage": "https://github.com/Ishitajoshii/featherperf#readme",
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
     "test": "pnpm run build && node --test ./test/loader.test.mjs"
   },
-  "keywords": [
-    "performance",
-    "runtime",
-    "lazy-load",
-    "intersection-observer"
-  ]
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
 }

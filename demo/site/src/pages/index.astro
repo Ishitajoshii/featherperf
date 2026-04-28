@@ -7,259 +7,357 @@ const cards = Array.from({ length: 84 }, (_, i) => i + 1);
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>FeatherPerf Baseline Demo</title>
+		<title>FeatherPerf — Smart Resource Allocation Demo</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 		<style>
+			/* ── tokens ── */
 			:root {
-				--bg-a: #f9f4e9;
-				--bg-b: #dce7f6;
-				--ink: #1e1d1f;
-				--muted: #575460;
-				--card: rgba(255, 255, 255, 0.72);
+				--bg: #050a15;
+				--bg2: #0a1628;
+				--surface: rgba(255,255,255,0.035);
+				--surface-hover: rgba(255,255,255,0.06);
+				--border: rgba(255,255,255,0.07);
+				--border-vivid: rgba(0,245,212,0.25);
+				--text: #e2e8f0;
+				--text-muted: #8494a7;
+				--teal: #00f5d4;
+				--green: #4ade80;
+				--coral: #ff6b6b;
+				--purple: #a78bfa;
+				--amber: #fbbf24;
+				--font: 'Inter', system-ui, -apple-system, sans-serif;
+				--mono: 'JetBrains Mono', 'Cascadia Code', monospace;
+				--radius: 16px;
+				--radius-lg: 24px;
 			}
 
-			* {
-				box-sizing: border-box;
-			}
+			/* ── reset ── */
+			*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 			body {
-				margin: 0;
-				font-family: Georgia, "Times New Roman", serif;
-				color: var(--ink);
-				background:
-					radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8), transparent 42%),
-					radial-gradient(circle at 85% 20%, rgba(255, 200, 120, 0.22), transparent 38%),
-					linear-gradient(155deg, var(--bg-a), var(--bg-b));
+				font-family: var(--font);
+				color: var(--text);
+				background: var(--bg);
+				overflow-x: hidden;
+				-webkit-font-smoothing: antialiased;
 			}
 
-			main {
-				max-width: 1080px;
-				padding: 28px 18px 96px;
-				margin: 0 auto;
+			/* ── background ── */
+			.bg-orbs {
+				position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+			}
+			.bg-orbs span {
+				position: absolute; border-radius: 50%; filter: blur(120px); opacity: .12;
+			}
+			.bg-orbs .orb-a { width: 600px; height: 600px; top: -10%; left: -5%; background: var(--teal); animation: drift 22s ease-in-out infinite alternate; }
+			.bg-orbs .orb-b { width: 500px; height: 500px; bottom: 10%; right: -8%; background: var(--purple); animation: drift 18s ease-in-out infinite alternate-reverse; }
+			.bg-orbs .orb-c { width: 400px; height: 400px; top: 40%; left: 50%; background: var(--coral); opacity: .07; animation: drift 25s ease-in-out infinite alternate; }
+
+			@keyframes drift {
+				0%   { transform: translate(0, 0) scale(1); }
+				100% { transform: translate(40px, -30px) scale(1.08); }
 			}
 
-			h1 {
-				font-size: clamp(2rem, 5vw, 3.7rem);
-				line-height: 1.05;
-				margin: 0 0 12px;
+			/* ── layout ── */
+			main { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 0 24px 120px; }
+
+			/* ── navbar ── */
+			.navbar {
+				position: sticky; top: 0; z-index: 100;
+				padding: 16px 24px;
+				display: flex; align-items: center; gap: 12px;
+				backdrop-filter: blur(20px) saturate(1.4);
+				background: rgba(5,10,21,0.7);
+				border-bottom: 1px solid var(--border);
+			}
+			.nav-logo {
+				display: flex; align-items: center; gap: 10px;
+				font-weight: 800; font-size: 1.1rem;
+				text-decoration: none; color: var(--text);
+			}
+			.nav-logo svg { width: 22px; height: 22px; color: var(--teal); }
+			.nav-badge {
+				margin-left: auto;
+				padding: 6px 14px; border-radius: 999px;
+				background: rgba(0,245,212,0.08); border: 1px solid rgba(0,245,212,0.18);
+				font-size: .75rem; font-weight: 600; letter-spacing: .05em;
+				text-transform: uppercase; color: var(--teal);
 			}
 
-			p {
-				margin: 0;
-				color: var(--muted);
-				font-size: 1.05rem;
-				max-width: 62ch;
-			}
-
-			.panel {
-				margin-top: 28px;
-				padding: 18px;
-				border: 1px solid rgba(30, 29, 31, 0.2);
-				border-radius: 16px;
-				background: var(--card);
-				backdrop-filter: blur(3px);
-			}
-
-			.grid {
-				margin-top: 32px;
-				display: grid;
-				grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-				gap: 10px;
-			}
-
-			.orb {
-				height: 96px;
-				border-radius: 18px;
-				border: 1px solid rgba(30, 29, 31, 0.18);
-				background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(229, 233, 240, 0.88));
-				display: grid;
-				place-items: center;
-				font-size: 0.95rem;
-			}
-
-			#lottie-host {
-				width: 100%;
-				height: 210px;
-				border-radius: 14px;
-				border: 1px dashed rgba(30, 29, 31, 0.33);
-				margin-top: 14px;
-				display: grid;
-				place-items: center;
-				font-size: 1rem;
-				background: rgba(255, 255, 255, 0.45);
-			}
-
-			.notice {
-				margin-top: 14px;
-				font-size: 0.93rem;
-				color: var(--muted);
-			}
-
+			/* ── hero ── */
 			.hero {
-				min-height: 132vh;
+				min-height: 100vh;
+				display: grid; align-content: center;
+				padding: 80px 0 40px;
+				position: relative;
+			}
+			.hero-eyebrow {
+				display: inline-flex; width: fit-content;
+				padding: 8px 18px; border-radius: 999px;
+				background: rgba(0,245,212,0.06); border: 1px solid rgba(0,245,212,0.15);
+				font-size: .78rem; font-weight: 600;
+				letter-spacing: .06em; text-transform: uppercase;
+				color: var(--teal);
+				animation: fade-up .8s ease both;
+			}
+			.hero h1 {
+				margin-top: 24px;
+				font-size: clamp(2.4rem, 6vw, 4.2rem);
+				font-weight: 900; line-height: 1.05;
+				letter-spacing: -0.03em;
+				animation: fade-up .8s ease .1s both;
+			}
+			.hero h1 .gradient-text {
+				background: linear-gradient(135deg, var(--teal) 0%, var(--purple) 50%, var(--coral) 100%);
+				-webkit-background-clip: text; -webkit-text-fill-color: transparent;
+				background-clip: text;
+				background-size: 200% auto;
+				animation: gradient-shift 4s ease-in-out infinite alternate;
+			}
+			.hero .lead {
+				margin-top: 20px; max-width: 56ch;
+				font-size: 1.12rem; line-height: 1.65;
+				color: var(--text-muted);
+				animation: fade-up .8s ease .2s both;
+			}
+
+			@keyframes fade-up {
+				from { opacity: 0; transform: translateY(24px); }
+				to   { opacity: 1; transform: translateY(0); }
+			}
+			@keyframes gradient-shift {
+				0%   { background-position: 0% center; }
+				100% { background-position: 200% center; }
+			}
+
+			/* ── metrics row ── */
+			.metrics-strip {
+				margin-top: 48px;
 				display: grid;
-				align-content: start;
-				padding-top: 6vh;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 16px;
+				animation: fade-up .8s ease .3s both;
+			}
+			.metric-card {
+				padding: 22px;
+				border-radius: var(--radius);
+				background: var(--surface);
+				border: 1px solid var(--border);
+				backdrop-filter: blur(8px);
+				transition: border-color .3s, transform .3s, box-shadow .3s;
+			}
+			.metric-card:hover {
+				border-color: var(--border-vivid);
+				transform: translateY(-2px);
+				box-shadow: 0 8px 32px rgba(0,245,212,0.08);
+			}
+			.metric-card .label {
+				font-size: .78rem; font-weight: 600;
+				text-transform: uppercase; letter-spacing: .06em;
+				color: var(--text-muted);
+			}
+			.metric-card .value {
+				display: block; margin-top: 8px;
+				font-size: 1.6rem; font-weight: 800;
+				color: var(--teal);
+			}
+			.metric-card .desc {
+				margin-top: 6px;
+				font-size: .85rem; line-height: 1.5;
+				color: var(--text-muted);
 			}
 
-			.kicker {
-				display: inline-flex;
-				width: fit-content;
-				padding: 0.4rem 0.75rem;
+			/* ── interaction panel ── */
+			.interaction-panel {
+				margin-top: 32px;
+				padding: 28px;
+				border-radius: var(--radius-lg);
+				background: var(--surface);
+				border: 1px solid var(--border);
+				animation: fade-up .8s ease .4s both;
+			}
+			.interaction-panel strong {
+				font-size: 1.05rem; font-weight: 700;
+			}
+			.interaction-copy {
+				margin-top: 8px; margin-bottom: 18px;
+				max-width: 54ch;
+				font-size: .95rem; line-height: 1.6;
+				color: var(--text-muted);
+			}
+			.interaction-row {
+				display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+			}
+			.interaction-button {
+				appearance: none; border: 0;
 				border-radius: 999px;
-				background: rgba(255, 255, 255, 0.72);
-				border: 1px solid rgba(30, 29, 31, 0.15);
-				font-size: 0.78rem;
-				letter-spacing: 0.08em;
-				text-transform: uppercase;
-				color: var(--muted);
+				padding: 14px 28px;
+				font-family: var(--font);
+				font-size: .95rem; font-weight: 700;
+				color: #050a15;
+				background: linear-gradient(135deg, var(--teal), var(--green));
+				box-shadow: 0 4px 24px rgba(0,245,212,0.2);
+				cursor: pointer;
+				transition: transform .2s, box-shadow .2s;
+			}
+			.interaction-button:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 8px 32px rgba(0,245,212,0.3);
+			}
+			.interaction-button:active { transform: scale(.97); }
+			.interaction-status {
+				min-height: 1.4rem; font-size: .9rem; color: var(--text-muted);
+			}
+			.interaction-tag {
+				display: inline-flex; width: fit-content; margin-top: 14px;
+				padding: 6px 14px; border-radius: 999px;
+				background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.18);
+				font-size: .72rem; font-weight: 600;
+				letter-spacing: .04em; text-transform: uppercase;
+				color: var(--purple);
 			}
 
-			.lead {
-				margin-top: 18px;
+			/* ── deferred section ── */
+			.deferred-shell {
+				margin-top: 36vh;
+				padding-top: 32px;
+				border-top: 1px solid var(--border);
+			}
+			.deferred-shell h2 {
+				font-size: 1.6rem; font-weight: 800;
+				letter-spacing: -0.02em;
+			}
+			.deferred-shell h2 .accent { color: var(--purple); }
+			.shell-copy {
+				margin-top: 10px; margin-bottom: 20px;
+				font-size: .95rem; line-height: 1.6; color: var(--text-muted);
+				max-width: 60ch;
 			}
 
-			.metrics {
+			/* ── animation mount ── */
+			.panel {
+				margin-top: 24px; padding: 24px;
+				border-radius: var(--radius-lg);
+				background: var(--surface);
+				border: 1px solid var(--border);
+			}
+			.panel strong { font-weight: 700; }
+			#lottie-host {
+				width: 100%; height: 180px;
+				margin-top: 14px;
+				border-radius: var(--radius);
+				border: 1px dashed rgba(255,255,255,0.1);
+				display: grid; place-items: center;
+				font-family: var(--mono); font-size: .88rem;
+				color: var(--text-muted);
+				background: rgba(0,0,0,0.2);
+			}
+			.notice {
+				margin-top: 12px;
+				font-size: .85rem; color: var(--text-muted);
+			}
+
+			/* ── orb grid ── */
+			.grid {
 				margin-top: 28px;
 				display: grid;
-				grid-template-columns: repeat(3, minmax(0, 1fr));
-				gap: 12px;
+				grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+				gap: 8px;
+			}
+			.orb {
+				height: 80px;
+				border-radius: 14px;
+				border: 1px solid var(--border);
+				background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+				display: grid; place-items: center;
+				font-size: .82rem; font-weight: 500;
+				color: var(--text-muted);
+				transition: border-color .3s, background .3s;
+			}
+			.orb:hover {
+				border-color: var(--border-vivid);
+				background: rgba(0,245,212,0.03);
 			}
 
-			.metric {
-				padding: 16px;
-				border-radius: 16px;
-				background: rgba(255, 255, 255, 0.58);
-				border: 1px solid rgba(30, 29, 31, 0.14);
+			/* ── scroll reveal ── */
+			.reveal {
+				opacity: 0; transform: translateY(28px);
+				transition: opacity .7s ease, transform .7s ease;
+			}
+			.reveal.visible {
+				opacity: 1; transform: translateY(0);
 			}
 
-			.metric strong {
-				display: block;
-				font-size: 1.35rem;
-				margin-bottom: 4px;
-			}
-
-			.metric span {
-				font-size: 0.9rem;
-				color: var(--muted);
-			}
-
-			.interaction-panel {
-				margin-top: 22px;
-				padding: 18px;
-				border-radius: 18px;
-				background: rgba(255, 255, 255, 0.64);
-				border: 1px solid rgba(30, 29, 31, 0.14);
-			}
-
-			.interaction-copy {
-				margin-top: 8px;
-				margin-bottom: 14px;
-				max-width: 54ch;
-				font-size: 0.98rem;
-			}
-
-			.interaction-row {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 12px;
-				align-items: center;
-			}
-
-			.interaction-button {
-				appearance: none;
-				border: 0;
-				border-radius: 999px;
-				padding: 0.9rem 1.2rem;
-				font: inherit;
-				font-size: 0.98rem;
-				font-weight: 600;
-				color: #fff8f0;
-				background: linear-gradient(135deg, #0f4c5c, #2c6e49);
-				box-shadow: 0 10px 24px rgba(15, 76, 92, 0.18);
-				cursor: pointer;
-			}
-
-			.interaction-status {
-				min-height: 1.4rem;
-				font-size: 0.93rem;
-				color: var(--muted);
-			}
-
-			.interaction-tag {
-				display: inline-flex;
-				width: fit-content;
-				margin-top: 10px;
-				padding: 0.34rem 0.68rem;
-				border-radius: 999px;
-				background: rgba(15, 76, 92, 0.08);
-				border: 1px solid rgba(15, 76, 92, 0.14);
-				font-size: 0.76rem;
-				letter-spacing: 0.04em;
-				text-transform: uppercase;
-				color: #0f4c5c;
-			}
-
-			.deferred-shell {
-				margin-top: 28vh;
-				padding-top: 24px;
-				border-top: 1px solid rgba(30, 29, 31, 0.12);
-			}
-
-			.shell-copy {
-				margin-top: 10px;
-				margin-bottom: 18px;
-			}
-
+			/* ── responsive ── */
 			@media (max-width: 720px) {
-				.hero {
-					min-height: 154vh;
-				}
-
-				.deferred-shell {
-					margin-top: 34vh;
-				}
-
-				.metrics {
-					grid-template-columns: 1fr;
-				}
-
-				.grid {
-					grid-template-columns: repeat(2, minmax(0, 1fr));
-				}
+				.hero { min-height: auto; padding: 60px 0 30px; }
+				.hero h1 { font-size: 2rem; }
+				.metrics-strip { grid-template-columns: 1fr; }
+				.grid { grid-template-columns: repeat(3, 1fr); }
+				.deferred-shell { margin-top: 20vh; }
 			}
 		</style>
 	</head>
 	<body>
+		<!-- Background -->
+		<div class="bg-orbs">
+			<span class="orb-a"></span>
+			<span class="orb-b"></span>
+			<span class="orb-c"></span>
+		</div>
+
+		<!-- Navbar -->
+		<nav class="navbar">
+			<a href="#" class="nav-logo">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+					<line x1="16" y1="8" x2="2" y2="22"/>
+					<line x1="17.5" y1="15" x2="9" y2="15"/>
+				</svg>
+				FeatherPerf
+			</a>
+			<div class="nav-badge">Smart Resource Allocation</div>
+		</nav>
+
 		<main>
+			<!-- Hero -->
 			<section class="hero">
-				<div class="kicker">Critical content first</div>
-				<h1>FeatherPerf Demo: Below-the-Fold Motion</h1>
+				<div class="hero-eyebrow">Critical content renders first</div>
+				<h1>
+					<span class="gradient-text">Below-the-fold motion</span><br />
+					shouldn't block your hero.
+				</h1>
 				<p class="lead">
-					The hero stays useful without waiting for GSAP or lottie-web. The heavy motion module
-					belongs to a lower section and should only wake up when that section is close to view.
+					This page deliberately loads a heavy GSAP + lottie-web animation bundle for
+					the section below. The hero stays fast because FeatherPerf defers that work
+					until the section is near the viewport.
 				</p>
 
-				<div class="metrics">
-					<div class="metric">
-						<strong>FCP</strong>
-						<span>Primary proof for this first win.</span>
+				<div class="metrics-strip">
+					<div class="metric-card">
+						<span class="label">First Contentful Paint</span>
+						<span class="value">FCP</span>
+						<span class="desc">Primary proof metric — how fast does useful content appear?</span>
 					</div>
-					<div class="metric">
-						<strong>TBT</strong>
-						<span>Needs to improve when the motion code is truly non-critical.</span>
+					<div class="metric-card">
+						<span class="label">Total Blocking Time</span>
+						<span class="value">TBT</span>
+						<span class="desc">Main-thread pressure — less blocking means snappier interactions.</span>
 					</div>
-					<div class="metric">
-						<strong>LCP</strong>
-						<span>Nice to have here, but not the core claim.</span>
+					<div class="metric-card">
+						<span class="label">Interaction to Next Paint</span>
+						<span class="value">INP</span>
+						<span class="desc">Hero-click responsiveness during the timespan benchmark.</span>
 					</div>
 				</div>
 
 				<div class="interaction-panel">
-					<strong>Interaction benchmark</strong>
+					<strong>Interaction Benchmark</strong>
 					<p class="interaction-copy">
-						This control stays above the fold and intentionally does very little work. The
-						baseline comparison asks whether lower-page motion setup is stealing time from an
-						early user input.
+						This button stays above the fold and does minimal work. The benchmark
+						measures whether below-the-fold motion setup steals time from early user input.
 					</p>
 					<div class="interaction-row">
 						<button
@@ -277,27 +375,29 @@ const cards = Array.from({ length: 84 }, (_, i) => i + 1);
 				</div>
 			</section>
 
-			<section class="deferred-shell" id="deferred-showcase">
-				<h2>Deferred Motion Section</h2>
+			<!-- Deferred Motion Section -->
+			<section class="deferred-shell reveal" id="deferred-showcase">
+				<h2>Deferred <span class="accent">Motion</span> Section</h2>
 				<p class="shell-copy">
-					This section is intentionally below the fold. It contains the GSAP tile reveal plus the
-					lottie-web initialization mount used for the benchmark.
+					This section is intentionally below the fold. It contains the GSAP tile reveal
+					plus the lottie-web initialization mount used for the benchmark.
 				</p>
 			</section>
 
-			<section class="panel" id="deferred-panel">
+			<section class="panel reveal" id="deferred-panel">
 				<strong>Animation Mount</strong>
 				<div id="lottie-host">Loading lottie-web...</div>
 				<div class="notice">
-					Used to force lottie-web runtime initialization only when the deferred section gets close.
+					lottie-web runtime initialization fires only when the deferred section gets close to the viewport.
 				</div>
 			</section>
 
-			<section class="grid" id="deferred-grid">
+			<section class="grid reveal" id="deferred-grid">
 				{cards.map((card) => <div class="orb">Tile {card}</div>)}
 			</section>
 		</main>
 
+		<!-- Interaction benchmark script -->
 		<script>
 			(() => {
 				const benchmarkButton = document.getElementById('interaction-benchmark-button');
@@ -384,9 +484,24 @@ const cards = Array.from({ length: 84 }, (_, i) => i + 1);
 			})();
 		</script>
 
+		<!-- Baseline motion import -->
 		<script>
 			import { runBaselineAnimations } from '../scripts/baseline';
 			runBaselineAnimations('#deferred-panel');
+		</script>
+
+		<!-- Scroll reveal -->
+		<script>
+			(() => {
+				const observer = new IntersectionObserver((entries) => {
+					entries.forEach(entry => {
+						if (entry.isIntersecting) {
+							entry.target.classList.add('visible');
+						}
+					});
+				}, { threshold: 0.1 });
+				document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+			})();
 		</script>
 	</body>
 </html>

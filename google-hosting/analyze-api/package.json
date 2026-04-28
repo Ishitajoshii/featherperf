@@ -1,0 +1,11 @@
+﻿{
+  "name": "featherperf-analyze-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloud Run API for FeatherPerf benchmark explanation and config guidance.",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "dev": "node src/server.mjs"
+  }
+}

@@ -1,0 +1,5 @@
+.build/
+.gcloud/
+public/
+firebase-debug.log
+last-hosting-release.json

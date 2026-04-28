@@ -8,6 +8,8 @@ coverage/
 .cache/
 .astro/
 .vite/
+.tmp/
+.tmp-pack/
 demo/site/dist-featherperf-off/
 demo/site/dist-featherperf-on/
 
@@ -42,3 +44,8 @@ Thumbs.db
 .idea/
 .vscode/settings.json
 .vscode/*.code-workspace
+
+# Google Hosting local state
+google-hosting/public/
+google-hosting/.gcloud/
+google-hosting/last-hosting-release.json
