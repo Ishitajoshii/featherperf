@@ -233,8 +233,6 @@ It is not yet positioned as a universal drop-in optimization for every framework
 
 - Quick evaluation: [docs/getting-started.md](docs/getting-started.md)
 - Benchmark method: [docs/benchmark-results.md](docs/benchmark-results.md)
-- Demo script: [docs/demo-script.md](docs/demo-script.md)
-- Product notes: [prd.md](prd.md)
 - Hosted docs page: `https://featherperf.web.app/docs/`
 
 ## License
