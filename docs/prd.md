@@ -99,7 +99,8 @@ Primary success signal:
 Secondary signals:
 
 - equal or better LCP
-- eventual TBT and INP improvement as scheduler behavior matures
+- equal or better TBT on the controlled local demo
+- eventual INP improvement as scheduler behavior matures
 - low false-positive rewrite rate
 - clear developer understanding of why modules were skipped
 
@@ -107,9 +108,9 @@ Secondary signals:
 
 As of `2026-04-28`:
 
-- the local demo shows a strong FCP improvement
-- the current committed benchmark story still shows worse TBT in the `on` run
-- FeatherPerf should therefore be described as a strong scheduling prototype with real product shape, not as a universally faster production solution yet
+- the refreshed local 5-pass comparison shows strong FCP improvement
+- the refreshed local 5-pass comparison also improves TBT on the controlled demo
+- broader real-site validation is still required before claiming universal production wins
 
 ## Roadmap
 

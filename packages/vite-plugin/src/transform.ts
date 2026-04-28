@@ -21,6 +21,8 @@ function createDeferredReplacement(
     `${callIndent}  trigger: ${firstArgument},`,
     `${callIndent}  idleTimeoutMs: ${options.idleTimeoutMs ?? 1500},`,
     `${callIndent}  lookaheadPx: ${options.lookaheadPx ?? 300},`,
+    `${callIndent}  postLoadDelayMs: ${options.postLoadDelayMs ?? 1500},`,
+    `${callIndent}  interactionQuietWindowMs: ${options.interactionQuietWindowMs ?? 750},`,
     `${callIndent}  debug: ${options.debug ? 'true' : 'false'},`,
     `${callIndent}  label: ${JSON.stringify(label)}`,
     `${callIndent}}, async () => {`,

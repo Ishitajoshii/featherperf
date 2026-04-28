@@ -162,6 +162,8 @@ featherperf({
   debug: false,
   lookaheadPx: 300,
   idleTimeoutMs: 1500,
+  postLoadDelayMs: 1500,
+  interactionQuietWindowMs: 750,
   include: ['src/components/motion/'],
   exclude: [/hero/i, 'src/components/header'],
   criticalSelectors: ['#app', '#hero', '[data-critical]']
@@ -171,6 +173,8 @@ featherperf({
 - `debug`: logs why modules were deferred or skipped during build and runtime
 - `lookaheadPx`: starts loading shortly before the trigger enters view
 - `idleTimeoutMs`: idle budget used before executing the deferred import
+- `postLoadDelayMs`: minimum wait after load before a deferred module may wake up
+- `interactionQuietWindowMs`: keeps deferred work out of active scrolling and recent input
 - `include`: optional importer path filters; if set, only matching files are processed
 - `exclude`: importer path filters to keep critical files out of scope
 - `criticalSelectors`: extra selectors that should never be deferred
@@ -211,18 +215,19 @@ corepack pnpm demo:compare
 
 That is the quickest reproducible before/after story for the current repo.
 
-Recorded local medians on `2026-04-25`:
+Recorded local medians on `2026-04-28`:
 
-- `off`: Performance `91`, FCP `2.708 s`, LCP `2.914 s`, TBT `64 ms`
-- `on`: Performance `93`, FCP `1.804 s`, LCP `2.854 s`, TBT `132 ms`
+- `off`: Performance `90`, FCP `2.754 s`, LCP `2.840 s`, TBT `125 ms`
+- `on`: Performance `100`, FCP `0.797 s`, LCP `0.947 s`, TBT `0 ms`
 
 What that means right now:
 
 - first paint clearly improves
-- LCP improves slightly
-- TBT is still worse than baseline
+- LCP improves materially on the controlled local demo
+- TBT improves on the controlled local demo
+- the deferred motion bundle is moved out of the initial navigation window rather than magically removed from the app
 
-So the current product claim is narrow and honest: FeatherPerf already helps delay non-critical motion for better paint timing, but it still needs stronger main-thread wins before it can claim full production maturity.
+So the current product claim is stronger than before, but still bounded: FeatherPerf now has a credible controlled-demo story for paint timing and main-thread relief, while broader real-site validation is still a phase-two proof problem.
 
 Detailed benchmark method and committed result sets live in [docs/benchmark-results.md](docs/benchmark-results.md).
 

@@ -5,6 +5,10 @@ import type { DeferredModuleOptions } from './types.js';
 
 const DEFAULT_IDLE_TIMEOUT_MS = 1500;
 const DEFAULT_LOOKAHEAD_PX = 300;
+const DEFAULT_POST_LOAD_DELAY_MS = 1500;
+const DEFAULT_INTERACTION_QUIET_WINDOW_MS = 750;
+const ACTIVITY_EVENTS = ['scroll', 'wheel', 'touchmove', 'pointerdown', 'keydown'] as const;
+const ACTIVITY_LISTENER_OPTIONS: AddEventListenerOptions = { passive: true };
 
 function getNow(): number {
   return typeof performance === 'undefined' ? Date.now() : performance.now();
@@ -22,9 +26,52 @@ export function deferModuleEntry(
   const logger = createRuntimeLogger(options.debug, label);
   const idleTimeoutMs = options.idleTimeoutMs ?? DEFAULT_IDLE_TIMEOUT_MS;
   const lookaheadPx = options.lookaheadPx ?? DEFAULT_LOOKAHEAD_PX;
+  const postLoadDelayMs = options.postLoadDelayMs ?? DEFAULT_POST_LOAD_DELAY_MS;
+  const interactionQuietWindowMs =
+    options.interactionQuietWindowMs ?? DEFAULT_INTERACTION_QUIET_WINDOW_MS;
   const startedAt = getNow();
   let hasLoaded = false;
   let isScheduled = false;
+  let lastActivityAt = startedAt;
+  let loadedAt: number | null = null;
+  let readinessTimer: ReturnType<typeof globalThis.setTimeout> | null = null;
+
+  const clearReadinessTimer = () => {
+    if (readinessTimer === null) {
+      return;
+    }
+
+    globalThis.clearTimeout(readinessTimer);
+    readinessTimer = null;
+  };
+
+  const updateActivity = () => {
+    lastActivityAt = getNow();
+  };
+
+  const removeActivityListeners = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    for (const eventName of ACTIVITY_EVENTS) {
+      window.removeEventListener(eventName, updateActivity, ACTIVITY_LISTENER_OPTIONS);
+    }
+  };
+
+  const addActivityListeners = () => {
+    for (const eventName of ACTIVITY_EVENTS) {
+      window.addEventListener(eventName, updateActivity, ACTIVITY_LISTENER_OPTIONS);
+    }
+  };
+
+  const markLoadedAt = () => {
+    if (loadedAt !== null) {
+      return;
+    }
+
+    loadedAt = getNow();
+  };
 
   const run = (reason: string) => {
     if (hasLoaded) {
@@ -32,6 +79,8 @@ export function deferModuleEntry(
     }
 
     hasLoaded = true;
+    clearReadinessTimer();
+    removeActivityListeners();
     logger.log(`loading because ${reason} at ${formatDuration(getNow() - startedAt)}`);
 
     void Promise.resolve(load())
@@ -58,9 +107,40 @@ export function deferModuleEntry(
     logger.log(`scheduled via ${mode} because ${reason}`);
   };
 
+  const scheduleWhenQuiet = (reason: string) => {
+    if (hasLoaded || isScheduled) {
+      return;
+    }
+
+    clearReadinessTimer();
+
+    const effectiveLoadedAt = loadedAt ?? getNow();
+    const timeSinceLoadMs = getNow() - effectiveLoadedAt;
+    const timeSinceActivityMs = getNow() - lastActivityAt;
+    const remainingPostLoadMs = Math.max(0, postLoadDelayMs - timeSinceLoadMs);
+    const remainingQuietMs = Math.max(0, interactionQuietWindowMs - timeSinceActivityMs);
+    const waitMs = Math.max(remainingPostLoadMs, remainingQuietMs);
+
+    if (waitMs > 0) {
+      logger.log(
+        `waiting ${formatDuration(waitMs)} before ${reason} (post-load ${Math.round(
+          remainingPostLoadMs
+        )}ms, interaction-quiet ${Math.round(remainingQuietMs)}ms)`
+      );
+      readinessTimer = globalThis.setTimeout(() => {
+        readinessTimer = null;
+        scheduleWhenQuiet(reason);
+      }, waitMs);
+      return;
+    }
+
+    schedule(reason);
+  };
+
   const scheduleAfterLoad = (reason: string) => {
     if (document.readyState === 'complete') {
-      schedule(reason);
+      markLoadedAt();
+      scheduleWhenQuiet(reason);
       return;
     }
 
@@ -68,7 +148,8 @@ export function deferModuleEntry(
     window.addEventListener(
       'load',
       () => {
-        schedule(reason);
+        markLoadedAt();
+        scheduleWhenQuiet(reason);
       },
       { once: true }
     );
@@ -78,6 +159,20 @@ export function deferModuleEntry(
     run('server-render');
     return;
   }
+
+  if (document.readyState === 'complete') {
+    markLoadedAt();
+  } else {
+    window.addEventListener(
+      'load',
+      () => {
+        markLoadedAt();
+      },
+      { once: true }
+    );
+  }
+
+  addActivityListeners();
 
   const trigger = options.trigger?.trim();
   if (trigger) {

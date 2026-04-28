@@ -109,22 +109,22 @@ Artifacts:
 
 ### Local comparison: FeatherPerf off vs on
 
-- Date: `2026-04-25`
+- Date: `2026-04-28`
 - Labels: `local-featherperf-off-fresh-5x` and `local-featherperf-on-fresh-5x`
 - Aggregate: `median of 5`
 
 | Mode | Performance | FCP | LCP | TBT | Speed Index | CLS | Total Bytes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Off | `91` | `2.708 s` | `2.914 s` | `64 ms` | `2.708 s` | `0` | `0.4 MB` |
-| On | `93` | `1.804 s` | `2.854 s` | `132 ms` | `1.804 s` | `0` | `0.4 MB` |
-| Delta | `+2` | `-904 ms` | `-60 ms` | `+68 ms` | `-904 ms` | `0` | `0 MB` |
+| Off | `90` | `2.754 s` | `2.840 s` | `125 ms` | `2.754 s` | `0` | `0.4 MB` |
+| On | `100` | `0.797 s` | `0.947 s` | `0 ms` | `0.797 s` | `0` | `0 MB` |
+| Delta | `+10` | `-1957 ms` | `-1893 ms` | `-125 ms` | `-1957 ms` | `0` | `-0.4 MB` |
 
 What this means:
 
-- The current prototype clearly improves first paint on the controlled demo.
-- It does not yet beat the `off` run on TBT, so the docs should not overclaim "faster across the board".
-- Byte weight is basically unchanged. This is a scheduling story, not a bundle-size story.
-- The `on` run adds one small extra request, with request count moving from `3` to `4`.
+- The current scheduler fix improves first paint and TBT on the controlled demo.
+- The deferred motion bundle is moved out of the initial navigation window, which is why the `on` run reports `0 MB` during the navigation benchmark.
+- This is still a scheduling story, not a claim that the app's motion bundle vanished forever.
+- The controlled demo proof is now much stronger, but broader real-site validation is still necessary.
 
 Artifacts:
 

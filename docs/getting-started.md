@@ -27,7 +27,7 @@ FeatherPerf is currently strongest when:
 
 Be careful not to overclaim if:
 
-- TBT gets worse
+- the demo win disappears on your real page
 - the page is dominated by media bytes instead of JS scheduling
 - the target section is hero-critical
 
@@ -71,6 +71,7 @@ showcaseMotion.run('#gallery');
 - isolate non-critical motion into its own module
 - avoid mixed import bindings for deferred modules
 - use `include` and `exclude` to stay explicit at first
+- tune `postLoadDelayMs` and `interactionQuietWindowMs` if you see deferred work waking up too early
 - compare off/on under the same benchmark method
 
 ## Where To Go Next

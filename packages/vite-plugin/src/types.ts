@@ -2,6 +2,8 @@ export interface FeatherPerfOptions {
   debug?: boolean;
   idleTimeoutMs?: number;
   lookaheadPx?: number;
+  postLoadDelayMs?: number;
+  interactionQuietWindowMs?: number;
   include?: Array<string | RegExp>;
   exclude?: Array<string | RegExp>;
   criticalSelectors?: string[];
