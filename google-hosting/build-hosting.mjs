@@ -461,6 +461,45 @@ async function writeJson(filePath, value) {
   await writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
+const templateRoot = path.join(hostingRoot, "assets", "templates");
+
+async function applyDesignOverrides(payloads) {
+  // 1. Copy styles.css
+  await copyFile(path.join(templateRoot, "styles.css"), path.join(publicRoot, "styles.css"));
+
+  // 2. Apply themed landing page
+  let indexHtml = await readFile(path.join(templateRoot, "index.html"), "utf8");
+  indexHtml = indexHtml
+    .replace('"%%BENCHMARK_PAYLOAD%%"', JSON.stringify(payloads.benchmarkPayload))
+    .replace('"%%BENCHMARK_FALLBACK%%"', JSON.stringify(payloads.fallbackSummary))
+    .replace('"%%CONFIG_PAYLOAD%%"', JSON.stringify(payloads.pluginPayload))
+    .replace('"%%CONFIG_FALLBACK%%"', JSON.stringify(payloads.fallbackConfig));
+  await writeFile(path.join(publicRoot, "index.html"), indexHtml, "utf8");
+
+  // 3. Apply themed compare pages
+  const compareTemplate = await readFile(path.join(templateRoot, "compare.html"), "utf8");
+  for (const mode of ["off", "on"]) {
+    const builtHtml = await readFile(path.join(compareRoot, mode, "index.html"), "utf8");
+    const scriptMatch = builtHtml.match(/src="([^"]*demo-entry[^"]*)"/);
+    const scriptEntry = scriptMatch ? scriptMatch[1] : `./assets/demo-entry.js`;
+
+    const isOff = mode === "off";
+    const themed = compareTemplate
+      .replaceAll("%%MODE%%", mode)
+      .replace("%%TITLE%%", isOff ? "Baseline" : "Optimized")
+      .replace("%%TAG_LABEL%%", isOff ? "Baseline \u00b7 FeatherPerf OFF" : "Optimized \u00b7 FeatherPerf ON")
+      .replace("%%EYEBROW%%", isOff ? "Baseline Route \u00b7 JS-Heavy" : "Optimized Route \u00b7 FeatherPerf Active")
+      .replace("%%OFF_ACTIVE%%", isOff ? "active" : "")
+      .replace("%%ON_ACTIVE%%", isOff ? "" : "active")
+      .replace("%%NOTICE%%", isOff ? "Used to force lottie-web runtime initialization in baseline mode." : "Used to force lottie-web runtime initialization only when the deferred section gets close.")
+      .replace("%%SCRIPT_ENTRY%%", scriptEntry);
+
+    await writeFile(path.join(compareRoot, mode, "index.html"), themed, "utf8");
+  }
+
+  console.log("Applied themed design overrides from assets/templates/.");
+}
+
 async function main() {
   await rm(publicRoot, { recursive: true, force: true });
   await mkdir(compareRoot, { recursive: true });
@@ -481,7 +520,10 @@ async function main() {
   await writeJson(path.join(dataRoot, "demo-plugin-report.json"), payloads.pluginPayload);
   await writeJson(path.join(dataRoot, "official-analysis-fallback.json"), payloads.fallbackSummary);
   await writeJson(path.join(dataRoot, "config-hints-fallback.json"), payloads.fallbackConfig);
-  await writeFile(path.join(publicRoot, "index.html"), homepage(payloads), "utf8");
+
+  // Apply themed design (replaces old homepage() call)
+  await applyDesignOverrides(payloads);
+
   console.log(`Generated hosting output in ${publicRoot}`);
 }
 
