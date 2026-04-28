@@ -17,14 +17,17 @@ If you want the fastest before/after evaluation path for the repo, run:
 
 ```powershell
 corepack pnpm demo:compare
+corepack pnpm demo:interaction
 ```
 
-That command runs the local demo twice under the same benchmark method:
+Those commands run the local demo twice under the same benchmark method:
 
 - `FEATHERPERF=off`
 - `FEATHERPERF=on`
 
-Then it prints a readable comparison based on the saved median summaries.
+`demo:compare` prints the navigation comparison.
+
+`demo:interaction` prints the responsiveness comparison.
 
 ### Local demo default run
 
@@ -39,6 +42,21 @@ What that does:
 - runs Lighthouse with mobile defaults
 - uses a fresh Chrome profile for each pass
 - saves HTML, JSON, screenshots, and `summary.json` under `packages/bench/results/<label>`
+
+### Local interaction default run
+
+```powershell
+corepack pnpm bench:interaction
+```
+
+What that does:
+
+- builds `demo/site` in production mode
+- serves `demo/site/dist` on `http://127.0.0.1:4321/`
+- opens a real browser with Puppeteer
+- records a Lighthouse timespan around a hero click
+- captures browser Event Timing data for the same interaction
+- saves HTML, JSON, `run-*.interaction.json`, and `summary.json` under `packages/bench/results/<label>`
 
 ### Local FeatherPerf off/on comparison
 
@@ -115,9 +133,9 @@ Artifacts:
 
 | Mode | Performance | FCP | LCP | TBT | Speed Index | CLS | Total Bytes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Off | `90` | `2.754 s` | `2.840 s` | `125 ms` | `2.754 s` | `0` | `0.4 MB` |
-| On | `100` | `0.797 s` | `0.947 s` | `0 ms` | `0.797 s` | `0` | `0 MB` |
-| Delta | `+10` | `-1957 ms` | `-1893 ms` | `-125 ms` | `-1957 ms` | `0` | `-0.4 MB` |
+| Off | `80` | `2.748 s` | `2.997 s` | `422 ms` | `2.748 s` | `0` | `0.4 MB` |
+| On | `100` | `0.801 s` | `0.951 s` | `0 ms` | `0.801 s` | `0` | `0 MB` |
+| Delta | `+20` | `-1947 ms` | `-2046 ms` | `-422 ms` | `-1947 ms` | `0` | `-0.4 MB` |
 
 What this means:
 
@@ -130,6 +148,30 @@ Artifacts:
 
 - Off summary: `packages/bench/results/local-featherperf-off-fresh-5x/summary.json`
 - On summary: `packages/bench/results/local-featherperf-on-fresh-5x/summary.json`
+
+### Local interaction comparison: FeatherPerf off vs on
+
+- Date: `2026-04-28`
+- Labels: `local-interaction-featherperf-off-fresh-5x` and `local-interaction-featherperf-on-fresh-5x`
+- Aggregate: `median of 5`
+- Method: Lighthouse timespan plus browser Event Timing on a real hero click
+
+| Mode | Lighthouse INP | Event Timing Click | Processing Delay | Manual Latency | CLS |
+| --- | --- | --- | --- | --- | --- |
+| Off | `55 ms` | `56 ms` | `28 ms` | `52 ms` | `0` |
+| On | `49 ms` | `48 ms` | `16 ms` | `49 ms` | `0` |
+| Delta | `-6 ms` | `-8 ms` | `-12 ms` | `-3 ms` | `0` |
+
+What this means:
+
+- FeatherPerf now has a measured interaction win on the controlled demo, not just a navigation win.
+- The responsiveness margin is smaller than the paint and TBT margin, which is the honest way to describe the current product.
+- Event Timing and Lighthouse INP point in the same direction, which makes the proof more credible.
+
+Artifacts:
+
+- Off summary: `packages/bench/results/local-interaction-featherperf-off-fresh-5x/summary.json`
+- On summary: `packages/bench/results/local-interaction-featherperf-on-fresh-5x/summary.json`
 
 ## Secondary Validation Baseline: ACM-VIT Homepage
 

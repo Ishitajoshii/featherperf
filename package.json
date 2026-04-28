@@ -6,8 +6,10 @@
   "scripts": {
     "build": "pnpm -r build",
     "bench:local": "pnpm --filter @featherperf/bench bench:local",
+    "bench:interaction": "pnpm --filter @featherperf/bench bench:interaction",
     "bench:acmvit": "pnpm --filter @featherperf/bench bench:acmvit",
     "demo:compare": "pnpm --filter @featherperf/bench demo:compare",
+    "demo:interaction": "pnpm --filter @featherperf/bench demo:interaction",
     "detect:heavy": "pnpm --filter @featherperf/vite-plugin report",
     "test": "pnpm -r test",
     "dev": "pnpm -r dev"

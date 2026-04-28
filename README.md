@@ -43,9 +43,12 @@ If you want the fastest proof path before touching your own app:
 ```powershell
 corepack pnpm install
 corepack pnpm demo:compare
+corepack pnpm demo:interaction
 ```
 
-That command runs the local demo twice, once with FeatherPerf off and once with FeatherPerf on, then prints a readable median comparison from the saved Lighthouse summaries.
+Use `demo:compare` for the navigation story: FCP, LCP, and TBT.
+
+Use `demo:interaction` for the responsiveness story: Lighthouse timespan INP plus browser Event Timing on a real scripted click.
 
 ## Quick Start
 
@@ -211,23 +214,31 @@ For the recommended product demo flow, use:
 
 ```powershell
 corepack pnpm demo:compare
+corepack pnpm demo:interaction
 ```
 
 That is the quickest reproducible before/after story for the current repo.
 
 Recorded local medians on `2026-04-28`:
 
-- `off`: Performance `90`, FCP `2.754 s`, LCP `2.840 s`, TBT `125 ms`
-- `on`: Performance `100`, FCP `0.797 s`, LCP `0.947 s`, TBT `0 ms`
+Navigation proof, median of 5 fresh-profile Lighthouse runs:
+
+- `off`: Performance `80`, FCP `2.748 s`, LCP `2.997 s`, TBT `422 ms`
+- `on`: Performance `100`, FCP `0.801 s`, LCP `0.951 s`, TBT `0 ms`
+
+Interaction proof, median of 5 fresh-profile hero-click timespan runs:
+
+- `off`: Lighthouse INP `55 ms`, Event Timing click `56 ms`, processing delay `28 ms`
+- `on`: Lighthouse INP `49 ms`, Event Timing click `48 ms`, processing delay `16 ms`
 
 What that means right now:
 
-- first paint clearly improves
-- LCP improves materially on the controlled local demo
-- TBT improves on the controlled local demo
-- the deferred motion bundle is moved out of the initial navigation window rather than magically removed from the app
+- the navigation win is strong and repeatable on the controlled demo
+- deferred motion work is materially moved out of the initial load path
+- interaction responsiveness also improves on the controlled demo, but the margin is smaller than the navigation win
+- this is still a scheduling story, not a claim that motion code disappears from the app forever
 
-So the current product claim is stronger than before, but still bounded: FeatherPerf now has a credible controlled-demo story for paint timing and main-thread relief, while broader real-site validation is still a phase-two proof problem.
+So the current product claim is stronger than before, but still bounded: FeatherPerf now has a credible controlled-demo story for paint timing, main-thread relief, and modest interaction latency improvement, while broader real-site validation is still a phase-two proof problem.
 
 Detailed benchmark method and committed result sets live in [docs/benchmark-results.md](docs/benchmark-results.md).
 
@@ -254,7 +265,7 @@ It is not yet at “install blindly on every site” maturity.
 - teams expecting framework-agnostic support
 - apps that need React/Next-specific integration guarantees
 - codebases with highly dynamic selectors and motion orchestration patterns
-- teams that need proven TBT and INP wins before rollout
+- teams that need broad real-app TBT and INP proof before rollout
 
 ## Local Demo
 
@@ -266,6 +277,7 @@ Useful commands:
 corepack pnpm build
 corepack pnpm test
 corepack pnpm demo:compare
+corepack pnpm demo:interaction
 corepack pnpm bench:local
 ```
 
@@ -284,7 +296,7 @@ Highest-value next steps:
 2. Reduce remaining regex-heavy safety heuristics.
 3. Add polished examples for plain Vite, Astro, and React.
 4. Introduce explicit config-file support and opt-in annotations.
-5. Prove wins on TBT and INP, not only FCP.
+5. Expand TBT and INP proof from the controlled demo into real app fixtures.
 6. Add CI, publish workflow, semver discipline, and integration fixtures.
 
 ## License

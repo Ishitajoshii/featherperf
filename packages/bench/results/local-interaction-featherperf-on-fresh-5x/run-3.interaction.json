@@ -1,0 +1,35 @@
+{
+  "benchmark": {
+    "isReady": true,
+    "interactionCount": 1,
+    "entries": [
+      {
+        "name": "pointerdown",
+        "startTimeMs": 2672,
+        "durationMs": 32,
+        "processingDelayMs": 8,
+        "processingDurationMs": 1,
+        "interactionId": 9292
+      },
+      {
+        "name": "click",
+        "startTimeMs": 2672,
+        "durationMs": 32,
+        "processingDelayMs": 13,
+        "processingDurationMs": 3,
+        "interactionId": 9292
+      }
+    ],
+    "lastInteraction": {
+      "manualLatencyMs": 31,
+      "paintSettled": true,
+      "name": "click",
+      "startTimeMs": 2672,
+      "durationMs": 32,
+      "processingDelayMs": 13,
+      "processingDurationMs": 3,
+      "interactionId": 9292
+    }
+  },
+  "motionState": null
+}

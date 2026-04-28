@@ -1,0 +1,114 @@
+{
+  "label": "local-interaction-featherperf-off-fresh-5x",
+  "url": "http://127.0.0.1:4321/",
+  "chromePath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "generatedAt": "2026-04-28T09:07:40.640Z",
+  "method": {
+    "runs": 5,
+    "freshProfilePerRun": true,
+    "aggregation": "median",
+    "benchmark": "hero-click-timespan",
+    "measurement": "Lighthouse INP + Event Timing",
+    "interactionDelayMs": 110,
+    "settleDelayMs": 400,
+    "motionOverlapTimeoutMs": 250
+  },
+  "runs": [
+    {
+      "lighthouseVersion": "13.1.0",
+      "fetchTime": "2026-04-28T09:07:03.524Z",
+      "metrics": {
+        "inpMs": 55,
+        "cls": 0
+      },
+      "interactionMetrics": {
+        "interactionCount": 1,
+        "alignedToDeferredWork": true,
+        "eventTimingDurationMs": 56,
+        "processingDelayMs": 19,
+        "processingDurationMs": 8,
+        "manualLatencyMs": 46
+      }
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "fetchTime": "2026-04-28T09:07:11.413Z",
+      "metrics": {
+        "inpMs": 84,
+        "cls": 0
+      },
+      "interactionMetrics": {
+        "interactionCount": 1,
+        "alignedToDeferredWork": true,
+        "eventTimingDurationMs": 80,
+        "processingDelayMs": 33,
+        "processingDurationMs": 11,
+        "manualLatencyMs": 84
+      }
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "fetchTime": "2026-04-28T09:07:19.680Z",
+      "metrics": {
+        "inpMs": 100,
+        "cls": 0
+      },
+      "interactionMetrics": {
+        "interactionCount": 1,
+        "alignedToDeferredWork": true,
+        "eventTimingDurationMs": 96,
+        "processingDelayMs": 38,
+        "processingDurationMs": 16,
+        "manualLatencyMs": 99
+      }
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "fetchTime": "2026-04-28T09:07:27.383Z",
+      "metrics": {
+        "inpMs": 48,
+        "cls": 0
+      },
+      "interactionMetrics": {
+        "interactionCount": 1,
+        "alignedToDeferredWork": true,
+        "eventTimingDurationMs": 48,
+        "processingDelayMs": 23,
+        "processingDurationMs": 4,
+        "manualLatencyMs": 52
+      }
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "fetchTime": "2026-04-28T09:07:34.807Z",
+      "metrics": {
+        "inpMs": 46,
+        "cls": 0
+      },
+      "interactionMetrics": {
+        "interactionCount": 1,
+        "alignedToDeferredWork": true,
+        "eventTimingDurationMs": 48,
+        "processingDelayMs": 28,
+        "processingDurationMs": 3,
+        "manualLatencyMs": 47
+      }
+    }
+  ],
+  "averages": {
+    "inpMs": 67,
+    "cls": 0,
+    "eventTimingDurationMs": 66,
+    "processingDelayMs": 28,
+    "processingDurationMs": 8,
+    "manualLatencyMs": 66
+  },
+  "medians": {
+    "inpMs": 55,
+    "cls": 0,
+    "eventTimingDurationMs": 56,
+    "processingDelayMs": 28,
+    "processingDurationMs": 8,
+    "manualLatencyMs": 52
+  }
+}

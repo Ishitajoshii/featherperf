@@ -143,6 +143,62 @@ const cards = Array.from({ length: 84 }, (_, i) => i + 1);
 				color: var(--muted);
 			}
 
+			.interaction-panel {
+				margin-top: 22px;
+				padding: 18px;
+				border-radius: 18px;
+				background: rgba(255, 255, 255, 0.64);
+				border: 1px solid rgba(30, 29, 31, 0.14);
+			}
+
+			.interaction-copy {
+				margin-top: 8px;
+				margin-bottom: 14px;
+				max-width: 54ch;
+				font-size: 0.98rem;
+			}
+
+			.interaction-row {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 12px;
+				align-items: center;
+			}
+
+			.interaction-button {
+				appearance: none;
+				border: 0;
+				border-radius: 999px;
+				padding: 0.9rem 1.2rem;
+				font: inherit;
+				font-size: 0.98rem;
+				font-weight: 600;
+				color: #fff8f0;
+				background: linear-gradient(135deg, #0f4c5c, #2c6e49);
+				box-shadow: 0 10px 24px rgba(15, 76, 92, 0.18);
+				cursor: pointer;
+			}
+
+			.interaction-status {
+				min-height: 1.4rem;
+				font-size: 0.93rem;
+				color: var(--muted);
+			}
+
+			.interaction-tag {
+				display: inline-flex;
+				width: fit-content;
+				margin-top: 10px;
+				padding: 0.34rem 0.68rem;
+				border-radius: 999px;
+				background: rgba(15, 76, 92, 0.08);
+				border: 1px solid rgba(15, 76, 92, 0.14);
+				font-size: 0.76rem;
+				letter-spacing: 0.04em;
+				text-transform: uppercase;
+				color: #0f4c5c;
+			}
+
 			.deferred-shell {
 				margin-top: 28vh;
 				padding-top: 24px;
@@ -197,6 +253,28 @@ const cards = Array.from({ length: 84 }, (_, i) => i + 1);
 						<span>Nice to have here, but not the core claim.</span>
 					</div>
 				</div>
+
+				<div class="interaction-panel">
+					<strong>Interaction benchmark</strong>
+					<p class="interaction-copy">
+						This control stays above the fold and intentionally does very little work. The
+						baseline comparison asks whether lower-page motion setup is stealing time from an
+						early user input.
+					</p>
+					<div class="interaction-row">
+						<button
+							class="interaction-button"
+							id="interaction-benchmark-button"
+							type="button"
+						>
+							Tap the hero control
+						</button>
+						<div class="interaction-status" id="interaction-benchmark-status">
+							Preparing interaction benchmark...
+						</div>
+					</div>
+					<div class="interaction-tag">Measured by Event Timing + Lighthouse timespan</div>
+				</div>
 			</section>
 
 			<section class="deferred-shell" id="deferred-showcase">
@@ -219,6 +297,90 @@ const cards = Array.from({ length: 84 }, (_, i) => i + 1);
 				{cards.map((card) => <div class="orb">Tile {card}</div>)}
 			</section>
 		</main>
+
+		<script>
+			(() => {
+				const benchmarkButton = document.getElementById('interaction-benchmark-button');
+				const benchmarkStatus = document.getElementById('interaction-benchmark-status');
+
+				if (!(benchmarkButton instanceof HTMLButtonElement) || !(benchmarkStatus instanceof HTMLElement)) {
+					return;
+				}
+
+				const benchmarkState = {
+					isReady: false,
+					interactionCount: 0,
+					entries: [],
+					lastInteraction: null,
+					reset() {
+						benchmarkState.interactionCount = 0;
+						benchmarkState.entries = [];
+						benchmarkState.lastInteraction = null;
+						benchmarkStatus.textContent = 'Ready for benchmark input.';
+					}
+				};
+
+				window.__featherperfInteractionBenchmark = benchmarkState;
+
+				const round = (value) => Number.isFinite(value) ? Math.round(value) : null;
+
+				if (typeof PerformanceObserver === 'function') {
+					try {
+						const observer = new PerformanceObserver((list) => {
+							for (const entry of list.getEntries()) {
+								if (entry.name !== 'click' && entry.name !== 'pointerdown') {
+									continue;
+								}
+
+								const record = {
+									name: entry.name,
+									startTimeMs: round(entry.startTime),
+									durationMs: round(entry.duration),
+									processingDelayMs: round(entry.processingStart - entry.startTime),
+									processingDurationMs: round(entry.processingEnd - entry.processingStart),
+									interactionId: entry.interactionId ?? null
+								};
+
+								benchmarkState.entries.push(record);
+
+								if (entry.name === 'click') {
+									benchmarkState.lastInteraction = {
+										...(benchmarkState.lastInteraction ?? {}),
+										...record
+									};
+								}
+							}
+						});
+
+						observer.observe({ type: 'event', buffered: true, durationThreshold: 16 });
+					} catch {
+						benchmarkStatus.textContent = 'Event Timing unavailable in this browser.';
+					}
+				}
+
+				benchmarkButton.addEventListener('click', (event) => {
+					benchmarkState.interactionCount += 1;
+					const startedAtMs = typeof event.timeStamp === 'number' ? event.timeStamp : performance.now();
+					benchmarkButton.dataset.interactionCount = String(benchmarkState.interactionCount);
+					benchmarkStatus.textContent = `Interaction ${benchmarkState.interactionCount} started...`;
+
+					requestAnimationFrame(() => {
+						requestAnimationFrame(() => {
+							const manualLatencyMs = round(performance.now() - startedAtMs);
+							benchmarkState.lastInteraction = {
+								...(benchmarkState.lastInteraction ?? {}),
+								manualLatencyMs,
+								paintSettled: true
+							};
+							benchmarkStatus.textContent = `Interaction ${benchmarkState.interactionCount} finished in about ${manualLatencyMs} ms.`;
+						});
+					});
+				});
+
+				benchmarkState.isReady = true;
+				benchmarkStatus.textContent = 'Ready for benchmark input.';
+			})();
+		</script>
 
 		<script>
 			import { runBaselineAnimations } from '../scripts/baseline';

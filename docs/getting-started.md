@@ -7,20 +7,24 @@ If you want to know whether FeatherPerf is real, do this:
 ```powershell
 corepack pnpm install
 corepack pnpm demo:compare
+corepack pnpm demo:interaction
 ```
 
-That command runs the local demo twice:
+Those commands run the local demo twice:
 
 - once with `FEATHERPERF=off`
 - once with `FEATHERPERF=on`
 
-Then it prints a human-readable median comparison using the saved Lighthouse summaries.
+`demo:compare` prints the navigation delta.
+
+`demo:interaction` prints the user-input responsiveness delta.
 
 ## What To Look For
 
 FeatherPerf is currently strongest when:
 
 - first paint improves
+- user-input latency stays flat or improves
 - the deferred section is clearly below the fold
 - the motion module is using `gsap`, `ScrollTrigger`, or `lottie-web`
 - the code shape matches supported importer patterns
@@ -72,7 +76,7 @@ showcaseMotion.run('#gallery');
 - avoid mixed import bindings for deferred modules
 - use `include` and `exclude` to stay explicit at first
 - tune `postLoadDelayMs` and `interactionQuietWindowMs` if you see deferred work waking up too early
-- compare off/on under the same benchmark method
+- compare off/on under the same navigation and interaction methods
 
 ## Where To Go Next
 

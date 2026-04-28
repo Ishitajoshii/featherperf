@@ -6,8 +6,10 @@
   "scripts": {
     "bench": "node src/run-benchmark.mjs",
     "bench:local": "node src/run-local-benchmark.mjs",
+    "bench:interaction": "node src/run-interaction-benchmark.mjs",
     "bench:acmvit": "node src/run-benchmark.mjs --url https://www.acmvit.in/ --label acmvit-baseline-fresh-5x --runs 5 --fresh-profile",
-    "demo:compare": "node src/run-product-demo.mjs"
+    "demo:compare": "node src/run-product-demo.mjs",
+    "demo:interaction": "node src/run-product-interaction-demo.mjs"
   },
   "devDependencies": {
     "lighthouse": "^13.1.0"

@@ -100,7 +100,7 @@ Secondary signals:
 
 - equal or better LCP
 - equal or better TBT on the controlled local demo
-- eventual INP improvement as scheduler behavior matures
+- measured interaction and INP improvement on the controlled local demo
 - low false-positive rewrite rate
 - clear developer understanding of why modules were skipped
 
@@ -110,6 +110,7 @@ As of `2026-04-28`:
 
 - the refreshed local 5-pass comparison shows strong FCP improvement
 - the refreshed local 5-pass comparison also improves TBT on the controlled demo
+- the local interaction benchmark now shows a smaller but positive responsiveness improvement
 - broader real-site validation is still required before claiming universal production wins
 
 ## Roadmap
@@ -118,5 +119,5 @@ As of `2026-04-28`:
 2. Reduce regex-heavy safety heuristics.
 3. Add starter examples for plain Vite, Astro, and React.
 4. Add explicit config-file support and clearer opt-in annotations.
-5. Improve proof on TBT and INP.
+5. Expand TBT and INP proof beyond the controlled demo into real app fixtures.
 6. Add CI and publish workflow.
