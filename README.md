@@ -228,17 +228,17 @@ Navigation proof, median of 5 fresh-profile Lighthouse runs:
 
 Interaction proof, median of 5 fresh-profile hero-click timespan runs:
 
-- `off`: Lighthouse INP `55 ms`, Event Timing click `56 ms`, processing delay `28 ms`
-- `on`: Lighthouse INP `49 ms`, Event Timing click `48 ms`, processing delay `16 ms`
+- `off`: Lighthouse INP `52 ms`, Event Timing click `48 ms`, processing delay `20 ms`
+- `on`: Lighthouse INP `25 ms`, Event Timing click `24 ms`, processing delay `10 ms`
 
 What that means right now:
 
 - the navigation win is strong and repeatable on the controlled demo
 - deferred motion work is materially moved out of the initial load path
-- interaction responsiveness also improves on the controlled demo, but the margin is smaller than the navigation win
+- interaction responsiveness now also improves clearly on the controlled demo
 - this is still a scheduling story, not a claim that motion code disappears from the app forever
 
-So the current product claim is stronger than before, but still bounded: FeatherPerf now has a credible controlled-demo story for paint timing, main-thread relief, and modest interaction latency improvement, while broader real-site validation is still a phase-two proof problem.
+So the current product claim is stronger than before, but still bounded: FeatherPerf now has a credible controlled-demo story for paint timing, main-thread relief, and measured interaction latency improvement, while broader real-site validation is still a phase-two proof problem.
 
 Detailed benchmark method and committed result sets live in [docs/benchmark-results.md](docs/benchmark-results.md).
 

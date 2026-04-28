@@ -4,6 +4,7 @@ import featherperfOptions from './featherperf.config.mjs';
 
 const featherperfFlag = process.env.FEATHERPERF ?? 'off';
 const featherperfEnabled = featherperfFlag === 'on';
+const featherperfDebug = process.env.FEATHERPERF_DEBUG === 'on';
 
 export default defineConfig({
   vite: {
@@ -11,7 +12,7 @@ export default defineConfig({
       ? [
         featherperf({
             ...featherperfOptions,
-            debug: true,
+            debug: featherperfDebug,
             lookaheadPx: 0
           })
         ]

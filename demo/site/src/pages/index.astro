@@ -361,6 +361,7 @@ const cards = Array.from({ length: 84 }, (_, i) => i + 1);
 				benchmarkButton.addEventListener('click', (event) => {
 					benchmarkState.interactionCount += 1;
 					const startedAtMs = typeof event.timeStamp === 'number' ? event.timeStamp : performance.now();
+					const motionPhaseAtClick = window.__featherperfDemoMotionState?.phase ?? 'not-started';
 					benchmarkButton.dataset.interactionCount = String(benchmarkState.interactionCount);
 					benchmarkStatus.textContent = `Interaction ${benchmarkState.interactionCount} started...`;
 
@@ -370,6 +371,7 @@ const cards = Array.from({ length: 84 }, (_, i) => i + 1);
 							benchmarkState.lastInteraction = {
 								...(benchmarkState.lastInteraction ?? {}),
 								manualLatencyMs,
+								motionPhaseAtClick,
 								paintSettled: true
 							};
 							benchmarkStatus.textContent = `Interaction ${benchmarkState.interactionCount} finished in about ${manualLatencyMs} ms.`;

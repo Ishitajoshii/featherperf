@@ -158,15 +158,16 @@ Artifacts:
 
 | Mode | Lighthouse INP | Event Timing Click | Processing Delay | Manual Latency | CLS |
 | --- | --- | --- | --- | --- | --- |
-| Off | `55 ms` | `56 ms` | `28 ms` | `52 ms` | `0` |
-| On | `49 ms` | `48 ms` | `16 ms` | `49 ms` | `0` |
-| Delta | `-6 ms` | `-8 ms` | `-12 ms` | `-3 ms` | `0` |
+| Off | `52 ms` | `48 ms` | `20 ms` | `57 ms` | `0` |
+| On | `25 ms` | `24 ms` | `10 ms` | `28 ms` | `0` |
+| Delta | `-27 ms` | `-24 ms` | `-10 ms` | `-29 ms` | `0` |
 
 What this means:
 
 - FeatherPerf now has a measured interaction win on the controlled demo, not just a navigation win.
-- The responsiveness margin is smaller than the paint and TBT margin, which is the honest way to describe the current product.
+- The current fair-timing benchmark still shows a clear responsiveness win.
 - Event Timing and Lighthouse INP point in the same direction, which makes the proof more credible.
+- Click-time phase capture shows the `off` run interacting after the heavy motion path has already started, while the `on` run still clicks before deferred motion begins.
 
 Artifacts:
 

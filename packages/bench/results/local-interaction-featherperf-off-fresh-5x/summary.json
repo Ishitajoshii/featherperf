@@ -2,7 +2,7 @@
   "label": "local-interaction-featherperf-off-fresh-5x",
   "url": "http://127.0.0.1:4321/",
   "chromePath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-  "generatedAt": "2026-04-28T09:07:40.640Z",
+  "generatedAt": "2026-04-28T09:26:28.051Z",
   "method": {
     "runs": 5,
     "freshProfilePerRun": true,
@@ -10,105 +10,107 @@
     "benchmark": "hero-click-timespan",
     "measurement": "Lighthouse INP + Event Timing",
     "interactionDelayMs": 110,
-    "settleDelayMs": 400,
-    "motionOverlapTimeoutMs": 250
+    "settleDelayMs": 400
   },
   "runs": [
     {
       "lighthouseVersion": "13.1.0",
-      "fetchTime": "2026-04-28T09:07:03.524Z",
+      "fetchTime": "2026-04-28T09:26:00.549Z",
       "metrics": {
-        "inpMs": 55,
+        "inpMs": 41,
         "cls": 0
       },
       "interactionMetrics": {
         "interactionCount": 1,
-        "alignedToDeferredWork": true,
-        "eventTimingDurationMs": 56,
-        "processingDelayMs": 19,
-        "processingDurationMs": 8,
-        "manualLatencyMs": 46
-      }
-    },
-    {
-      "lighthouseVersion": "13.1.0",
-      "fetchTime": "2026-04-28T09:07:11.413Z",
-      "metrics": {
-        "inpMs": 84,
-        "cls": 0
-      },
-      "interactionMetrics": {
-        "interactionCount": 1,
-        "alignedToDeferredWork": true,
-        "eventTimingDurationMs": 80,
-        "processingDelayMs": 33,
-        "processingDurationMs": 11,
-        "manualLatencyMs": 84
-      }
-    },
-    {
-      "lighthouseVersion": "13.1.0",
-      "fetchTime": "2026-04-28T09:07:19.680Z",
-      "metrics": {
-        "inpMs": 100,
-        "cls": 0
-      },
-      "interactionMetrics": {
-        "interactionCount": 1,
-        "alignedToDeferredWork": true,
-        "eventTimingDurationMs": 96,
-        "processingDelayMs": 38,
-        "processingDurationMs": 16,
-        "manualLatencyMs": 99
-      }
-    },
-    {
-      "lighthouseVersion": "13.1.0",
-      "fetchTime": "2026-04-28T09:07:27.383Z",
-      "metrics": {
-        "inpMs": 48,
-        "cls": 0
-      },
-      "interactionMetrics": {
-        "interactionCount": 1,
-        "alignedToDeferredWork": true,
-        "eventTimingDurationMs": 48,
-        "processingDelayMs": 23,
+        "eventTimingDurationMs": 40,
+        "processingDelayMs": 25,
         "processingDurationMs": 4,
-        "manualLatencyMs": 52
+        "manualLatencyMs": 43,
+        "motionPhaseAtClick": "ready"
       }
     },
     {
       "lighthouseVersion": "13.1.0",
-      "fetchTime": "2026-04-28T09:07:34.807Z",
+      "fetchTime": "2026-04-28T09:26:06.382Z",
       "metrics": {
-        "inpMs": 46,
+        "inpMs": 35,
         "cls": 0
       },
       "interactionMetrics": {
         "interactionCount": 1,
-        "alignedToDeferredWork": true,
-        "eventTimingDurationMs": 48,
-        "processingDelayMs": 28,
+        "eventTimingDurationMs": 32,
+        "processingDelayMs": 14,
         "processingDurationMs": 3,
-        "manualLatencyMs": 47
+        "manualLatencyMs": 39,
+        "motionPhaseAtClick": "ready"
+      }
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "fetchTime": "2026-04-28T09:26:11.983Z",
+      "metrics": {
+        "inpMs": 56,
+        "cls": 0
+      },
+      "interactionMetrics": {
+        "interactionCount": 1,
+        "eventTimingDurationMs": 56,
+        "processingDelayMs": 20,
+        "processingDurationMs": 10,
+        "manualLatencyMs": 62,
+        "motionPhaseAtClick": "ready"
+      }
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "fetchTime": "2026-04-28T09:26:18.179Z",
+      "metrics": {
+        "inpMs": 52,
+        "cls": 0
+      },
+      "interactionMetrics": {
+        "interactionCount": 1,
+        "eventTimingDurationMs": 48,
+        "processingDelayMs": 20,
+        "processingDurationMs": 10,
+        "manualLatencyMs": 57,
+        "motionPhaseAtClick": "ready"
+      }
+    },
+    {
+      "lighthouseVersion": "13.1.0",
+      "fetchTime": "2026-04-28T09:26:23.844Z",
+      "metrics": {
+        "inpMs": 87,
+        "cls": 0
+      },
+      "interactionMetrics": {
+        "interactionCount": 1,
+        "eventTimingDurationMs": 88,
+        "processingDelayMs": 39,
+        "processingDurationMs": 11,
+        "manualLatencyMs": 93,
+        "motionPhaseAtClick": "ready"
       }
     }
   ],
+  "motionPhaseAtClickCounts": {
+    "ready": 5
+  },
   "averages": {
-    "inpMs": 67,
+    "inpMs": 54,
     "cls": 0,
-    "eventTimingDurationMs": 66,
-    "processingDelayMs": 28,
+    "eventTimingDurationMs": 53,
+    "processingDelayMs": 24,
     "processingDurationMs": 8,
-    "manualLatencyMs": 66
+    "manualLatencyMs": 59
   },
   "medians": {
-    "inpMs": 55,
+    "inpMs": 52,
     "cls": 0,
-    "eventTimingDurationMs": 56,
-    "processingDelayMs": 28,
-    "processingDurationMs": 8,
-    "manualLatencyMs": 52
+    "eventTimingDurationMs": 48,
+    "processingDelayMs": 20,
+    "processingDurationMs": 10,
+    "manualLatencyMs": 57
   }
 }

@@ -14,6 +14,9 @@ function parseArgs(argv) {
   const args = {
     offLabel: "local-featherperf-off-fresh-5x",
     onLabel: "local-featherperf-on-fresh-5x",
+    host: "127.0.0.1",
+    port: 4321,
+    route: "/",
     runs: 5,
     chromePath: process.env.LIGHTHOUSE_CHROME_PATH ?? null,
     resultsDir: defaultResultsRoot,
@@ -31,6 +34,15 @@ function parseArgs(argv) {
       continue;
     } else if (arg === "--off-label") {
       args.offLabel = next;
+      index += 1;
+    } else if (arg === "--host") {
+      args.host = next;
+      index += 1;
+    } else if (arg === "--port") {
+      args.port = Number.parseInt(next, 10);
+      index += 1;
+    } else if (arg === "--route") {
+      args.route = next;
       index += 1;
     } else if (arg === "--on-label") {
       args.onLabel = next;
@@ -60,9 +72,26 @@ function parseArgs(argv) {
   return args;
 }
 
+function validatePositiveInteger(value, flagName) {
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new Error(`${flagName} must be a positive integer.`);
+  }
+}
+
+function validateArgs(args) {
+  validatePositiveInteger(args.port, "--port");
+  validatePositiveInteger(args.runs, "--runs");
+}
+
 function toBenchmarkArgs(args, label) {
   const benchmarkArgs = [
     runLocalBenchmarkScript,
+    "--host",
+    args.host,
+    "--port",
+    String(args.port),
+    "--route",
+    args.route,
     "--label",
     label,
     "--runs",
@@ -247,6 +276,7 @@ function printSummary(offSummary, onSummary, comparison, resultsDir) {
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  validateArgs(args);
 
   console.log(`Running local proof with FEATHERPERF=off (${args.offLabel})...`);
   await runProcess(

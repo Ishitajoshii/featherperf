@@ -5,30 +5,31 @@
     "entries": [
       {
         "name": "pointerdown",
-        "startTimeMs": 2672,
-        "durationMs": 32,
-        "processingDelayMs": 8,
+        "startTimeMs": 1689,
+        "durationMs": 24,
+        "processingDelayMs": 4,
         "processingDurationMs": 1,
-        "interactionId": 9292
+        "interactionId": 1555
       },
       {
         "name": "click",
-        "startTimeMs": 2672,
-        "durationMs": 32,
-        "processingDelayMs": 13,
-        "processingDurationMs": 3,
-        "interactionId": 9292
+        "startTimeMs": 1689,
+        "durationMs": 24,
+        "processingDelayMs": 8,
+        "processingDurationMs": 2,
+        "interactionId": 1555
       }
     ],
     "lastInteraction": {
-      "manualLatencyMs": 31,
+      "manualLatencyMs": 19,
+      "motionPhaseAtClick": "not-started",
       "paintSettled": true,
       "name": "click",
-      "startTimeMs": 2672,
-      "durationMs": 32,
-      "processingDelayMs": 13,
-      "processingDurationMs": 3,
-      "interactionId": 9292
+      "startTimeMs": 1689,
+      "durationMs": 24,
+      "processingDelayMs": 8,
+      "processingDurationMs": 2,
+      "interactionId": 1555
     }
   },
   "motionState": null

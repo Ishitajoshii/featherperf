@@ -27,8 +27,7 @@ function parseArgs(argv) {
     freshProfile: true,
     build: true,
     interactionDelayMs: 110,
-    settleDelayMs: 400,
-    motionOverlapTimeoutMs: 250
+    settleDelayMs: 400
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -64,9 +63,6 @@ function parseArgs(argv) {
     } else if (arg === "--settle-delay-ms") {
       args.settleDelayMs = Number.parseInt(next, 10);
       index += 1;
-    } else if (arg === "--motion-overlap-timeout-ms") {
-      args.motionOverlapTimeoutMs = Number.parseInt(next, 10);
-      index += 1;
     } else if (arg === "--fresh-profile") {
       args.freshProfile = true;
     } else if (arg === "--no-fresh-profile") {
@@ -77,6 +73,19 @@ function parseArgs(argv) {
   }
 
   return args;
+}
+
+function validatePositiveInteger(value, flagName) {
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new Error(`${flagName} must be a positive integer.`);
+  }
+}
+
+function validateArgs(args) {
+  validatePositiveInteger(args.port, "--port");
+  validatePositiveInteger(args.runs, "--runs");
+  validatePositiveInteger(args.interactionDelayMs, "--interaction-delay-ms");
+  validatePositiveInteger(args.settleDelayMs, "--settle-delay-ms");
 }
 
 function getDefaultChromePath() {
@@ -150,7 +159,7 @@ async function waitForServerClose(server) {
   });
 }
 
-function summarizeInteractionRun(report, interactionState, alignedToDeferredWork) {
+function summarizeInteractionRun(report, interactionState) {
   const benchmarkState = interactionState?.benchmark ?? null;
   const clickEntries = Array.isArray(benchmarkState?.entries)
     ? benchmarkState.entries.filter((entry) => entry?.name === "click")
@@ -170,18 +179,25 @@ function summarizeInteractionRun(report, interactionState, alignedToDeferredWork
     },
     interactionMetrics: {
       interactionCount: benchmarkState?.interactionCount ?? 0,
-      alignedToDeferredWork,
       eventTimingDurationMs: worstClickEntry?.durationMs ?? null,
       processingDelayMs: worstClickEntry?.processingDelayMs ?? null,
       processingDurationMs: worstClickEntry?.processingDurationMs ?? null,
-      manualLatencyMs: benchmarkState?.lastInteraction?.manualLatencyMs ?? null
+      manualLatencyMs: benchmarkState?.lastInteraction?.manualLatencyMs ?? null,
+      motionPhaseAtClick: benchmarkState?.lastInteraction?.motionPhaseAtClick ?? null
     }
   };
 }
 
 function summarizeRuns(runs) {
+  const motionPhaseAtClickCounts = {};
+  for (const run of runs) {
+    const phase = run.interactionMetrics.motionPhaseAtClick ?? "unknown";
+    motionPhaseAtClickCounts[phase] = (motionPhaseAtClickCounts[phase] ?? 0) + 1;
+  }
+
   return {
     runs,
+    motionPhaseAtClickCounts,
     averages: {
       inpMs: getAverage(runs.map((run) => run.metrics.inpMs), 0),
       cls: getAverage(runs.map((run) => run.metrics.cls), 3),
@@ -218,8 +234,7 @@ async function runSingleInteractionBenchmark({
   chromePath,
   freshProfile,
   interactionDelayMs,
-  settleDelayMs,
-  motionOverlapTimeoutMs
+  settleDelayMs
 }) {
   let browser = null;
   let freshProfileDir = null;
@@ -260,14 +275,6 @@ async function runSingleInteractionBenchmark({
       { timeout: 15_000 }
     );
 
-    const alignedToDeferredWork = await page
-      .waitForFunction(
-        () => window.__featherperfDemoMotionState?.phase === "follow-up-scheduled",
-        { timeout: motionOverlapTimeoutMs }
-      )
-      .then(() => true)
-      .catch(() => false);
-
     const timespan = await startTimespan(page);
     await delay(interactionDelayMs);
     await page.click("#interaction-benchmark-button");
@@ -293,8 +300,7 @@ async function runSingleInteractionBenchmark({
 
     return {
       lhr: runnerResult?.lhr ?? null,
-      interactionState,
-      alignedToDeferredWork
+      interactionState
     };
   } finally {
     if (browser) {
@@ -309,6 +315,7 @@ async function runSingleInteractionBenchmark({
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  validateArgs(args);
   const chromePath = args.chromePath ?? getDefaultChromePath();
 
   if (!chromePath) {
@@ -332,13 +339,12 @@ async function main() {
     for (let runNumber = 1; runNumber <= args.runs; runNumber += 1) {
       console.log(`Running interaction pass ${runNumber}/${args.runs}...`);
 
-      const { lhr, interactionState, alignedToDeferredWork } = await runSingleInteractionBenchmark({
+      const { lhr, interactionState } = await runSingleInteractionBenchmark({
         url,
         chromePath,
         freshProfile: args.freshProfile,
         interactionDelayMs: args.interactionDelayMs,
-        settleDelayMs: args.settleDelayMs,
-        motionOverlapTimeoutMs: args.motionOverlapTimeoutMs
+        settleDelayMs: args.settleDelayMs
       });
 
       if (!lhr) {
@@ -347,7 +353,7 @@ async function main() {
 
       const outputBasePath = path.join(outputDir, `run-${runNumber}`);
       const htmlReport = generateReport(lhr, "html");
-      const summarizedRun = summarizeInteractionRun(lhr, interactionState, alignedToDeferredWork);
+      const summarizedRun = summarizeInteractionRun(lhr, interactionState);
 
       await writeFile(`${outputBasePath}.report.json`, `${JSON.stringify(lhr, null, 2)}\n`, "utf8");
       await writeFile(`${outputBasePath}.report.html`, htmlReport, "utf8");
@@ -375,8 +381,7 @@ async function main() {
       benchmark: "hero-click-timespan",
       measurement: "Lighthouse INP + Event Timing",
       interactionDelayMs: args.interactionDelayMs,
-      settleDelayMs: args.settleDelayMs,
-      motionOverlapTimeoutMs: args.motionOverlapTimeoutMs
+      settleDelayMs: args.settleDelayMs
     },
     ...summarizeRuns(parsedRuns)
   };
