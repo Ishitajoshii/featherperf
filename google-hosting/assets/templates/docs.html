@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FeatherPerf Docs</title>
+<meta name="description" content="FeatherPerf docs for installation, supported patterns, configuration, and local proof workflows." />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<div class="leaf-accent" aria-hidden="true"></div>
+<nav class="navbar" id="navbar"><a class="navbar-brand" href="/"><svg viewBox="0 0 28 28" fill="none"><path d="M14 2C8 2 3 8 3 14c2-4 6-7 11-7s9 3 11 7c0-6-5-12-11-12z" fill="#c76a1d"/><path d="M14 7c-4 0-8 3-10 7 3 5 6 8 10 8s7-3 10-8c-2-4-6-7-10-7z" fill="#0f4c5c" opacity=".7"/></svg><span>FeatherPerf</span></a><ul class="navbar-links"><li><a href="/#how-it-works">How It Works</a></li><li><a href="/#gemini-analysis">Proof</a></li><li><a href="/docs/">Docs</a></li></ul><a class="btn btn-cta" href="/compare/on/">Open Live Demo</a></nav>
+<main class="page docs-page">
+<section class="docs-hero">
+  <div class="hero-copy">
+    <div class="eyebrow">Documentation</div>
+    <h1>FeatherPerf docs for teams shipping motion-heavy pages.</h1>
+    <p class="lead">This page covers the practical path: install the plugin, keep the hero safe, defer only non-critical motion, and verify the result with the same compare flow used on the hosted benchmark.</p>
+    <div class="hero-buttons">
+      <a class="btn btn-primary" href="/compare/on/">View optimized route</a>
+      <a class="btn btn-outline" href="/compare/off/">View baseline route</a>
+    </div>
+  </div>
+  <aside class="hero-metrics docs-toc">
+    <div class="metrics-header"><span>On This Page</span></div>
+    <div class="metric-card"><a class="docs-toc-link" href="#install">Install</a></div>
+    <div class="metric-card"><a class="docs-toc-link" href="#patterns">Supported patterns</a></div>
+    <div class="metric-card"><a class="docs-toc-link" href="#config">Configuration</a></div>
+    <div class="metric-card"><a class="docs-toc-link" href="#workflow">Local workflow</a></div>
+    <div class="metrics-footer">Same visual system. Real project docs.</div>
+  </aside>
+</section>
+
+<section class="proof-section docs-grid" id="install">
+  <article class="gemini-card docs-card">
+    <h3>Install</h3>
+    <p>Add the Vite plugin, then register it in your app config. Start narrow and conservative.</p>
+    <div class="install-code"><span class="kw">npm</span> install @featherperf/vite-plugin</div>
+    <div class="docs-snippet"><pre>import { featherperf } from '@featherperf/vite-plugin';
+
+export default {
+  plugins: [
+    featherperf({
+      include: ['src/pages/'],
+      exclude: [/hero/i],
+      criticalSelectors: ['body', 'main', '.hero']
+    })
+  ]
+};</pre></div>
+  </article>
+  <article class="install-card docs-card" id="patterns">
+    <h3>Supported patterns</h3>
+    <ul class="check-list">
+      <li><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5.5 8l2 2 3.5-4" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>Best fit: below-the-fold motion modules triggered from page or script entrypoints.</li>
+      <li><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5.5 8l2 2 3.5-4" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>Works well with GSAP and lottie-web when the importer shape is predictable.</li>
+      <li><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5.5 8l2 2 3.5-4" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>Avoid marking hero or app-shell motion as deferrable until you have hard proof it is non-critical.</li>
+    </ul>
+  </article>
+</section>
+
+<section class="proof-section docs-grid" id="config">
+  <article class="gemini-card docs-card">
+    <h3>Configuration guidance</h3>
+    <p>FeatherPerf is intentionally conservative. Protect useful content first, then expand coverage only after verifying the impact.</p>
+    <div class="result-area">
+      <strong>Recommended starting point</strong>
+      <ul>
+        <li>Keep <code>include</code> scoped to page and script entry layers.</li>
+        <li>Use <code>exclude</code> to keep hero-like selectors on the critical path.</li>
+        <li>Define explicit <code>criticalSelectors</code> for the app shell and top-of-page content.</li>
+      </ul>
+    </div>
+  </article>
+  <article class="gemini-card docs-card">
+    <h3>What the plugin is trying to do</h3>
+    <p>It does not try to rewrite arbitrary app behavior. It looks for safe motion-heavy imports and delays them until the associated section is near view or the page is otherwise quiet.</p>
+    <div class="result-area">
+      <strong>Good candidate</strong>
+      <p>A decorative animation grid far below the fold.</p>
+    </div>
+    <div class="result-area">
+      <strong>Bad candidate</strong>
+      <p>A hero animation that carries meaning for the first screen.</p>
+    </div>
+  </article>
+</section>
+
+<section class="proof-section" id="workflow">
+  <h2>Reproduce the proof locally</h2>
+  <div class="proof-grid docs-proof-grid">
+    <div class="proof-steps">
+      <div class="proof-step"><div class="step-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18"/><path d="M3 12h18"/></svg></div><div><div class="step-num">1</div></div><div class="step-body"><h4>Install dependencies</h4><p>Use the repo workspace so the demo and plugin stay in sync.</p><div class="step-tag">Workspace-driven</div></div></div>
+      <div class="proof-step"><div class="step-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16"/><path d="M7 16V8"/><path d="M12 16V5"/><path d="M17 16v-4"/></svg></div><div><div class="step-num">2</div></div><div class="step-body"><h4>Run compare benchmarks</h4><p>Generate the same artifacts that power the hosted benchmark page.</p><div class="step-tag">Same proof path</div></div></div>
+      <div class="proof-step"><div class="step-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg></div><div><div class="step-num">3</div></div><div class="step-body"><h4>Build hosting output</h4><p>Regenerate the hosted site wrapper under <code>google-hosting/public</code>.</p><div class="step-tag">Deployable static output</div></div></div>
+    </div>
+    <div class="install-card docs-card">
+      <h3>Commands</h3>
+      <div class="install-code">corepack pnpm install
+<br>corepack pnpm demo:compare
+<br>corepack pnpm demo:interaction
+<br>node .\google-hosting\build-hosting.mjs</div>
+      <a class="install-link" href="/">Back to benchmark homepage</a>
+    </div>
+    <div class="gemini-card docs-card">
+      <h3>Verification mindset</h3>
+      <p>Judge the result on observed browser behavior, not just plugin activity. The real win is that useful content renders earlier while non-critical motion wakes later without breaking the experience.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer-strip"><div class="footer-badges"><span class="footer-badge-label">FeatherPerf Docs</span><div class="footer-badge"><svg viewBox="0 0 18 18" fill="none"><rect x="2" y="6" width="3" height="10" rx="1" fill="currentColor"/><rect x="7.5" y="3" width="3" height="13" rx="1" fill="currentColor"/><rect x="13" y="1" width="3" height="15" rx="1" fill="currentColor"/></svg>Controlled proof</div><div class="footer-badge"><svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M9 5v4l3 2" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>Conservative rollout</div></div><div class="footer-tagline"><svg viewBox="0 0 20 20" fill="none" style="width:20px;height:20px;flex-shrink:0"><path d="M10 2C6 2 3 6 3 10c2-3 5-5 7-5s5 2 7 5c0-4-3-8-7-8z" fill="#c76a1d"/></svg>Useful content first, decorative motion second.</div></footer>
+</main>
+<script>
+document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'})}})});
+</script>
+</body>
+</html>

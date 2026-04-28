@@ -473,10 +473,17 @@ async function applyDesignOverrides(payloads) {
     .replace('"%%BENCHMARK_PAYLOAD%%"', JSON.stringify(payloads.benchmarkPayload))
     .replace('"%%BENCHMARK_FALLBACK%%"', JSON.stringify(payloads.fallbackSummary))
     .replace('"%%CONFIG_PAYLOAD%%"', JSON.stringify(payloads.pluginPayload))
-    .replace('"%%CONFIG_FALLBACK%%"', JSON.stringify(payloads.fallbackConfig));
+    .replace('"%%CONFIG_FALLBACK%%"', JSON.stringify(payloads.fallbackConfig))
+    .replace('href="#">Docs</a>', 'href="/docs/">Docs</a>')
+    .replace('href="#">Supported patterns', 'href="/docs/">Supported patterns');
   await writeFile(path.join(publicRoot, "index.html"), indexHtml, "utf8");
 
-  // 3. Apply themed compare pages
+  // 3. Generate docs page with the same visual system
+  await mkdir(path.join(publicRoot, "docs"), { recursive: true });
+  const docsHtml = await readFile(path.join(templateRoot, "docs.html"), "utf8");
+  await writeFile(path.join(publicRoot, "docs", "index.html"), docsHtml, "utf8");
+
+  // 4. Apply themed compare pages
   const compareTemplate = await readFile(path.join(templateRoot, "compare.html"), "utf8");
   for (const mode of ["off", "on"]) {
     const builtHtml = await readFile(path.join(compareRoot, mode, "index.html"), "utf8");
