@@ -35,11 +35,11 @@ test('transformCode rewrites a single-binding deferred import', () => {
   assert.doesNotMatch(transformed, /import \{ runAnimations \} from '\.\/motion';/);
 });
 
-test('transformCode skips mixed-binding imports to avoid breaking remaining bindings', () => {
+test('transformCode preserves remaining bindings when deferring one import from a mixed import line', () => {
   const code = [
-    "import foo, { bar } from './motion';",
-    "foo('#gallery');",
-    'console.log(bar);'
+    "import { runAnimations, keepWarm } from './motion';",
+    "runAnimations('#gallery');",
+    'console.log(keepWarm());'
   ].join('\n');
 
   const candidates = collectDeferredImportCandidates(code, 'src/page.ts');
@@ -50,7 +50,12 @@ test('transformCode skips mixed-binding imports to avoid breaking remaining bind
     {}
   );
 
-  assert.equal(transformed, code);
+  assert.match(transformed, /import \{ keepWarm \} from "\.\/motion";/);
+  assert.match(
+    transformed,
+    /const \{ runAnimations: runAnimations \} = await import\("\.\/motion"\);/
+  );
+  assert.doesNotMatch(transformed, /import \{ runAnimations, keepWarm \} from '\.\/motion';/);
 });
 
 test('collectDeferredImportCandidates finds aliased imported calls via AST parsing', () => {
@@ -118,4 +123,22 @@ test('checkSafety respects caller-defined critical selectors', () => {
 
   assert.equal(result.isSafeToDefer, false);
   assert.ok(result.reasons.includes('trigger targets a critical or first-paint selector'));
+});
+
+test('checkSafety rejects top-level runtime side effects via AST analysis', () => {
+  const code = [
+    "import { gsap } from 'gsap';",
+    "const boot = gsap.timeline();",
+    'export function runAnimations(selector) {',
+    "  return gsap.to(selector, { opacity: 1, duration: 0.2 });",
+    '}'
+  ].join('\n');
+
+  const result = checkSafety(code, 'D:/app/src/motion.ts', {
+    importerId: 'D:/app/src/page.ts',
+    triggerArgument: "'#gallery'"
+  });
+
+  assert.equal(result.isSafeToDefer, false);
+  assert.ok(result.reasons.includes('contains top-level side effects or control flow'));
 });

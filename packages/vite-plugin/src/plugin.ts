@@ -77,6 +77,10 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
         return VIRTUAL_RUNTIME_RESOLVED_ID;
       }
 
+      if (source.startsWith('file:///')) {
+        return fileURLToPath(source);
+      }
+
       return null;
     },
     load(id) {
@@ -112,15 +116,6 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
 
         const resolvedImport = await this.resolve(candidate.source, id);
         if (!resolvedImport?.id) {
-          continue;
-        }
-
-        if (candidate.importBindingCount !== 1) {
-          if (options.debug) {
-            this.warn(
-              `${PLUGIN_NAME}: skipped ${path.relative(process.cwd(), cleanId)} because ${candidate.source} uses multiple imported bindings`
-            );
-          }
           continue;
         }
 

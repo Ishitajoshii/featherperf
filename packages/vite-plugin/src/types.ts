@@ -49,6 +49,7 @@ export interface SafetyCheckResult {
 export interface DeferredImportCandidate {
   source: string;
   binding: ImportBinding;
+  importBindings: ImportBinding[];
   importBindingCount: number;
   importStart: number;
   importEnd: number;

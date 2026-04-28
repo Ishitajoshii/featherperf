@@ -16,10 +16,10 @@
     "build": "tsc",
     "dev": "tsc -w",
     "report": "node ./dist/report.js",
-    "test": "pnpm run build && node --test ./test/plugin.test.mjs"
+    "test": "pnpm run build && node --test ./test/plugin.test.mjs ./test/integration.test.mjs"
   },
   "dependencies": {
-    "@featherperf/runtime": "workspace:*",
+    "@featherperf/runtime": "^0.1.0",
     "typescript": "^5.0.0"
   },
   "peerDependencies": {

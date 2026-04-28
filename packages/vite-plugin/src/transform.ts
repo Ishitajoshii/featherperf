@@ -38,6 +38,45 @@ interface Replacement {
   text: string;
 }
 
+function sameBinding(left: ImportBinding, right: ImportBinding): boolean {
+  return (
+    left.kind === right.kind &&
+    left.localName === right.localName &&
+    left.importedName === right.importedName
+  );
+}
+
+function formatNamedBinding(binding: ImportBinding): string {
+  return binding.importedName === binding.localName
+    ? binding.importedName
+    : `${binding.importedName} as ${binding.localName}`;
+}
+
+function createStaticImport(source: string, bindings: ImportBinding[]): string {
+  if (bindings.length === 0) {
+    return '';
+  }
+
+  const defaultBinding = bindings.find((binding) => binding.kind === 'default');
+  const namespaceBinding = bindings.find((binding) => binding.kind === 'namespace');
+  const namedBindings = bindings.filter((binding) => binding.kind === 'named');
+  const clauses: string[] = [];
+
+  if (defaultBinding) {
+    clauses.push(defaultBinding.localName);
+  }
+
+  if (namespaceBinding) {
+    clauses.push(`* as ${namespaceBinding.localName}`);
+  }
+
+  if (namedBindings.length > 0) {
+    clauses.push(`{ ${namedBindings.map((binding) => formatNamedBinding(binding)).join(', ')} }`);
+  }
+
+  return `import ${clauses.join(', ')} from ${JSON.stringify(source)};`;
+}
+
 export function transformCode(
   code: string,
   candidates: DeferredImportCandidate[],
@@ -48,17 +87,28 @@ export function transformCode(
   }
 
   const replacements: Replacement[] = [];
+  const groupedCandidates = new Map<string, DeferredImportCandidate[]>();
 
   for (const candidate of candidates) {
-    if (candidate.importBindingCount !== 1) {
-      continue;
-    }
+    const importKey = `${candidate.importStart}:${candidate.importEnd}`;
+    const importCandidates = groupedCandidates.get(importKey) ?? [];
+    importCandidates.push(candidate);
+    groupedCandidates.set(importKey, importCandidates);
+  }
 
+  for (const importCandidates of groupedCandidates.values()) {
+    const [firstCandidate] = importCandidates;
+    const remainingBindings = firstCandidate.importBindings.filter(
+      (binding) => !importCandidates.some((candidate) => sameBinding(binding, candidate.binding))
+    );
     replacements.push({
-      start: candidate.importStart,
-      end: candidate.importEnd,
-      text: ''
+      start: firstCandidate.importStart,
+      end: firstCandidate.importEnd,
+      text: createStaticImport(firstCandidate.source, remainingBindings)
     });
+  }
+
+  for (const candidate of candidates) {
     replacements.push({
       start: candidate.callStart,
       end: candidate.callEnd,

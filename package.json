@@ -12,6 +12,7 @@
     "demo:interaction": "pnpm --filter @featherperf/bench demo:interaction",
     "detect:heavy": "pnpm --filter @featherperf/vite-plugin report",
     "test": "pnpm -r test",
+    "verify:pack": "node ./scripts/verify-packages.mjs",
     "dev": "pnpm -r dev"
   },
   "devDependencies": {

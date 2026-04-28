@@ -200,6 +200,7 @@ export function collectDeferredImportCandidates(code: string, id: string): Defer
       candidates.push({
         source: importRecord.source,
         binding,
+        importBindings: importRecord.bindings,
         importBindingCount: importRecord.bindings.length,
         importStart: importRecord.importStart,
         importEnd: importRecord.importEnd,
