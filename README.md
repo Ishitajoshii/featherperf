@@ -212,7 +212,14 @@ featherperf({
     enabled: true,
     outputFile: 'featherperf-assets.json',
     includePublic: true,
-    includeHtmlReferences: true
+    includeHtmlReferences: true,
+    includeCssBackgrounds: true
+  },
+  backgrounds: {
+    enabled: true,
+    scanCss: true,
+    injectPreloadLinks: true,
+    maxPreloadLinks: 8
   },
   serviceWorker: {
     enabled: true,
@@ -242,6 +249,7 @@ featherperf({
 - `lottie`: optional optimizer for `window.lottie.loadAnimation`
 - `report`: optional build-time asset report for large bundle/public/HTML assets
 - `manifest`: optional build-time asset manifest for runtime prioritization
+- `backgrounds`: optional build-time CSS background discovery and preload injection
 - `serviceWorker`: optional same-origin asset cache for repeat visits
 
 ## Asset Readiness And Prewarming
@@ -348,6 +356,29 @@ featherperf({
 
 Manifest entries include path, type, size when known, source, priority, and HTML reference reasons. Build-time priority is inferred from generic signals such as `rel="preload"`, `fetchpriority="high"`, `loading="eager"`, inline CSS `url(...)`, and `loading="lazy"`.
 
+## Background Discovery
+
+Enable `backgrounds` to scan emitted CSS for `url(...)` references and optionally inject bounded image preload hints:
+
+```ts
+featherperf({
+  manifest: {
+    enabled: true,
+    includeCssBackgrounds: true
+  },
+  backgrounds: {
+    enabled: true,
+    scanCss: true,
+    injectPreloadLinks: true,
+    maxPreloadLinks: 8
+  }
+})
+```
+
+CSS-discovered backgrounds are added to the manifest as `early` assets with `css-background` reference metadata. When preload injection is enabled, FeatherPerf mutates emitted HTML to add a limited number of `<link rel="preload" as="image">` tags for discovered image backgrounds.
+
+Keep `maxPreloadLinks` modest on gallery-heavy pages so the browser does not compete with critical hero assets.
+
 ## Service Worker Asset Cache
 
 Enable `serviceWorker` to cache same-origin static assets after the browser requests them:
@@ -412,6 +443,7 @@ FeatherPerf is ready to demonstrate and evaluate, with:
 - offscreen Lottie deferral and first-frame readiness for global and ESM `lottie-web`
 - build-time large asset reporting and optional JSON manifest emission
 - runtime prewarming from build-time asset manifest priorities
+- build-time CSS background discovery and bounded preload hint injection
 - conservative service worker runtime caching for repeat asset loads
 - tests for transform and runtime behavior
 - a hosted benchmark wrapper with before/after proof

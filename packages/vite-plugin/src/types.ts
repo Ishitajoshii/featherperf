@@ -51,6 +51,15 @@ export interface FeatherPerfAssetManifestOptions {
   includePublic?: boolean;
   includeHtmlReferences?: boolean;
   includeChunks?: boolean;
+  includeCssBackgrounds?: boolean;
+}
+
+export interface FeatherPerfBackgroundOptions {
+  enabled?: boolean;
+  scanCss?: boolean;
+  injectPreloadLinks?: boolean;
+  maxPreloadLinks?: number;
+  imageTypes?: string[];
 }
 
 export interface FeatherPerfServiceWorkerOptions {
@@ -78,6 +87,7 @@ export interface FeatherPerfOptions {
   lottie?: boolean | FeatherPerfLottieOptions;
   report?: boolean | FeatherPerfAssetReportOptions;
   manifest?: boolean | FeatherPerfAssetManifestOptions;
+  backgrounds?: boolean | FeatherPerfBackgroundOptions;
   serviceWorker?: boolean | FeatherPerfServiceWorkerOptions;
 }
 
@@ -142,7 +152,7 @@ export interface LottieLoadAnimationCandidate {
 
 export type AssetReportSource = 'bundle' | 'chunk' | 'public' | 'html-public' | 'html-reference';
 export type AssetPriority = 'critical' | 'early' | 'lazy';
-export type AssetReferenceKind = 'html-src' | 'html-srcset' | 'html-poster' | 'html-preload' | 'css-url';
+export type AssetReferenceKind = 'html-src' | 'html-srcset' | 'html-poster' | 'html-preload' | 'css-url' | 'css-background';
 
 export interface AssetReference {
   path: string;

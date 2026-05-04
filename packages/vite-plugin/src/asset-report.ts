@@ -5,6 +5,7 @@ import type {
   AssetReportResult,
   AssetReference,
   AssetPriority,
+  FeatherPerfBackgroundOptions,
   FeatherPerfAssetManifestOptions,
   FeatherPerfAssetReportOptions,
   FeatherPerfOptions
@@ -38,7 +39,16 @@ const DEFAULT_MANIFEST_OPTIONS: Required<FeatherPerfAssetManifestOptions> = {
   outputFile: 'featherperf-assets.json',
   includePublic: true,
   includeHtmlReferences: true,
-  includeChunks: false
+  includeChunks: false,
+  includeCssBackgrounds: true
+};
+
+const DEFAULT_BACKGROUND_OPTIONS: Required<FeatherPerfBackgroundOptions> = {
+  enabled: false,
+  scanCss: true,
+  injectPreloadLinks: false,
+  maxPreloadLinks: 8,
+  imageTypes: ['avif', 'gif', 'jpeg', 'jpg', 'png', 'svg', 'webp']
 };
 
 const CSS_URL_PATTERN = /url\((['"]?)(.*?)\1\)/g;
@@ -106,6 +116,25 @@ export function getAssetManifestOptions(options: FeatherPerfOptions): Required<F
   return {
     ...DEFAULT_MANIFEST_OPTIONS,
     ...options.manifest,
+    enabled: true
+  };
+}
+
+export function getBackgroundOptions(options: FeatherPerfOptions): Required<FeatherPerfBackgroundOptions> | null {
+  if (options.backgrounds === true) {
+    return {
+      ...DEFAULT_BACKGROUND_OPTIONS,
+      enabled: true
+    };
+  }
+
+  if (!options.backgrounds || options.backgrounds.enabled === false) {
+    return null;
+  }
+
+  return {
+    ...DEFAULT_BACKGROUND_OPTIONS,
+    ...options.backgrounds,
     enabled: true
   };
 }
@@ -310,6 +339,27 @@ function extractCssUrls(value: string): string[] {
   }
 
   return urls;
+}
+
+export function collectCssAssetReferenceRecords(css: string, fileName: string): AssetReference[] {
+  const references = new Map<string, AssetReference>();
+
+  for (const url of extractCssUrls(css)) {
+    if (!shouldReportPath(url)) {
+      continue;
+    }
+
+    references.set(`${fileName}:${url}`, {
+      path: url,
+      kind: 'css-background',
+      tagName: 'style',
+      attribute: 'url',
+      priority: 'early',
+      reason: `css url in ${fileName}`
+    });
+  }
+
+  return Array.from(references.values()).sort((left, right) => left.path.localeCompare(right.path));
 }
 
 export function collectHtmlAssetReferences(html: string): string[] {

@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { collectDeferredImportCandidates, collectLottieLoadAnimationCandidates } from '../dist/ast.js';
 import {
+  collectCssAssetReferenceRecords,
   collectHtmlAssetReferences,
   collectHtmlAssetReferenceRecords,
   createAssetReport,
@@ -139,6 +140,65 @@ test('collectHtmlAssetReferences finds images, videos, srcset, and CSS urls', ()
   const records = collectHtmlAssetReferenceRecords('<img src="/hero.webp" fetchpriority="high">');
   assert.equal(records[0].priority, 'critical');
   assert.equal(records[0].reason, 'fetchpriority=high');
+});
+
+test('collectCssAssetReferenceRecords finds CSS background urls as early assets', () => {
+  const records = collectCssAssetReferenceRecords(
+    '.hero{background-image:url("/hero-bg.webp")} .icon{background:url(../icons/mark.svg)}',
+    'assets/app.css'
+  );
+
+  assert.deepEqual(
+    records.map((record) => ({
+      path: record.path,
+      kind: record.kind,
+      priority: record.priority
+    })),
+    [
+      { path: '../icons/mark.svg', kind: 'css-background', priority: 'early' },
+      { path: '/hero-bg.webp', kind: 'css-background', priority: 'early' }
+    ]
+  );
+});
+
+test('plugin injects preload links for discovered CSS backgrounds', async () => {
+  const plugin = featherperf({
+    backgrounds: {
+      enabled: true,
+      injectPreloadLinks: true,
+      maxPreloadLinks: 1
+    }
+  });
+  const bundle = {
+    'index.html': {
+      type: 'asset',
+      fileName: 'index.html',
+      source: '<html><head></head><body></body></html>',
+      names: [],
+      originalFileNames: []
+    },
+    'assets/app.css': {
+      type: 'asset',
+      fileName: 'assets/app.css',
+      source: '.hero{background-image:url("/hero-bg.webp")}',
+      names: [],
+      originalFileNames: []
+    }
+  };
+
+  await plugin.generateBundle?.call(
+    {
+      emitFile() {},
+      warn() {}
+    },
+    {},
+    bundle
+  );
+
+  assert.match(
+    bundle['index.html'].source,
+    /<link rel="preload" as="image" href="\/hero-bg\.webp" data-featherperf-background-preload>/
+  );
 });
 
 test('createAssetReport summarizes bundle, public, and html-referenced assets', async () => {

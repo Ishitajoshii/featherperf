@@ -6,7 +6,9 @@ import type { Plugin, ResolvedConfig } from 'vite';
 import { collectDeferredImportCandidates, collectLottieLoadAnimationCandidates } from './ast.js';
 import {
   collectHtmlAssetReferenceRecords,
+  collectCssAssetReferenceRecords,
   createAssetReport,
+  getBackgroundOptions,
   getAssetManifestOptions,
   formatAssetReportWarnings,
   getAssetReportOptions
@@ -21,6 +23,7 @@ import type { AssetReference, DeferredImportCandidate, FeatherPerfOptions } from
 const VIRTUAL_RUNTIME_PUBLIC_ID = 'virtual:featherperf-runtime';
 const VIRTUAL_RUNTIME_RESOLVED_ID = '\0virtual:featherperf-runtime';
 const runtimeRequire = createRequire(import.meta.url);
+const PRELOADABLE_BACKGROUND_TYPES = new Set(['avif', 'gif', 'jpeg', 'jpg', 'png', 'svg', 'webp']);
 
 function getRuntimeEntryHref(): string {
   let runtimeEntryPath: string;
@@ -43,6 +46,58 @@ function stripQuery(id: string): string {
 
 function normalizePath(id: string): string {
   return stripQuery(id).replace(/\\/g, '/');
+}
+
+function normalizeAssetPathForHtml(assetPath: string): string {
+  return assetPath.startsWith('/') ? assetPath : `/${assetPath}`;
+}
+
+function getAssetType(assetPath: string): string {
+  return path.extname(assetPath).replace(/^\./, '').toLowerCase();
+}
+
+function createPreloadLinks(references: Map<string, AssetReference[]>, maxLinks: number, imageTypes: string[]): string {
+  const allowedTypes = new Set(imageTypes.map((type) => type.replace(/^\./, '').toLowerCase()));
+  const seen = new Set<string>();
+  const candidates = Array.from(references.values())
+    .flat()
+    .filter((reference) => reference.kind === 'css-background' || reference.kind === 'css-url')
+    .filter((reference) => reference.priority === 'critical' || reference.priority === 'early')
+    .filter((reference) => {
+      const type = getAssetType(reference.path);
+      return allowedTypes.has(type) && PRELOADABLE_BACKGROUND_TYPES.has(type);
+    });
+
+  const links: string[] = [];
+
+  for (const candidate of candidates) {
+    const href = normalizeAssetPathForHtml(candidate.path);
+    if (seen.has(href)) {
+      continue;
+    }
+
+    seen.add(href);
+    links.push(`<link rel="preload" as="image" href="${href}" data-featherperf-background-preload>`);
+
+    if (links.length >= maxLinks) {
+      break;
+    }
+  }
+
+  return links.join('\n');
+}
+
+function injectHeadHtml(html: string, insertion: string): string {
+  if (!insertion) {
+    return html;
+  }
+
+  const match = html.match(/<\/head>/i);
+  if (match?.index === undefined) {
+    return `${insertion}\n${html}`;
+  }
+
+  return `${html.slice(0, match.index)}${insertion}\n${html.slice(match.index)}`;
 }
 
 function isRelativeImport(source: string): boolean {
@@ -121,7 +176,52 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
     async generateBundle(_outputOptions, bundle) {
       const reportOptions = getAssetReportOptions(options);
       const manifestOptions = getAssetManifestOptions(options);
+      const backgroundOptions = getBackgroundOptions(options);
       const publicDir = config?.publicDir ?? null;
+
+      if (
+        backgroundOptions?.scanCss ||
+        reportOptions ||
+        manifestOptions?.includeCssBackgrounds
+      ) {
+        for (const [fileName, output] of Object.entries(bundle)) {
+          if (output.type !== 'asset' || !fileName.endsWith('.css')) {
+            continue;
+          }
+
+          const css = typeof output.source === 'string'
+            ? output.source
+            : Buffer.from(output.source).toString('utf8');
+
+          for (const reference of collectCssAssetReferenceRecords(css, fileName)) {
+            const existingReferences = htmlReferences.get(reference.path) ?? [];
+            existingReferences.push(reference);
+            htmlReferences.set(reference.path, existingReferences);
+          }
+        }
+      }
+
+      if (backgroundOptions?.injectPreloadLinks) {
+        const preloadLinks = createPreloadLinks(
+          htmlReferences,
+          backgroundOptions.maxPreloadLinks,
+          backgroundOptions.imageTypes
+        );
+
+        if (preloadLinks) {
+          for (const output of Object.values(bundle)) {
+            if (output.type !== 'asset' || !output.fileName.endsWith('.html')) {
+              continue;
+            }
+
+            const html = typeof output.source === 'string'
+              ? output.source
+              : Buffer.from(output.source).toString('utf8');
+
+            output.source = injectHeadHtml(html, preloadLinks);
+          }
+        }
+      }
 
       if (reportOptions) {
         const report = await createAssetReport({

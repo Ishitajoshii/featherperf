@@ -42,7 +42,14 @@ export default defineConfig({
       },
       manifest: {
         enabled: true,
-        outputFile: 'featherperf-assets.json'
+        outputFile: 'featherperf-assets.json',
+        includeCssBackgrounds: true
+      },
+      backgrounds: {
+        enabled: true,
+        scanCss: true,
+        injectPreloadLinks: true,
+        maxPreloadLinks: 8
       },
       serviceWorker: {
         enabled: true,
@@ -173,6 +180,27 @@ featherperf({
 ```
 
 The emitted manifest includes asset paths, sources, types, sizes when known, HTML reference reasons, and a priority of `critical`, `early`, or `lazy`. FeatherPerf infers priority from generic HTML signals like `rel="preload"`, `fetchpriority="high"`, `loading="eager"`, inline CSS URLs, and `loading="lazy"`.
+
+## Background Discovery
+
+Enable `backgrounds` to scan emitted CSS for `url(...)` references and optionally inject preload hints:
+
+```ts
+featherperf({
+  manifest: {
+    enabled: true,
+    includeCssBackgrounds: true
+  },
+  backgrounds: {
+    enabled: true,
+    scanCss: true,
+    injectPreloadLinks: true,
+    maxPreloadLinks: 8
+  }
+})
+```
+
+CSS backgrounds are added to the manifest as `early` assets. When preload injection is enabled, FeatherPerf adds a bounded number of `<link rel="preload" as="image">` tags to emitted HTML for discovered image backgrounds.
 
 ## Service Worker
 
