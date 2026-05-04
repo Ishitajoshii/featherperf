@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { collectDeferredImportCandidates } from '../dist/ast.js';
+import { collectDeferredImportCandidates, collectLottieLoadAnimationCandidates } from '../dist/ast.js';
 import { featherperf } from '../dist/plugin.js';
 import { checkSafety } from '../dist/safety.js';
 import { transformCode } from '../dist/transform.js';
@@ -13,7 +13,7 @@ test('virtual runtime module points at the resolved runtime entry', () => {
   assert.equal(typeof virtualModule, 'string');
   assert.match(
     virtualModule,
-    /export \{ deferModuleEntry, initAssetReadiness, initLottieOptimizer \} from "file:\/\/\/.*runtime\/dist\/index\.js";?/i
+    /export \{ deferModuleEntry, initAssetReadiness, initLottieOptimizer, optimizeLottieLoadAnimation \} from "file:\/\/\/.*runtime\/dist\/index\.js";?/i
   );
 });
 
@@ -81,6 +81,66 @@ test('transformCode rewrites a single-binding deferred import', () => {
   );
   assert.match(transformed, /const \{ runAnimations: runAnimations \} = await import\("\.\/motion"\);/);
   assert.doesNotMatch(transformed, /import \{ runAnimations \} from '\.\/motion';/);
+});
+
+test('collectLottieLoadAnimationCandidates finds default import loadAnimation calls', () => {
+  const code = [
+    "import lottie from 'lottie-web';",
+    '',
+    "const animation = lottie.loadAnimation({ container, path: '/loader.json' });"
+  ].join('\n');
+
+  const candidates = collectLottieLoadAnimationCandidates(code, 'src/page.ts');
+
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].calleeText, 'lottie.loadAnimation');
+});
+
+test('transformCode rewrites lottie-web ESM loadAnimation calls through runtime wrapper', () => {
+  const code = [
+    "import lottie from 'lottie-web';",
+    '',
+    "const animation = lottie.loadAnimation({ container, path: '/loader.json' });"
+  ].join('\n');
+
+  const transformed = transformCode(
+    code,
+    [],
+    {
+      lottie: {
+        enabled: true,
+        deferOffscreen: true,
+        criticalSelectors: ['#hero']
+      }
+    },
+    collectLottieLoadAnimationCandidates(code, 'src/page.ts')
+  );
+
+  assert.match(
+    transformed,
+    /import \{ optimizeLottieLoadAnimation as __featherperfLottieLoad \} from 'virtual:featherperf-runtime';/
+  );
+  assert.match(
+    transformed,
+    /const animation = __featherperfLottieLoad\(lottie\.loadAnimation, \{ container, path: '\/loader\.json' \}, \{"enabled":true,"deferOffscreen":true,"criticalSelectors":\["#hero"\]\}\);/
+  );
+});
+
+test('transformCode rewrites named lottie-web loadAnimation calls through runtime wrapper', () => {
+  const code = [
+    "import { loadAnimation } from 'lottie-web';",
+    '',
+    "loadAnimation({ container });"
+  ].join('\n');
+
+  const transformed = transformCode(
+    code,
+    [],
+    { lottie: true },
+    collectLottieLoadAnimationCandidates(code, 'src/page.ts')
+  );
+
+  assert.match(transformed, /__featherperfLottieLoad\(loadAnimation, \{ container \}, \{"enabled":true\}\);/);
 });
 
 test('transformCode preserves remaining bindings when deferring one import from a mixed import line', () => {

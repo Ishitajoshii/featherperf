@@ -95,3 +95,10 @@ export interface DeferredImportCandidate {
   triggerArgument: string | null;
   callIndent: string;
 }
+
+export interface LottieLoadAnimationCandidate {
+  calleeText: string;
+  callStart: number;
+  callEnd: number;
+  callArguments: string;
+}

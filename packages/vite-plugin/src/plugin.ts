@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
-import { collectDeferredImportCandidates } from './ast.js';
+import { collectDeferredImportCandidates, collectLottieLoadAnimationCandidates } from './ast.js';
 import { PLUGIN_NAME } from './constants.js';
 import { injectHtml } from './html.js';
 import { checkSafety } from './safety.js';
@@ -89,7 +89,7 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
         return null;
       }
 
-      return `export { deferModuleEntry, initAssetReadiness, initLottieOptimizer } from ${JSON.stringify(getRuntimeEntryHref())};`;
+      return `export { deferModuleEntry, initAssetReadiness, initLottieOptimizer, optimizeLottieLoadAnimation } from ${JSON.stringify(getRuntimeEntryHref())};`;
     },
     transformIndexHtml(html) {
       return injectHtml(html, options);
@@ -111,6 +111,10 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
       }
 
       const detectedCandidates = collectDeferredImportCandidates(code, cleanId);
+      const lottieCandidates =
+        options.lottie
+          ? collectLottieLoadAnimationCandidates(code, cleanId)
+          : [];
       const candidates: DeferredImportCandidate[] = [];
 
       for (const candidate of detectedCandidates) {
@@ -152,7 +156,7 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
         }
       }
 
-      const transformed = transformCode(code, candidates, options);
+      const transformed = transformCode(code, candidates, options, lottieCandidates);
       if (transformed === code) {
         return null;
       }
@@ -161,6 +165,12 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
         const deferredTargets = candidates.map((candidate) => candidate.source).join(', ');
         this.warn(
           `${PLUGIN_NAME}: deferred ${path.relative(process.cwd(), cleanId)} -> ${deferredTargets}`
+        );
+      }
+
+      if (options.debug && lottieCandidates.length > 0) {
+        this.warn(
+          `${PLUGIN_NAME}: optimized ${lottieCandidates.length} lottie loadAnimation call(s) in ${path.relative(process.cwd(), cleanId)}`
         );
       }
 

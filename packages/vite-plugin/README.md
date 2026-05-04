@@ -95,7 +95,7 @@ After readiness, FeatherPerf prewarms near-viewport lazy images and CSS backgrou
 
 ## Lottie
 
-Enable `lottie` when the site uses the browser-global `lottie-web` API:
+Enable `lottie` when the site uses `lottie-web`:
 
 ```ts
 featherperf({
@@ -114,7 +114,9 @@ featherperf({
 })
 ```
 
-FeatherPerf defers offscreen `loadAnimation()` calls until the container is near view, pauses animations that leave view, and dispatches `featherperf:lottie-ready` after the first frame. Mark critical containers with `data-featherperf-lottie` when automatic detection is not enough.
+FeatherPerf defers offscreen `loadAnimation()` calls until the container is near view, pauses animations that leave view, and dispatches `featherperf:lottie-ready` after the first frame. It supports both global `window.lottie.loadAnimation` usage and ESM imports such as `import lottie from 'lottie-web'` or `import { loadAnimation } from 'lottie-web'`.
+
+Mark critical containers with `data-featherperf-lottie` when automatic detection is not enough.
 
 ## Docs
 

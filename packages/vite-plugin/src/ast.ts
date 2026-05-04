@@ -1,6 +1,11 @@
 import path from 'node:path';
 import ts from 'typescript';
-import type { DeferredImportCandidate, DetectedImport, ImportBinding } from './types.js';
+import type {
+  DeferredImportCandidate,
+  DetectedImport,
+  ImportBinding,
+  LottieLoadAnimationCandidate
+} from './types.js';
 
 interface ImportRecord extends DetectedImport {
   importStart: number;
@@ -213,6 +218,102 @@ export function collectDeferredImportCandidates(code: string, id: string): Defer
       });
     }
   }
+
+  return candidates;
+}
+
+function isLottieLoadAnimationCall(
+  expression: ts.LeftHandSideExpression,
+  lottieObjectNames: Set<string>,
+  lottieLoadAnimationNames: Set<string>
+): boolean {
+  const normalizedExpression = unwrapExpression(expression);
+
+  if (ts.isIdentifier(normalizedExpression)) {
+    return lottieLoadAnimationNames.has(normalizedExpression.text);
+  }
+
+  if (!ts.isPropertyAccessExpression(normalizedExpression)) {
+    return false;
+  }
+
+  if (normalizedExpression.name.text !== 'loadAnimation') {
+    return false;
+  }
+
+  const objectExpression = unwrapExpression(normalizedExpression.expression);
+  return ts.isIdentifier(objectExpression) && lottieObjectNames.has(objectExpression.text);
+}
+
+function collectLottieImportNames(imports: ImportRecord[]): {
+  objectNames: Set<string>;
+  loadAnimationNames: Set<string>;
+} {
+  const objectNames = new Set<string>();
+  const loadAnimationNames = new Set<string>();
+
+  for (const importRecord of imports) {
+    if (importRecord.source !== 'lottie-web') {
+      continue;
+    }
+
+    for (const binding of importRecord.bindings) {
+      if (binding.kind === 'default' || binding.kind === 'namespace') {
+        objectNames.add(binding.localName);
+        continue;
+      }
+
+      if (binding.kind === 'named' && binding.importedName === 'loadAnimation') {
+        loadAnimationNames.add(binding.localName);
+      }
+    }
+  }
+
+  return { objectNames, loadAnimationNames };
+}
+
+export function collectLottieLoadAnimationCandidates(code: string, id: string): LottieLoadAnimationCandidate[] {
+  const sourceFile = ts.createSourceFile(id, code, ts.ScriptTarget.Latest, true, getScriptKind(id));
+  const imports: ImportRecord[] = [];
+
+  const collectImports = (node: ts.Node) => {
+    if (ts.isImportDeclaration(node)) {
+      const importRecord = parseImportDeclaration(node, sourceFile);
+      if (importRecord) {
+        imports.push(importRecord);
+      }
+    }
+
+    ts.forEachChild(node, collectImports);
+  };
+
+  collectImports(sourceFile);
+
+  const { objectNames, loadAnimationNames } = collectLottieImportNames(imports);
+  if (objectNames.size === 0 && loadAnimationNames.size === 0) {
+    return [];
+  }
+
+  const candidates: LottieLoadAnimationCandidate[] = [];
+
+  const visit = (node: ts.Node) => {
+    if (
+      ts.isCallExpression(node) &&
+      isLottieLoadAnimationCall(node.expression, objectNames, loadAnimationNames)
+    ) {
+      candidates.push({
+        calleeText: node.expression.getText(sourceFile),
+        callStart: node.getStart(sourceFile),
+        callEnd: node.getEnd(),
+        callArguments: code.slice(node.arguments.pos, node.arguments.end).trim()
+      });
+      return;
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
 
   return candidates;
 }

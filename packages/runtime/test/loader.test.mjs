@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { initAssetReadiness } from '../dist/assets.js';
 import { deferModuleEntry } from '../dist/loader.js';
-import { initLottieOptimizer } from '../dist/lottie.js';
+import { initLottieOptimizer, optimizeLottieLoadAnimation } from '../dist/lottie.js';
 
 test('deferModuleEntry runs immediately during server rendering', () => {
   const originalWindow = globalThis.window;
@@ -583,6 +583,102 @@ test('initLottieOptimizer defers offscreen lottie loadAnimation until near viewp
       globalThis.CustomEvent = originalCustomEvent;
     } else {
       Reflect.deleteProperty(globalThis, 'CustomEvent');
+    }
+  }
+});
+
+test('optimizeLottieLoadAnimation defers imported loadAnimation calls until near viewport', () => {
+  const originalWindow = globalThis.window;
+  const originalDocument = globalThis.document;
+  const originalIntersectionObserver = globalThis.IntersectionObserver;
+
+  let loadCount = 0;
+  let observerCallback;
+
+  class FakeIntersectionObserver {
+    constructor(callback) {
+      observerCallback = callback;
+    }
+
+    observe() {}
+    disconnect() {}
+  }
+
+  const container = {
+    dataset: {},
+    matches() {
+      return false;
+    },
+    closest() {
+      return null;
+    },
+    querySelector() {
+      return null;
+    },
+    getBoundingClientRect() {
+      return { top: 3000, left: 0, right: 100, bottom: 3100 };
+    }
+  };
+
+  globalThis.IntersectionObserver = FakeIntersectionObserver;
+  globalThis.window = {
+    innerHeight: 800,
+    innerWidth: 1200,
+    IntersectionObserver: FakeIntersectionObserver,
+    requestAnimationFrame(callback) {
+      callback();
+      return 1;
+    },
+    setTimeout(callback) {
+      callback();
+      return 1;
+    },
+    dispatchEvent() {}
+  };
+  globalThis.document = {
+    documentElement: {
+      clientHeight: 800,
+      clientWidth: 1200
+    }
+  };
+
+  try {
+    optimizeLottieLoadAnimation(
+      () => {
+        loadCount += 1;
+        return {
+          addEventListener() {},
+          removeEventListener() {},
+          play() {},
+          pause() {}
+        };
+      },
+      { container },
+      { deferOffscreen: true, lookaheadPx: 600 }
+    );
+
+    assert.equal(loadCount, 0);
+
+    observerCallback([{ isIntersecting: true }]);
+
+    assert.equal(loadCount, 1);
+  } finally {
+    if (typeof originalWindow !== 'undefined') {
+      globalThis.window = originalWindow;
+    } else {
+      Reflect.deleteProperty(globalThis, 'window');
+    }
+
+    if (typeof originalDocument !== 'undefined') {
+      globalThis.document = originalDocument;
+    } else {
+      Reflect.deleteProperty(globalThis, 'document');
+    }
+
+    if (typeof originalIntersectionObserver !== 'undefined') {
+      globalThis.IntersectionObserver = originalIntersectionObserver;
+    } else {
+      Reflect.deleteProperty(globalThis, 'IntersectionObserver');
     }
   }
 });

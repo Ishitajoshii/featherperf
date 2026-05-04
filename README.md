@@ -245,7 +245,7 @@ featherperf({
 
 ## Lottie Optimizer
 
-Enable `lottie` to patch `window.lottie.loadAnimation` when a site uses the browser-global `lottie-web` API. FeatherPerf defers offscreen animations until they are near the viewport, pauses animations that leave view, and marks containers ready after the first frame or DOM load event.
+Enable `lottie` to optimize `lottie-web` animation startup. FeatherPerf supports both the browser-global `window.lottie.loadAnimation` API and ESM imports from `lottie-web`. It defers offscreen animations until they are near the viewport, pauses animations that leave view, and marks containers ready after the first frame or DOM load event.
 
 ```ts
 featherperf({
@@ -266,6 +266,18 @@ featherperf({
 ```
 
 For the most reliable critical detection, mark Lottie containers that affect first reveal with `data-featherperf-lottie` or include their parent section in `criticalSelectors`.
+
+Supported ESM import shapes include:
+
+```ts
+import lottie from 'lottie-web';
+lottie.loadAnimation({ container, path: '/animation.json' });
+```
+
+```ts
+import { loadAnimation } from 'lottie-web';
+loadAnimation({ container, path: '/animation.json' });
+```
 
 For a less intrusive setup, leave `revealWhenReady` off and listen for the readiness event yourself:
 
@@ -308,7 +320,7 @@ FeatherPerf is ready to demonstrate and evaluate, with:
 - runtime scheduling for near-viewport and quiet-window execution
 - opt-in critical image/font readiness for asset-heavy pages
 - bounded near-viewport image and CSS background prewarming
-- offscreen Lottie deferral and first-frame readiness for global `lottie-web`
+- offscreen Lottie deferral and first-frame readiness for global and ESM `lottie-web`
 - tests for transform and runtime behavior
 - a hosted benchmark wrapper with before/after proof
 

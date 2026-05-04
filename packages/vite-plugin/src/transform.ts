@@ -1,4 +1,10 @@
-import type { DeferredImportCandidate, FeatherPerfOptions, ImportBinding } from './types.js';
+import type {
+  DeferredImportCandidate,
+  FeatherPerfLottieOptions,
+  FeatherPerfOptions,
+  ImportBinding,
+  LottieLoadAnimationCandidate
+} from './types.js';
 
 function createDeferredReplacement(
   candidate: DeferredImportCandidate,
@@ -36,6 +42,21 @@ interface Replacement {
   start: number;
   end: number;
   text: string;
+}
+
+function getLottieOptions(options: FeatherPerfOptions): FeatherPerfLottieOptions | null {
+  if (options.lottie === true) {
+    return { enabled: true };
+  }
+
+  if (!options.lottie || options.lottie.enabled === false) {
+    return null;
+  }
+
+  return {
+    ...options.lottie,
+    enabled: true
+  };
 }
 
 function sameBinding(left: ImportBinding, right: ImportBinding): boolean {
@@ -80,9 +101,10 @@ function createStaticImport(source: string, bindings: ImportBinding[]): string {
 export function transformCode(
   code: string,
   candidates: DeferredImportCandidate[],
-  options: FeatherPerfOptions = {}
+  options: FeatherPerfOptions = {},
+  lottieCandidates: LottieLoadAnimationCandidate[] = []
 ): string {
-  if (candidates.length === 0) {
+  if (candidates.length === 0 && lottieCandidates.length === 0) {
     return code;
   }
 
@@ -116,6 +138,22 @@ export function transformCode(
     });
   }
 
+  const lottieOptions = getLottieOptions(options);
+  if (lottieOptions) {
+    const serializedLottieOptions = JSON.stringify({
+      ...lottieOptions,
+      debug: options.debug
+    }).replace(/</g, '\\u003c');
+
+    for (const candidate of lottieCandidates) {
+      replacements.push({
+        start: candidate.callStart,
+        end: candidate.callEnd,
+        text: `__featherperfLottieLoad(${candidate.calleeText}, ${candidate.callArguments}, ${serializedLottieOptions})`
+      });
+    }
+  }
+
   if (replacements.length === 0) {
     return code;
   }
@@ -130,6 +168,11 @@ export function transformCode(
       transformed.slice(replacement.end);
   }
 
-  const runtimeImport = `import { deferModuleEntry as __featherperfDefer } from 'virtual:featherperf-runtime';`;
+  const runtimeImports = [
+    candidates.length > 0 ? 'deferModuleEntry as __featherperfDefer' : '',
+    lottieCandidates.length > 0 ? 'optimizeLottieLoadAnimation as __featherperfLottieLoad' : ''
+  ].filter(Boolean);
+
+  const runtimeImport = `import { ${runtimeImports.join(', ')} } from 'virtual:featherperf-runtime';`;
   return `${runtimeImport}\n\n${transformed}`;
 }

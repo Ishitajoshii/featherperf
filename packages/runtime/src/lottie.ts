@@ -399,6 +399,66 @@ function patchLottie(lottie: LottieGlobal, options: LottieOptimizerOptions): boo
   return true;
 }
 
+export function optimizeLottieLoadAnimation(
+  lottieOrLoadAnimation: LottieGlobal | ((params: LottieParams) => LottieAnimation),
+  params: LottieParams,
+  options: LottieOptimizerOptions = {}
+): LottieAnimation {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    if (typeof lottieOrLoadAnimation === 'function') {
+      return lottieOrLoadAnimation(params);
+    }
+
+    return lottieOrLoadAnimation.loadAnimation?.(params) ?? {};
+  }
+
+  const originalLoadAnimation =
+    typeof lottieOrLoadAnimation === 'function'
+      ? lottieOrLoadAnimation
+      : lottieOrLoadAnimation.loadAnimation?.bind(lottieOrLoadAnimation);
+
+  if (!originalLoadAnimation) {
+    return {};
+  }
+
+  const logger = createRuntimeLogger(options.debug, 'lottie');
+  const criticalSelectors = options.criticalSelectors ?? [];
+  const deferOffscreen = options.deferOffscreen ?? true;
+  const freezeOffscreen = options.freezeOffscreen ?? true;
+  const waitForFirstFrame = options.waitForFirstFrame ?? true;
+  const lookaheadPx = options.lookaheadPx ?? DEFAULT_LOTTIE_LOOKAHEAD_PX;
+  const container = params.container ?? params.wrapper;
+
+  if (!container) {
+    return originalLoadAnimation(params);
+  }
+
+  const isCritical = matchesAnySelector(container, criticalSelectors);
+  const shouldDefer = deferOffscreen && !isCritical && !isNearViewport(container, lookaheadPx);
+
+  const start = () => {
+    const animation = originalLoadAnimation(params);
+    const readiness = trackFirstFrame(animation, container, waitForFirstFrame);
+
+    if (isCritical) {
+      registerCriticalLottie(container, readiness);
+    }
+
+    if (freezeOffscreen) {
+      watchFreeze(animation, container, lookaheadPx, params.autoplay !== false);
+    }
+
+    return animation;
+  };
+
+  if (shouldDefer) {
+    logger.log('deferred ESM offscreen animation until near viewport');
+    return deferUntilNearViewport(container, lookaheadPx, start);
+  }
+
+  return start();
+}
+
 export function initLottieOptimizer(options: LottieOptimizerOptions = {}): void {
   if (typeof window === 'undefined' || typeof document === 'undefined') {
     return;
