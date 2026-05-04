@@ -23,6 +23,13 @@ export interface AssetReadinessOptions {
   includeViewportImages?: boolean;
   viewportMarginPx?: number;
   maxCriticalWaitMs?: number;
+  prewarmOffscreenAssets?: boolean;
+  prewarmBackgroundImages?: boolean;
+  prewarmLazyImages?: boolean;
+  prewarmLookaheadPx?: number;
+  prewarmBatchSize?: number;
+  maxConcurrentPreloads?: number;
+  idlePreloadDelayMs?: number;
   loadingClass?: string;
   readyClass?: string;
   debug?: boolean;

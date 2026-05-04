@@ -215,7 +215,8 @@ test('initAssetReadiness marks assets ready after critical images and fonts reso
   try {
     initAssetReadiness({
       revealWhenReady: true,
-      maxCriticalWaitMs: 1000
+      maxCriticalWaitMs: 1000,
+      prewarmOffscreenAssets: false
     });
 
     await Promise.resolve();
@@ -249,4 +250,190 @@ test('initAssetReadiness marks assets ready after critical images and fonts reso
   assert.equal(classes.has('featherperf-assets-loading'), false);
   assert.equal(classes.has('featherperf-assets-ready'), true);
   assert.deepEqual(dispatchedEvents, ['featherperf:assets-ready']);
+});
+
+test('initAssetReadiness prewarms near-viewport image and background assets after readiness', async () => {
+  const originalWindow = globalThis.window;
+  const originalDocument = globalThis.document;
+  const originalHtmlImageElement = globalThis.HTMLImageElement;
+  const originalImage = globalThis.Image;
+  const originalCustomEvent = globalThis.CustomEvent;
+  const originalMutationObserver = globalThis.MutationObserver;
+
+  const requestedUrls = [];
+  const listeners = new Map();
+
+  class FakeElement {
+    constructor(backgroundImage = 'none') {
+      this.backgroundImage = backgroundImage;
+    }
+
+    querySelectorAll() {
+      return [];
+    }
+
+    getBoundingClientRect() {
+      return { top: 100, left: 0, right: 100, bottom: 200, width: 100, height: 100 };
+    }
+  }
+
+  class FakeImageElement extends FakeElement {
+    complete = false;
+    naturalWidth = 0;
+    currentSrc = '/gallery.webp';
+    src = '/gallery.webp';
+    srcset = '';
+    loading = 'lazy';
+    fetchPriority = 'low';
+
+    decode() {
+      return Promise.resolve();
+    }
+
+    addEventListener(eventName, callback) {
+      if (eventName === 'load') {
+        callback();
+      }
+    }
+
+    removeEventListener() {}
+  }
+
+  class FakePreloadImage {
+    naturalWidth = 120;
+    decoding = 'auto';
+
+    set src(value) {
+      requestedUrls.push(value);
+      this._src = value;
+      this.onload?.();
+    }
+
+    get src() {
+      return this._src;
+    }
+
+    decode() {
+      return Promise.resolve();
+    }
+  }
+
+  const image = new FakeImageElement();
+  const backgroundElement = new FakeElement('url("/background.webp")');
+  const body = new FakeElement();
+  body.querySelectorAll = () => [backgroundElement];
+
+  globalThis.HTMLImageElement = FakeImageElement;
+  globalThis.Image = FakePreloadImage;
+  globalThis.CustomEvent = class {
+    constructor(type) {
+      this.type = type;
+    }
+  };
+  globalThis.MutationObserver = class {
+    observe() {}
+    disconnect() {}
+  };
+  globalThis.window = {
+    innerHeight: 800,
+    innerWidth: 1200,
+    MutationObserver: globalThis.MutationObserver,
+    getComputedStyle(element) {
+      return {
+        backgroundImage: element.backgroundImage ?? 'none',
+        borderImageSource: 'none',
+        listStyleImage: 'none'
+      };
+    },
+    requestAnimationFrame(callback) {
+      callback();
+      return 1;
+    },
+    setTimeout(callback) {
+      callback();
+      return 1;
+    },
+    addEventListener(eventName, callback) {
+      listeners.set(eventName, callback);
+    },
+    dispatchEvent() {}
+  };
+  globalThis.document = {
+    readyState: 'complete',
+    baseURI: 'https://example.test/',
+    images: [image],
+    fonts: {
+      ready: Promise.resolve()
+    },
+    body,
+    documentElement: {
+      clientHeight: 800,
+      clientWidth: 1200,
+      backgroundImage: 'none',
+      dataset: {},
+      classList: {
+        add() {},
+        remove() {}
+      },
+      getBoundingClientRect() {
+        return { top: 0, left: 0, right: 1200, bottom: 800, width: 1200, height: 800 };
+      }
+    },
+    querySelectorAll() {
+      return [];
+    },
+    addEventListener() {}
+  };
+
+  try {
+    initAssetReadiness({
+      prewarmOffscreenAssets: true,
+      prewarmLookaheadPx: 1800,
+      idlePreloadDelayMs: 0,
+      maxConcurrentPreloads: 2
+    });
+
+    await Promise.resolve();
+    await Promise.resolve();
+  } finally {
+    if (typeof originalWindow !== 'undefined') {
+      globalThis.window = originalWindow;
+    } else {
+      Reflect.deleteProperty(globalThis, 'window');
+    }
+
+    if (typeof originalDocument !== 'undefined') {
+      globalThis.document = originalDocument;
+    } else {
+      Reflect.deleteProperty(globalThis, 'document');
+    }
+
+    if (typeof originalHtmlImageElement !== 'undefined') {
+      globalThis.HTMLImageElement = originalHtmlImageElement;
+    } else {
+      Reflect.deleteProperty(globalThis, 'HTMLImageElement');
+    }
+
+    if (typeof originalImage !== 'undefined') {
+      globalThis.Image = originalImage;
+    } else {
+      Reflect.deleteProperty(globalThis, 'Image');
+    }
+
+    if (typeof originalCustomEvent !== 'undefined') {
+      globalThis.CustomEvent = originalCustomEvent;
+    } else {
+      Reflect.deleteProperty(globalThis, 'CustomEvent');
+    }
+
+    if (typeof originalMutationObserver !== 'undefined') {
+      globalThis.MutationObserver = originalMutationObserver;
+    } else {
+      Reflect.deleteProperty(globalThis, 'MutationObserver');
+    }
+  }
+
+  assert.equal(image.loading, 'eager');
+  assert.equal(image.fetchPriority, 'auto');
+  assert.deepEqual(requestedUrls, ['https://example.test/background.webp']);
 });

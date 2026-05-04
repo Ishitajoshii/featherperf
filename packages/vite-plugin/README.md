@@ -25,7 +25,9 @@ export default defineConfig({
         enabled: true,
         revealWhenReady: true,
         criticalSelectors: ['#hero', '[data-critical]'],
-        maxCriticalWaitMs: 3500
+        maxCriticalWaitMs: 3500,
+        prewarmOffscreenAssets: true,
+        prewarmBackgroundImages: true
       }
     })
   ]
@@ -69,12 +71,19 @@ featherperf({
     waitForCriticalImages: true,
     waitForFonts: true,
     includeViewportImages: true,
-    maxCriticalWaitMs: 3500
+    maxCriticalWaitMs: 3500,
+    prewarmOffscreenAssets: true,
+    prewarmBackgroundImages: true,
+    prewarmLazyImages: true,
+    prewarmLookaheadPx: 1800,
+    maxConcurrentPreloads: 4
   }
 })
 ```
 
 FeatherPerf emits `featherperf:assets-ready` when the gate resolves. `revealWhenReady` is optional; without it, the event still fires but the plugin does not hide the page.
+
+After readiness, FeatherPerf prewarms near-viewport lazy images and CSS background image URLs by default. This keeps below-the-fold sections from looking blank when a user scrolls quickly, while `maxConcurrentPreloads` prevents the page from flooding the network.
 
 ## Docs
 

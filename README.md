@@ -182,7 +182,12 @@ featherperf({
     waitForFonts: true,
     includeViewportImages: true,
     revealWhenReady: true,
-    maxCriticalWaitMs: 3500
+    maxCriticalWaitMs: 3500,
+    prewarmOffscreenAssets: true,
+    prewarmBackgroundImages: true,
+    prewarmLazyImages: true,
+    prewarmLookaheadPx: 1800,
+    maxConcurrentPreloads: 4
   }
 })
 ```
@@ -196,12 +201,19 @@ featherperf({
 - `exclude`: importer path filters for critical files
 - `criticalSelectors`: selectors that should never be deferred
 - `assets`: optional critical asset readiness gate for image-heavy pages
+- `assets.prewarmOffscreenAssets`: starts bounded preloading after critical readiness
+- `assets.prewarmBackgroundImages`: preloads CSS background images near the viewport
+- `assets.prewarmLazyImages`: nudges near-viewport lazy images to load before they are visible
+- `assets.prewarmLookaheadPx`: how far ahead of the viewport FeatherPerf should prewarm
+- `assets.maxConcurrentPreloads`: caps background/image preload concurrency
 
-## Asset Readiness
+## Asset Readiness And Prewarming
 
 The `assets` option is the first step toward broader asset-heavy site support. When enabled, FeatherPerf injects a small runtime that waits for critical images to load/decode and for fonts to become ready before dispatching `featherperf:assets-ready`.
 
 `revealWhenReady` is opt-in. When enabled, FeatherPerf adds a temporary loading class to the document and hides the body until critical assets resolve or `maxCriticalWaitMs` is reached. This is useful for pages that already use a loader and want to avoid revealing half-decoded hero or above-the-fold images.
+
+After that readiness gate resolves, FeatherPerf starts prewarming near-future assets by default. It nudges lazy `<img>` elements to load and preloads CSS background image URLs found near the viewport, using a small concurrency-limited queue so those assets do not wait until the user has already reached the section.
 
 ```ts
 featherperf({
@@ -209,7 +221,12 @@ featherperf({
     enabled: true,
     revealWhenReady: true,
     criticalSelectors: ['#home', '.hero', '[data-critical]'],
-    maxCriticalWaitMs: 3500
+    maxCriticalWaitMs: 3500,
+    prewarmOffscreenAssets: true,
+    prewarmBackgroundImages: true,
+    prewarmLazyImages: true,
+    prewarmLookaheadPx: 1800,
+    maxConcurrentPreloads: 4
   }
 })
 ```
@@ -254,6 +271,7 @@ FeatherPerf is ready to demonstrate and evaluate, with:
 - AST-based importer analysis
 - runtime scheduling for near-viewport and quiet-window execution
 - opt-in critical image/font readiness for asset-heavy pages
+- bounded near-viewport image and CSS background prewarming
 - tests for transform and runtime behavior
 - a hosted benchmark wrapper with before/after proof
 
