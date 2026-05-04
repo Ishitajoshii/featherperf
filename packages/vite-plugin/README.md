@@ -34,6 +34,11 @@ export default defineConfig({
         criticalSelectors: ['#hero', '[data-critical]'],
         deferOffscreen: true,
         freezeOffscreen: true
+      },
+      report: {
+        enabled: true,
+        emitJson: true,
+        largeAssetThresholdKb: 500
       }
     })
   ]
@@ -117,6 +122,24 @@ featherperf({
 FeatherPerf defers offscreen `loadAnimation()` calls until the container is near view, pauses animations that leave view, and dispatches `featherperf:lottie-ready` after the first frame. It supports both global `window.lottie.loadAnimation` usage and ESM imports such as `import lottie from 'lottie-web'` or `import { loadAnimation } from 'lottie-web'`.
 
 Mark critical containers with `data-featherperf-lottie` when automatic detection is not enough.
+
+## Asset Report
+
+Enable `report` to surface large emitted, public, and HTML-referenced assets during build:
+
+```ts
+featherperf({
+  report: {
+    enabled: true,
+    emitJson: true,
+    outputFile: 'featherperf-assets.json',
+    largeAssetThresholdKb: 500,
+    topAssetCount: 10
+  }
+})
+```
+
+When `emitJson` is true, the build emits a manifest with asset paths, sources, types, known sizes, and a largest-assets summary.
 
 ## Docs
 

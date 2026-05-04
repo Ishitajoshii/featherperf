@@ -31,6 +31,17 @@ export interface FeatherPerfLottieOptions {
   pollIntervalMs?: number;
 }
 
+export interface FeatherPerfAssetReportOptions {
+  enabled?: boolean;
+  emitJson?: boolean;
+  outputFile?: string;
+  includePublic?: boolean;
+  includeHtmlReferences?: boolean;
+  includeChunks?: boolean;
+  largeAssetThresholdKb?: number;
+  topAssetCount?: number;
+}
+
 export interface FeatherPerfOptions {
   debug?: boolean;
   idleTimeoutMs?: number;
@@ -42,6 +53,7 @@ export interface FeatherPerfOptions {
   criticalSelectors?: string[];
   assets?: boolean | FeatherPerfAssetOptions;
   lottie?: boolean | FeatherPerfLottieOptions;
+  report?: boolean | FeatherPerfAssetReportOptions;
 }
 
 export type SupportedHeavyPackage = 'gsap' | 'ScrollTrigger' | 'lottie-web';
@@ -101,4 +113,28 @@ export interface LottieLoadAnimationCandidate {
   callStart: number;
   callEnd: number;
   callArguments: string;
+}
+
+export type AssetReportSource = 'bundle' | 'chunk' | 'public' | 'html-public' | 'html-reference';
+
+export interface AssetReportEntry {
+  path: string;
+  source: AssetReportSource;
+  type: string;
+  bytes: number | null;
+  referencedByHtml?: boolean;
+}
+
+export interface AssetReportSummary {
+  totalKnownBytes: number;
+  knownAssetCount: number;
+  unknownAssetCount: number;
+  largestAssets: AssetReportEntry[];
+  largeAssets: AssetReportEntry[];
+}
+
+export interface AssetReportResult {
+  options: Required<FeatherPerfAssetReportOptions>;
+  entries: AssetReportEntry[];
+  summary: AssetReportSummary;
 }

@@ -198,6 +198,12 @@ featherperf({
     freezeOffscreen: true,
     waitForFirstFrame: true,
     lookaheadPx: 600
+  },
+  report: {
+    enabled: true,
+    emitJson: true,
+    largeAssetThresholdKb: 500,
+    topAssetCount: 10
   }
 })
 ```
@@ -218,6 +224,7 @@ featherperf({
 - `assets.prewarmLookaheadPx`: how far ahead of the viewport FeatherPerf should prewarm
 - `assets.maxConcurrentPreloads`: caps background/image preload concurrency
 - `lottie`: optional optimizer for `window.lottie.loadAnimation`
+- `report`: optional build-time asset report for large bundle/public/HTML assets
 
 ## Asset Readiness And Prewarming
 
@@ -279,6 +286,24 @@ import { loadAnimation } from 'lottie-web';
 loadAnimation({ container, path: '/animation.json' });
 ```
 
+## Asset Report
+
+Enable `report` during builds to find the biggest assets before guessing what to optimize:
+
+```ts
+featherperf({
+  report: {
+    enabled: true,
+    emitJson: true,
+    outputFile: 'featherperf-assets.json',
+    largeAssetThresholdKb: 500,
+    topAssetCount: 10
+  }
+})
+```
+
+The report includes emitted bundle assets/chunks, assets in `public/`, and HTML-referenced images, videos, fonts, Lottie JSON, and model files. Large assets are also surfaced as Vite build warnings.
+
 For a less intrusive setup, leave `revealWhenReady` off and listen for the readiness event yourself:
 
 ```ts
@@ -321,6 +346,7 @@ FeatherPerf is ready to demonstrate and evaluate, with:
 - opt-in critical image/font readiness for asset-heavy pages
 - bounded near-viewport image and CSS background prewarming
 - offscreen Lottie deferral and first-frame readiness for global and ESM `lottie-web`
+- build-time large asset reporting and optional JSON manifest emission
 - tests for transform and runtime behavior
 - a hosted benchmark wrapper with before/after proof
 

@@ -1,6 +1,6 @@
 {
   "name": "@featherperf/vite-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Conservative Vite plugin that defers safe below-the-fold motion modules for faster first paint.",
   "keywords": [
     "vite",
@@ -40,7 +40,7 @@
     "test": "pnpm run build && node --test ./test/plugin.test.mjs ./test/integration.test.mjs"
   },
   "dependencies": {
-    "@featherperf/runtime": "^0.1.0"
+    "@featherperf/runtime": "^0.2.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0"

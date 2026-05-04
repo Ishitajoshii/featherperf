@@ -2,8 +2,14 @@ import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import type { Plugin } from 'vite';
+import type { Plugin, ResolvedConfig } from 'vite';
 import { collectDeferredImportCandidates, collectLottieLoadAnimationCandidates } from './ast.js';
+import {
+  collectHtmlAssetReferences,
+  createAssetReport,
+  formatAssetReportWarnings,
+  getAssetReportOptions
+} from './asset-report.js';
 import { PLUGIN_NAME } from './constants.js';
 import { injectHtml } from './html.js';
 import { checkSafety } from './safety.js';
@@ -70,9 +76,15 @@ async function readResolvedCode(resolvedId: string): Promise<string | null> {
 }
 
 export function featherperf(options: FeatherPerfOptions = {}): Plugin {
+  let config: ResolvedConfig | null = null;
+  const htmlReferences = new Set<string>();
+
   return {
     name: PLUGIN_NAME,
     apply: 'build',
+    configResolved(resolvedConfig) {
+      config = resolvedConfig;
+    },
     resolveId(source) {
       if (source === VIRTUAL_RUNTIME_PUBLIC_ID) {
         return VIRTUAL_RUNTIME_RESOLVED_ID;
@@ -92,7 +104,40 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
       return `export { deferModuleEntry, initAssetReadiness, initLottieOptimizer, optimizeLottieLoadAnimation } from ${JSON.stringify(getRuntimeEntryHref())};`;
     },
     transformIndexHtml(html) {
+      const reportOptions = getAssetReportOptions(options);
+      if (reportOptions?.includeHtmlReferences) {
+        for (const reference of collectHtmlAssetReferences(html)) {
+          htmlReferences.add(reference);
+        }
+      }
+
       return injectHtml(html, options);
+    },
+    async generateBundle(_outputOptions, bundle) {
+      const reportOptions = getAssetReportOptions(options);
+      if (!reportOptions) {
+        return;
+      }
+
+      const publicDir = config?.publicDir ?? null;
+      const report = await createAssetReport({
+        bundle,
+        htmlReferences,
+        publicDir,
+        options: reportOptions
+      });
+
+      for (const warning of formatAssetReportWarnings(report)) {
+        this.warn(`${PLUGIN_NAME}: ${warning}`);
+      }
+
+      if (reportOptions.emitJson) {
+        this.emitFile({
+          type: 'asset',
+          fileName: reportOptions.outputFile,
+          source: `${JSON.stringify(report, null, 2)}\n`
+        });
+      }
     },
     async transform(code, id) {
       const cleanId = stripQuery(id);

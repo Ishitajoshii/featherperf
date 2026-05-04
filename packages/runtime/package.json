@@ -1,6 +1,6 @@
 {
   "name": "@featherperf/runtime",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Runtime scheduler used by FeatherPerf to defer safe client modules until idle or near-viewport.",
   "keywords": [
     "performance",

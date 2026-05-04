@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { collectDeferredImportCandidates, collectLottieLoadAnimationCandidates } from '../dist/ast.js';
+import {
+  collectHtmlAssetReferences,
+  createAssetReport,
+  formatAssetReportWarnings
+} from '../dist/asset-report.js';
 import { featherperf } from '../dist/plugin.js';
 import { checkSafety } from '../dist/safety.js';
 import { transformCode } from '../dist/transform.js';
@@ -59,6 +67,84 @@ test('injectHtml adds lottie optimizer bootstrap when enabled', () => {
   assert.match(transformed, /initLottieOptimizer/);
   assert.match(transformed, /"criticalSelectors":\["#hero"\]/);
   assert.match(transformed, /"debug":true/);
+});
+
+test('collectHtmlAssetReferences finds images, videos, srcset, and CSS urls', () => {
+  const html = [
+    '<img src="/hero.webp">',
+    '<source srcset="/wide.avif 1200w, /narrow.avif 600w">',
+    '<video poster="/poster.webp" src="/intro.webm"></video>',
+    '<section style="background-image:url(/background.svg)"></section>',
+    '<img src="https://cdn.example.com/remote.webp">'
+  ].join('');
+
+  assert.deepEqual(collectHtmlAssetReferences(html), [
+    '/background.svg',
+    '/hero.webp',
+    '/intro.webm',
+    '/narrow.avif',
+    '/poster.webp',
+    '/wide.avif'
+  ]);
+});
+
+test('createAssetReport summarizes bundle, public, and html-referenced assets', async () => {
+  const publicDir = await mkdtemp(path.join(tmpdir(), 'featherperf-public-'));
+
+  try {
+    await writeFile(path.join(publicDir, 'hero.webp'), Buffer.alloc(1024));
+    await writeFile(path.join(publicDir, 'huge.svg'), Buffer.alloc(2048));
+
+    const report = await createAssetReport({
+      bundle: {
+        'assets/app.js': {
+          type: 'chunk',
+          code: 'console.log("hello");',
+          fileName: 'assets/app.js',
+          imports: [],
+          dynamicImports: [],
+          modules: {},
+          facadeModuleId: null,
+          isDynamicEntry: false,
+          isEntry: true,
+          isImplicitEntry: false,
+          moduleIds: [],
+          name: 'app',
+          referencedFiles: [],
+          preliminaryFileName: 'assets/app.js',
+          exports: []
+        },
+        'assets/logo.webp': {
+          type: 'asset',
+          fileName: 'assets/logo.webp',
+          source: Buffer.alloc(512),
+          names: ['logo.webp'],
+          originalFileNames: []
+        }
+      },
+      htmlReferences: new Set(['/hero.webp', '/missing.webp']),
+      publicDir,
+      options: {
+        enabled: true,
+        emitJson: false,
+        outputFile: 'featherperf-assets.json',
+        includePublic: true,
+        includeHtmlReferences: true,
+        includeChunks: true,
+        largeAssetThresholdKb: 1,
+        topAssetCount: 5
+      }
+    });
+
+    assert.equal(report.summary.knownAssetCount, 5);
+    assert.equal(report.summary.unknownAssetCount, 1);
+    assert.ok(report.entries.some((entry) => entry.path === '/missing.webp' && entry.bytes === null));
+
+    const warnings = formatAssetReportWarnings(report);
+    assert.ok(warnings.some((warning) => warning.includes('/huge.svg')));
+  } finally {
+    await rm(publicDir, { recursive: true, force: true });
+  }
 });
 
 test('transformCode rewrites a single-binding deferred import', () => {
