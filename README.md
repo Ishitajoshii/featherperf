@@ -189,7 +189,10 @@ featherperf({
     prewarmBackgroundImages: true,
     prewarmLazyImages: true,
     prewarmLookaheadPx: 1800,
-    maxConcurrentPreloads: 4
+    maxConcurrentPreloads: 4,
+    manifestUrl: '/featherperf-assets.json',
+    prewarmManifestAssets: true,
+    manifestPrewarmLimit: 30
   },
   lottie: {
     enabled: true,
@@ -204,6 +207,12 @@ featherperf({
     emitJson: true,
     largeAssetThresholdKb: 500,
     topAssetCount: 10
+  },
+  manifest: {
+    enabled: true,
+    outputFile: 'featherperf-assets.json',
+    includePublic: true,
+    includeHtmlReferences: true
   },
   serviceWorker: {
     enabled: true,
@@ -228,8 +237,11 @@ featherperf({
 - `assets.prewarmLazyImages`: nudges near-viewport lazy images to load before they are visible
 - `assets.prewarmLookaheadPx`: how far ahead of the viewport FeatherPerf should prewarm
 - `assets.maxConcurrentPreloads`: caps background/image preload concurrency
+- `assets.manifestUrl`: optional build manifest URL used for priority prewarming
+- `assets.prewarmManifestAssets`: prewarms manifest entries marked `critical` or `early`
 - `lottie`: optional optimizer for `window.lottie.loadAnimation`
 - `report`: optional build-time asset report for large bundle/public/HTML assets
+- `manifest`: optional build-time asset manifest for runtime prioritization
 - `serviceWorker`: optional same-origin asset cache for repeat visits
 
 ## Asset Readiness And Prewarming
@@ -239,6 +251,8 @@ The `assets` option is the first step toward broader asset-heavy site support. W
 `revealWhenReady` is opt-in. When enabled, FeatherPerf adds a temporary loading class to the document and hides the body until critical assets resolve or `maxCriticalWaitMs` is reached. This is useful for pages that already use a loader and want to avoid revealing half-decoded hero or above-the-fold images.
 
 After that readiness gate resolves, FeatherPerf starts prewarming near-future assets by default. It nudges lazy `<img>` elements to load and preloads CSS background image URLs found near the viewport, using a small concurrency-limited queue so those assets do not wait until the user has already reached the section.
+
+If `manifestUrl` is set, FeatherPerf also fetches the build-time asset manifest and prewarms entries marked `critical` or `early` before falling back to viewport discovery.
 
 ```ts
 featherperf({
@@ -310,6 +324,30 @@ featherperf({
 
 The report includes emitted bundle assets/chunks, assets in `public/`, and HTML-referenced images, videos, fonts, Lottie JSON, and model files. Large assets are also surfaced as Vite build warnings.
 
+## Asset Manifest
+
+Enable `manifest` to emit a runtime-readable asset manifest:
+
+```ts
+featherperf({
+  manifest: {
+    enabled: true,
+    outputFile: 'featherperf-assets.json',
+    includePublic: true,
+    includeHtmlReferences: true,
+    includeChunks: false
+  },
+  assets: {
+    enabled: true,
+    manifestUrl: '/featherperf-assets.json',
+    prewarmManifestAssets: true,
+    manifestPrewarmLimit: 30
+  }
+})
+```
+
+Manifest entries include path, type, size when known, source, priority, and HTML reference reasons. Build-time priority is inferred from generic signals such as `rel="preload"`, `fetchpriority="high"`, `loading="eager"`, inline CSS `url(...)`, and `loading="lazy"`.
+
 ## Service Worker Asset Cache
 
 Enable `serviceWorker` to cache same-origin static assets after the browser requests them:
@@ -373,6 +411,7 @@ FeatherPerf is ready to demonstrate and evaluate, with:
 - bounded near-viewport image and CSS background prewarming
 - offscreen Lottie deferral and first-frame readiness for global and ESM `lottie-web`
 - build-time large asset reporting and optional JSON manifest emission
+- runtime prewarming from build-time asset manifest priorities
 - conservative service worker runtime caching for repeat asset loads
 - tests for transform and runtime behavior
 - a hosted benchmark wrapper with before/after proof

@@ -32,6 +32,9 @@ export interface AssetReadinessOptions {
   prewarmBatchSize?: number;
   maxConcurrentPreloads?: number;
   idlePreloadDelayMs?: number;
+  manifestUrl?: string;
+  prewarmManifestAssets?: boolean;
+  manifestPrewarmLimit?: number;
   loadingClass?: string;
   readyClass?: string;
   debug?: boolean;

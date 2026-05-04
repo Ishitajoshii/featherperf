@@ -40,6 +40,10 @@ export default defineConfig({
         emitJson: true,
         largeAssetThresholdKb: 500
       },
+      manifest: {
+        enabled: true,
+        outputFile: 'featherperf-assets.json'
+      },
       serviceWorker: {
         enabled: true,
         cacheVersion: 'v1',
@@ -145,6 +149,30 @@ featherperf({
 ```
 
 When `emitJson` is true, the build emits a manifest with asset paths, sources, types, known sizes, and a largest-assets summary.
+
+## Asset Manifest
+
+Enable `manifest` when the runtime should use build-time asset priorities:
+
+```ts
+featherperf({
+  manifest: {
+    enabled: true,
+    outputFile: 'featherperf-assets.json',
+    includePublic: true,
+    includeHtmlReferences: true,
+    includeChunks: false
+  },
+  assets: {
+    enabled: true,
+    manifestUrl: '/featherperf-assets.json',
+    prewarmManifestAssets: true,
+    manifestPrewarmLimit: 30
+  }
+})
+```
+
+The emitted manifest includes asset paths, sources, types, sizes when known, HTML reference reasons, and a priority of `critical`, `early`, or `lazy`. FeatherPerf infers priority from generic HTML signals like `rel="preload"`, `fetchpriority="high"`, `loading="eager"`, inline CSS URLs, and `loading="lazy"`.
 
 ## Service Worker
 

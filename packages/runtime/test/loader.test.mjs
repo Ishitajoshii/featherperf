@@ -222,6 +222,8 @@ test('initAssetReadiness marks assets ready after critical images and fonts reso
 
     await Promise.resolve();
     await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
   } finally {
     if (typeof originalWindow !== 'undefined') {
       globalThis.window = originalWindow;
@@ -258,10 +260,12 @@ test('initAssetReadiness prewarms near-viewport image and background assets afte
   const originalDocument = globalThis.document;
   const originalHtmlImageElement = globalThis.HTMLImageElement;
   const originalImage = globalThis.Image;
+  const originalFetch = globalThis.fetch;
   const originalCustomEvent = globalThis.CustomEvent;
   const originalMutationObserver = globalThis.MutationObserver;
 
   const requestedUrls = [];
+  const fetchedUrls = [];
   const listeners = new Map();
 
   class FakeElement {
@@ -359,6 +363,24 @@ test('initAssetReadiness prewarms near-viewport image and background assets afte
     },
     dispatchEvent() {}
   };
+  globalThis.fetch = (url) => {
+    fetchedUrls.push(String(url));
+
+    if (String(url).endsWith('/featherperf-assets.json')) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          entries: [
+            { path: '/hero.webp', type: 'webp', priority: 'critical' },
+            { path: '/font.woff2', type: 'woff2', priority: 'early' },
+            { path: '/gallery.webp', type: 'webp', priority: 'lazy' }
+          ]
+        })
+      });
+    }
+
+    return Promise.resolve({ ok: true });
+  };
   globalThis.document = {
     readyState: 'complete',
     baseURI: 'https://example.test/',
@@ -389,11 +411,17 @@ test('initAssetReadiness prewarms near-viewport image and background assets afte
   try {
     initAssetReadiness({
       prewarmOffscreenAssets: true,
+      manifestUrl: '/featherperf-assets.json',
+      prewarmManifestAssets: true,
       prewarmLookaheadPx: 1800,
       idlePreloadDelayMs: 0,
-      maxConcurrentPreloads: 2
+      maxConcurrentPreloads: 4
     });
 
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
     await Promise.resolve();
     await Promise.resolve();
   } finally {
@@ -421,6 +449,12 @@ test('initAssetReadiness prewarms near-viewport image and background assets afte
       Reflect.deleteProperty(globalThis, 'Image');
     }
 
+    if (typeof originalFetch !== 'undefined') {
+      globalThis.fetch = originalFetch;
+    } else {
+      Reflect.deleteProperty(globalThis, 'fetch');
+    }
+
     if (typeof originalCustomEvent !== 'undefined') {
       globalThis.CustomEvent = originalCustomEvent;
     } else {
@@ -436,7 +470,11 @@ test('initAssetReadiness prewarms near-viewport image and background assets afte
 
   assert.equal(image.loading, 'eager');
   assert.equal(image.fetchPriority, 'auto');
-  assert.deepEqual(requestedUrls, ['https://example.test/background.webp']);
+  assert.deepEqual(requestedUrls, [
+    'https://example.test/background.webp',
+    'https://example.test/hero.webp'
+  ]);
+  assert.deepEqual(fetchedUrls, ['/featherperf-assets.json', 'https://example.test/font.woff2']);
 });
 
 test('initLottieOptimizer defers offscreen lottie loadAnimation until near viewport', () => {

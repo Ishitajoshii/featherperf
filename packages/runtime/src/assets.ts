@@ -16,9 +16,21 @@ const DEFAULT_PREWARM_LOOKAHEAD_PX = 1800;
 const DEFAULT_PREWARM_BATCH_SIZE = 24;
 const DEFAULT_MAX_CONCURRENT_PRELOADS = 4;
 const DEFAULT_IDLE_PRELOAD_DELAY_MS = 300;
+const DEFAULT_MANIFEST_PREWARM_LIMIT = 30;
 const DEFAULT_LOADING_CLASS = 'featherperf-assets-loading';
 const DEFAULT_READY_CLASS = 'featherperf-assets-ready';
 const CSS_URL_PATTERN = /url\((['"]?)(.*?)\1\)/g;
+const IMAGE_ASSET_TYPES = new Set(['avif', 'gif', 'jpeg', 'jpg', 'png', 'svg', 'webp']);
+
+interface AssetManifestEntry {
+  path: string;
+  type?: string;
+  priority?: 'critical' | 'early' | 'lazy';
+}
+
+interface AssetManifest {
+  entries?: AssetManifestEntry[];
+}
 
 function uniqueImages(images: HTMLImageElement[]): HTMLImageElement[] {
   return Array.from(new Set(images));
@@ -203,6 +215,17 @@ function preloadImageUrl(url: string): Promise<void> {
   });
 }
 
+function preloadAssetUrl(url: string, type = ''): Promise<void> {
+  if (IMAGE_ASSET_TYPES.has(type.toLowerCase())) {
+    return preloadImageUrl(url);
+  }
+
+  return fetch(url, {
+    cache: 'force-cache',
+    credentials: 'same-origin'
+  }).then(() => undefined, () => undefined);
+}
+
 interface PrewarmRuntimeOptions {
   prewarmBackgroundImages: boolean;
   prewarmLazyImages: boolean;
@@ -210,6 +233,9 @@ interface PrewarmRuntimeOptions {
   prewarmBatchSize: number;
   maxConcurrentPreloads: number;
   idlePreloadDelayMs: number;
+  manifestUrl: string | null;
+  prewarmManifestAssets: boolean;
+  manifestPrewarmLimit: number;
 }
 
 interface PrewarmTask {
@@ -250,6 +276,46 @@ function initAssetPrewarmer(options: PrewarmRuntimeOptions, logger: ReturnType<t
     seen.add(task.key);
     queue.push(task);
     pump();
+  };
+
+  const enqueueManifestAssets = async () => {
+    if (!options.manifestUrl || !options.prewarmManifestAssets) {
+      return;
+    }
+
+    try {
+      const response = await fetch(options.manifestUrl, {
+        cache: 'force-cache',
+        credentials: 'same-origin'
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const manifest = (await response.json()) as AssetManifest;
+      const entries = (manifest.entries ?? [])
+        .filter((entry) => entry.path && (entry.priority === 'critical' || entry.priority === 'early'))
+        .slice(0, options.manifestPrewarmLimit);
+
+      for (const entry of entries) {
+        const url = normalizeAssetUrl(entry.path);
+        if (!url) {
+          continue;
+        }
+
+        enqueue({
+          key: `manifest:${url}`,
+          run: () => preloadAssetUrl(url, entry.type)
+        });
+      }
+
+      if (entries.length > 0) {
+        logger.log(`prewarming ${entries.length} manifest-prioritized asset(s)`);
+      }
+    } catch {
+      logger.log('manifest prewarm failed');
+    }
   };
 
   const collectNearElements = (): Element[] => {
@@ -305,6 +371,7 @@ function initAssetPrewarmer(options: PrewarmRuntimeOptions, logger: ReturnType<t
   };
 
   const start = () => {
+    void enqueueManifestAssets();
     queueScan();
     window.addEventListener('scroll', queueScan, { passive: true });
     window.addEventListener('resize', queueScan, { passive: true });
@@ -429,7 +496,10 @@ export function initAssetReadiness(options: AssetReadinessOptions = {}): void {
           prewarmLookaheadPx: options.prewarmLookaheadPx ?? DEFAULT_PREWARM_LOOKAHEAD_PX,
           prewarmBatchSize: options.prewarmBatchSize ?? DEFAULT_PREWARM_BATCH_SIZE,
           maxConcurrentPreloads: options.maxConcurrentPreloads ?? DEFAULT_MAX_CONCURRENT_PRELOADS,
-          idlePreloadDelayMs: options.idlePreloadDelayMs ?? DEFAULT_IDLE_PRELOAD_DELAY_MS
+          idlePreloadDelayMs: options.idlePreloadDelayMs ?? DEFAULT_IDLE_PRELOAD_DELAY_MS,
+          manifestUrl: options.manifestUrl ?? null,
+          prewarmManifestAssets: options.prewarmManifestAssets ?? Boolean(options.manifestUrl),
+          manifestPrewarmLimit: options.manifestPrewarmLimit ?? DEFAULT_MANIFEST_PREWARM_LIMIT
         },
         logger
       );

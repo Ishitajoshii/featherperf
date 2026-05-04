@@ -6,6 +6,7 @@ import path from 'node:path';
 import { collectDeferredImportCandidates, collectLottieLoadAnimationCandidates } from '../dist/ast.js';
 import {
   collectHtmlAssetReferences,
+  collectHtmlAssetReferenceRecords,
   createAssetReport,
   formatAssetReportWarnings
 } from '../dist/asset-report.js';
@@ -50,6 +51,19 @@ test('injectHtml adds asset readiness bootstrap when enabled', () => {
   assert.match(transformed, /"criticalSelectors":\["#hero"\]/);
   assert.match(transformed, /"maxCriticalWaitMs":2500/);
   assert.match(transformed, /"debug":true/);
+});
+
+test('injectHtml passes manifest url to asset runtime when manifest is enabled', () => {
+  const html = '<html><head></head><body><main></main></body></html>';
+  const transformed = injectHtml(html, {
+    assets: true,
+    manifest: {
+      enabled: true,
+      outputFile: 'featherperf-assets.json'
+    }
+  });
+
+  assert.match(transformed, /"manifestUrl":"\/featherperf-assets\.json"/);
 });
 
 test('injectHtml adds lottie optimizer bootstrap when enabled', () => {
@@ -121,6 +135,10 @@ test('collectHtmlAssetReferences finds images, videos, srcset, and CSS urls', ()
     '/poster.webp',
     '/wide.avif'
   ]);
+
+  const records = collectHtmlAssetReferenceRecords('<img src="/hero.webp" fetchpriority="high">');
+  assert.equal(records[0].priority, 'critical');
+  assert.equal(records[0].reason, 'fetchpriority=high');
 });
 
 test('createAssetReport summarizes bundle, public, and html-referenced assets', async () => {
@@ -157,7 +175,34 @@ test('createAssetReport summarizes bundle, public, and html-referenced assets', 
           originalFileNames: []
         }
       },
-      htmlReferences: new Set(['/hero.webp', '/missing.webp']),
+      htmlReferences: new Map([
+        [
+          '/hero.webp',
+          [
+            {
+              path: '/hero.webp',
+              kind: 'html-src',
+              tagName: 'img',
+              attribute: 'src',
+              priority: 'critical',
+              reason: 'fetchpriority=high'
+            }
+          ]
+        ],
+        [
+          '/missing.webp',
+          [
+            {
+              path: '/missing.webp',
+              kind: 'html-src',
+              tagName: 'img',
+              attribute: 'src',
+              priority: 'early',
+              reason: 'img.src'
+            }
+          ]
+        ]
+      ]),
       publicDir,
       options: {
         enabled: true,
@@ -174,6 +219,7 @@ test('createAssetReport summarizes bundle, public, and html-referenced assets', 
     assert.equal(report.summary.knownAssetCount, 5);
     assert.equal(report.summary.unknownAssetCount, 1);
     assert.ok(report.entries.some((entry) => entry.path === '/missing.webp' && entry.bytes === null));
+    assert.ok(report.entries.some((entry) => entry.path === '/hero.webp' && entry.priority === 'critical'));
 
     const warnings = formatAssetReportWarnings(report);
     assert.ok(warnings.some((warning) => warning.includes('/huge.svg')));

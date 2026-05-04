@@ -16,6 +16,9 @@ export interface FeatherPerfAssetOptions {
   prewarmBatchSize?: number;
   maxConcurrentPreloads?: number;
   idlePreloadDelayMs?: number;
+  manifestUrl?: string;
+  prewarmManifestAssets?: boolean;
+  manifestPrewarmLimit?: number;
   loadingClass?: string;
   readyClass?: string;
 }
@@ -42,6 +45,14 @@ export interface FeatherPerfAssetReportOptions {
   topAssetCount?: number;
 }
 
+export interface FeatherPerfAssetManifestOptions {
+  enabled?: boolean;
+  outputFile?: string;
+  includePublic?: boolean;
+  includeHtmlReferences?: boolean;
+  includeChunks?: boolean;
+}
+
 export interface FeatherPerfServiceWorkerOptions {
   enabled?: boolean;
   register?: boolean;
@@ -66,6 +77,7 @@ export interface FeatherPerfOptions {
   assets?: boolean | FeatherPerfAssetOptions;
   lottie?: boolean | FeatherPerfLottieOptions;
   report?: boolean | FeatherPerfAssetReportOptions;
+  manifest?: boolean | FeatherPerfAssetManifestOptions;
   serviceWorker?: boolean | FeatherPerfServiceWorkerOptions;
 }
 
@@ -129,12 +141,25 @@ export interface LottieLoadAnimationCandidate {
 }
 
 export type AssetReportSource = 'bundle' | 'chunk' | 'public' | 'html-public' | 'html-reference';
+export type AssetPriority = 'critical' | 'early' | 'lazy';
+export type AssetReferenceKind = 'html-src' | 'html-srcset' | 'html-poster' | 'html-preload' | 'css-url';
+
+export interface AssetReference {
+  path: string;
+  kind: AssetReferenceKind;
+  tagName: string;
+  attribute: string;
+  priority: AssetPriority;
+  reason: string;
+}
 
 export interface AssetReportEntry {
   path: string;
   source: AssetReportSource;
   type: string;
   bytes: number | null;
+  priority: AssetPriority;
+  references?: AssetReference[];
   referencedByHtml?: boolean;
 }
 

@@ -5,8 +5,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin, ResolvedConfig } from 'vite';
 import { collectDeferredImportCandidates, collectLottieLoadAnimationCandidates } from './ast.js';
 import {
-  collectHtmlAssetReferences,
+  collectHtmlAssetReferenceRecords,
   createAssetReport,
+  getAssetManifestOptions,
   formatAssetReportWarnings,
   getAssetReportOptions
 } from './asset-report.js';
@@ -15,7 +16,7 @@ import { injectHtml } from './html.js';
 import { checkSafety } from './safety.js';
 import { createServiceWorkerSource, getServiceWorkerOptions } from './service-worker.js';
 import { transformCode } from './transform.js';
-import type { DeferredImportCandidate, FeatherPerfOptions } from './types.js';
+import type { AssetReference, DeferredImportCandidate, FeatherPerfOptions } from './types.js';
 
 const VIRTUAL_RUNTIME_PUBLIC_ID = 'virtual:featherperf-runtime';
 const VIRTUAL_RUNTIME_RESOLVED_ID = '\0virtual:featherperf-runtime';
@@ -78,7 +79,7 @@ async function readResolvedCode(resolvedId: string): Promise<string | null> {
 
 export function featherperf(options: FeatherPerfOptions = {}): Plugin {
   let config: ResolvedConfig | null = null;
-  const htmlReferences = new Set<string>();
+  const htmlReferences = new Map<string, AssetReference[]>();
 
   return {
     name: PLUGIN_NAME,
@@ -106,9 +107,12 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
     },
     transformIndexHtml(html) {
       const reportOptions = getAssetReportOptions(options);
-      if (reportOptions?.includeHtmlReferences) {
-        for (const reference of collectHtmlAssetReferences(html)) {
-          htmlReferences.add(reference);
+      const manifestOptions = getAssetManifestOptions(options);
+      if (reportOptions?.includeHtmlReferences || manifestOptions?.includeHtmlReferences) {
+        for (const reference of collectHtmlAssetReferenceRecords(html)) {
+          const existingReferences = htmlReferences.get(reference.path) ?? [];
+          existingReferences.push(reference);
+          htmlReferences.set(reference.path, existingReferences);
         }
       }
 
@@ -116,6 +120,7 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
     },
     async generateBundle(_outputOptions, bundle) {
       const reportOptions = getAssetReportOptions(options);
+      const manifestOptions = getAssetManifestOptions(options);
       const publicDir = config?.publicDir ?? null;
 
       if (reportOptions) {
@@ -137,6 +142,30 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
             source: `${JSON.stringify(report, null, 2)}\n`
           });
         }
+      }
+
+      if (manifestOptions) {
+        const manifest = await createAssetReport({
+          bundle,
+          htmlReferences,
+          publicDir,
+          options: {
+            enabled: true,
+            emitJson: true,
+            outputFile: manifestOptions.outputFile,
+            includePublic: manifestOptions.includePublic,
+            includeHtmlReferences: manifestOptions.includeHtmlReferences,
+            includeChunks: manifestOptions.includeChunks,
+            largeAssetThresholdKb: Number.MAX_SAFE_INTEGER,
+            topAssetCount: Number.MAX_SAFE_INTEGER
+          }
+        });
+
+        this.emitFile({
+          type: 'asset',
+          fileName: manifestOptions.outputFile,
+          source: `${JSON.stringify(manifest, null, 2)}\n`
+        });
       }
 
       const serviceWorkerOptions = getServiceWorkerOptions(options);

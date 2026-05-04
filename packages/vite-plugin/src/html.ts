@@ -1,12 +1,18 @@
 import type { FeatherPerfAssetOptions, FeatherPerfLottieOptions, FeatherPerfOptions } from './types.js';
+import { getAssetManifestOptions } from './asset-report.js';
 import { createServiceWorkerRegistrationSnippet, getServiceWorkerOptions } from './service-worker.js';
 
 const DEFAULT_LOADING_CLASS = 'featherperf-assets-loading';
 const DEFAULT_READY_CLASS = 'featherperf-assets-ready';
 
 function getAssetOptions(options: FeatherPerfOptions): FeatherPerfAssetOptions | null {
+  const manifestOptions = getAssetManifestOptions(options);
+
   if (options.assets === true) {
-    return { enabled: true };
+    return {
+      enabled: true,
+      ...(manifestOptions ? { manifestUrl: `/${manifestOptions.outputFile}` } : {})
+    };
   }
 
   if (!options.assets || options.assets.enabled === false) {
@@ -15,6 +21,9 @@ function getAssetOptions(options: FeatherPerfOptions): FeatherPerfAssetOptions |
 
   return {
     ...options.assets,
+    ...(manifestOptions && !options.assets.manifestUrl
+      ? { manifestUrl: `/${manifestOptions.outputFile}` }
+      : {}),
     enabled: true
   };
 }
