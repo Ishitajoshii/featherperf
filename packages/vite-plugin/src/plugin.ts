@@ -13,6 +13,7 @@ import {
 import { PLUGIN_NAME } from './constants.js';
 import { injectHtml } from './html.js';
 import { checkSafety } from './safety.js';
+import { createServiceWorkerSource, getServiceWorkerOptions } from './service-worker.js';
 import { transformCode } from './transform.js';
 import type { DeferredImportCandidate, FeatherPerfOptions } from './types.js';
 
@@ -115,27 +116,35 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
     },
     async generateBundle(_outputOptions, bundle) {
       const reportOptions = getAssetReportOptions(options);
-      if (!reportOptions) {
-        return;
-      }
-
       const publicDir = config?.publicDir ?? null;
-      const report = await createAssetReport({
-        bundle,
-        htmlReferences,
-        publicDir,
-        options: reportOptions
-      });
 
-      for (const warning of formatAssetReportWarnings(report)) {
-        this.warn(`${PLUGIN_NAME}: ${warning}`);
+      if (reportOptions) {
+        const report = await createAssetReport({
+          bundle,
+          htmlReferences,
+          publicDir,
+          options: reportOptions
+        });
+
+        for (const warning of formatAssetReportWarnings(report)) {
+          this.warn(`${PLUGIN_NAME}: ${warning}`);
+        }
+
+        if (reportOptions.emitJson) {
+          this.emitFile({
+            type: 'asset',
+            fileName: reportOptions.outputFile,
+            source: `${JSON.stringify(report, null, 2)}\n`
+          });
+        }
       }
 
-      if (reportOptions.emitJson) {
+      const serviceWorkerOptions = getServiceWorkerOptions(options);
+      if (serviceWorkerOptions) {
         this.emitFile({
           type: 'asset',
-          fileName: reportOptions.outputFile,
-          source: `${JSON.stringify(report, null, 2)}\n`
+          fileName: serviceWorkerOptions.fileName,
+          source: createServiceWorkerSource(serviceWorkerOptions)
         });
       }
     },

@@ -11,6 +11,7 @@ import {
 } from '../dist/asset-report.js';
 import { featherperf } from '../dist/plugin.js';
 import { checkSafety } from '../dist/safety.js';
+import { createServiceWorkerSource } from '../dist/service-worker.js';
 import { transformCode } from '../dist/transform.js';
 import { injectHtml } from '../dist/html.js';
 
@@ -67,6 +68,40 @@ test('injectHtml adds lottie optimizer bootstrap when enabled', () => {
   assert.match(transformed, /initLottieOptimizer/);
   assert.match(transformed, /"criticalSelectors":\["#hero"\]/);
   assert.match(transformed, /"debug":true/);
+});
+
+test('injectHtml adds service worker registration when enabled', () => {
+  const html = '<html><head></head><body><main></main></body></html>';
+  const transformed = injectHtml(html, {
+    serviceWorker: {
+      enabled: true,
+      fileName: 'featherperf-sw.js',
+      scope: '/'
+    }
+  });
+
+  assert.match(transformed, /data-featherperf-service-worker/);
+  assert.match(transformed, /navigator\.serviceWorker\.register\("\/featherperf-sw\.js", \{ scope: "\/" \}\)/);
+});
+
+test('createServiceWorkerSource caches only same-origin asset requests', () => {
+  const source = createServiceWorkerSource({
+    enabled: true,
+    register: true,
+    fileName: 'featherperf-sw.js',
+    scope: '/',
+    cacheName: 'featherperf-assets',
+    cacheVersion: 'v-test',
+    maxEntries: 10,
+    assetExtensions: ['webp', 'json'],
+    debug: true
+  });
+
+  assert.match(source, /FEATHERPERF_CACHE_NAME = "featherperf-assets-v-test"/);
+  assert.match(source, /request\.mode === 'navigate'/);
+  assert.match(source, /accept\.includes\('text\/html'\)/);
+  assert.match(source, /FEATHERPERF_ASSET_EXTENSIONS = new Set\(\["webp","json"\]\)/);
+  assert.match(source, /event\.respondWith\(cacheFirst\(event\.request\)\)/);
 });
 
 test('collectHtmlAssetReferences finds images, videos, srcset, and CSS urls', () => {

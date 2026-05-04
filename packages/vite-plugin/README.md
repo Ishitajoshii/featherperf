@@ -39,6 +39,11 @@ export default defineConfig({
         enabled: true,
         emitJson: true,
         largeAssetThresholdKb: 500
+      },
+      serviceWorker: {
+        enabled: true,
+        cacheVersion: 'v1',
+        maxEntries: 250
       }
     })
   ]
@@ -140,6 +145,24 @@ featherperf({
 ```
 
 When `emitJson` is true, the build emits a manifest with asset paths, sources, types, known sizes, and a largest-assets summary.
+
+## Service Worker
+
+Enable `serviceWorker` to emit and register a conservative asset cache:
+
+```ts
+featherperf({
+  serviceWorker: {
+    enabled: true,
+    fileName: 'featherperf-sw.js',
+    scope: '/',
+    cacheVersion: 'v1',
+    maxEntries: 250
+  }
+})
+```
+
+The service worker caches only same-origin static asset extensions after they are requested. It does not cache HTML, navigation requests, or cross-origin/API responses by default. Bump `cacheVersion` when public assets change without URL fingerprinting.
 
 ## Docs
 

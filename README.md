@@ -204,6 +204,11 @@ featherperf({
     emitJson: true,
     largeAssetThresholdKb: 500,
     topAssetCount: 10
+  },
+  serviceWorker: {
+    enabled: true,
+    cacheVersion: 'v1',
+    maxEntries: 250
   }
 })
 ```
@@ -225,6 +230,7 @@ featherperf({
 - `assets.maxConcurrentPreloads`: caps background/image preload concurrency
 - `lottie`: optional optimizer for `window.lottie.loadAnimation`
 - `report`: optional build-time asset report for large bundle/public/HTML assets
+- `serviceWorker`: optional same-origin asset cache for repeat visits
 
 ## Asset Readiness And Prewarming
 
@@ -304,6 +310,26 @@ featherperf({
 
 The report includes emitted bundle assets/chunks, assets in `public/`, and HTML-referenced images, videos, fonts, Lottie JSON, and model files. Large assets are also surfaced as Vite build warnings.
 
+## Service Worker Asset Cache
+
+Enable `serviceWorker` to cache same-origin static assets after the browser requests them:
+
+```ts
+featherperf({
+  serviceWorker: {
+    enabled: true,
+    fileName: 'featherperf-sw.js',
+    scope: '/',
+    cacheVersion: 'v1',
+    maxEntries: 250
+  }
+})
+```
+
+The generated service worker avoids caching HTML/navigation requests and only caches safe asset extensions such as images, fonts, videos, Lottie JSON, and model files. It is runtime caching by default, not aggressive precaching, so first visits stay conservative while repeat visits and back/forward navigation get faster.
+
+When you intentionally change public assets that keep the same URL, bump `cacheVersion` to expire the old asset cache.
+
 For a less intrusive setup, leave `revealWhenReady` off and listen for the readiness event yourself:
 
 ```ts
@@ -347,6 +373,7 @@ FeatherPerf is ready to demonstrate and evaluate, with:
 - bounded near-viewport image and CSS background prewarming
 - offscreen Lottie deferral and first-frame readiness for global and ESM `lottie-web`
 - build-time large asset reporting and optional JSON manifest emission
+- conservative service worker runtime caching for repeat asset loads
 - tests for transform and runtime behavior
 - a hosted benchmark wrapper with before/after proof
 

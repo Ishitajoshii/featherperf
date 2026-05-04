@@ -1,4 +1,5 @@
 import type { FeatherPerfAssetOptions, FeatherPerfLottieOptions, FeatherPerfOptions } from './types.js';
+import { createServiceWorkerRegistrationSnippet, getServiceWorkerOptions } from './service-worker.js';
 
 const DEFAULT_LOADING_CLASS = 'featherperf-assets-loading';
 const DEFAULT_READY_CLASS = 'featherperf-assets-ready';
@@ -87,8 +88,9 @@ function createLottieRuntimeSnippet(options: FeatherPerfOptions, lottie: Feather
 export function injectHtml(html: string, options: FeatherPerfOptions = {}): string {
   const assets = getAssetOptions(options);
   const lottie = getLottieOptions(options);
+  const serviceWorker = getServiceWorkerOptions(options);
 
-  if (!assets && !lottie) {
+  if (!assets && !lottie && !serviceWorker) {
     return html;
   }
 
@@ -100,7 +102,8 @@ export function injectHtml(html: string, options: FeatherPerfOptions = {}): stri
 
   const snippets = [
     lottie ? createLottieRuntimeSnippet(options, lottie) : '',
-    assets ? createRuntimeSnippet(options, assets) : ''
+    assets ? createRuntimeSnippet(options, assets) : '',
+    serviceWorker?.register ? createServiceWorkerRegistrationSnippet(serviceWorker) : ''
   ].filter(Boolean);
 
   return insertBeforeClosingTag(nextHtml, 'body', snippets.join('\n'));

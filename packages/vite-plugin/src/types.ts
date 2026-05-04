@@ -42,6 +42,18 @@ export interface FeatherPerfAssetReportOptions {
   topAssetCount?: number;
 }
 
+export interface FeatherPerfServiceWorkerOptions {
+  enabled?: boolean;
+  register?: boolean;
+  fileName?: string;
+  scope?: string;
+  cacheName?: string;
+  cacheVersion?: string;
+  maxEntries?: number;
+  assetExtensions?: string[];
+  debug?: boolean;
+}
+
 export interface FeatherPerfOptions {
   debug?: boolean;
   idleTimeoutMs?: number;
@@ -54,6 +66,7 @@ export interface FeatherPerfOptions {
   assets?: boolean | FeatherPerfAssetOptions;
   lottie?: boolean | FeatherPerfLottieOptions;
   report?: boolean | FeatherPerfAssetReportOptions;
+  serviceWorker?: boolean | FeatherPerfServiceWorkerOptions;
 }
 
 export type SupportedHeavyPackage = 'gsap' | 'ScrollTrigger' | 'lottie-web';
