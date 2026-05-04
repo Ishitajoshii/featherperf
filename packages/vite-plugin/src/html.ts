@@ -1,4 +1,4 @@
-import type { FeatherPerfAssetOptions, FeatherPerfOptions } from './types.js';
+import type { FeatherPerfAssetOptions, FeatherPerfLottieOptions, FeatherPerfOptions } from './types.js';
 
 const DEFAULT_LOADING_CLASS = 'featherperf-assets-loading';
 const DEFAULT_READY_CLASS = 'featherperf-assets-ready';
@@ -14,6 +14,21 @@ function getAssetOptions(options: FeatherPerfOptions): FeatherPerfAssetOptions |
 
   return {
     ...options.assets,
+    enabled: true
+  };
+}
+
+function getLottieOptions(options: FeatherPerfOptions): FeatherPerfLottieOptions | null {
+  if (options.lottie === true) {
+    return { enabled: true };
+  }
+
+  if (!options.lottie || options.lottie.enabled === false) {
+    return null;
+  }
+
+  return {
+    ...options.lottie,
     enabled: true
   };
 }
@@ -60,18 +75,33 @@ function createRuntimeSnippet(options: FeatherPerfOptions, assets: FeatherPerfAs
   ].join('\n');
 }
 
+function createLottieRuntimeSnippet(options: FeatherPerfOptions, lottie: FeatherPerfLottieOptions): string {
+  return [
+    '<script type="module" data-featherperf-lottie>',
+    "import { initLottieOptimizer } from 'virtual:featherperf-runtime';",
+    `initLottieOptimizer(${serializeOptions(options, lottie)});`,
+    '</script>'
+  ].join('\n');
+}
+
 export function injectHtml(html: string, options: FeatherPerfOptions = {}): string {
   const assets = getAssetOptions(options);
+  const lottie = getLottieOptions(options);
 
-  if (!assets) {
+  if (!assets && !lottie) {
     return html;
   }
 
   let nextHtml = html;
 
-  if (assets.revealWhenReady) {
+  if (assets?.revealWhenReady) {
     nextHtml = insertBeforeClosingTag(nextHtml, 'head', createRevealHeadSnippet(assets));
   }
 
-  return insertBeforeClosingTag(nextHtml, 'body', createRuntimeSnippet(options, assets));
+  const snippets = [
+    lottie ? createLottieRuntimeSnippet(options, lottie) : '',
+    assets ? createRuntimeSnippet(options, assets) : ''
+  ].filter(Boolean);
+
+  return insertBeforeClosingTag(nextHtml, 'body', snippets.join('\n'));
 }

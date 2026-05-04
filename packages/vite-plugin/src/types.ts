@@ -3,10 +3,12 @@ export interface FeatherPerfAssetOptions {
   criticalSelectors?: string[];
   waitForCriticalImages?: boolean;
   waitForFonts?: boolean;
+  waitForCriticalLottie?: boolean;
   revealWhenReady?: boolean;
   includeViewportImages?: boolean;
   viewportMarginPx?: number;
   maxCriticalWaitMs?: number;
+  lottieReadyTimeoutMs?: number;
   prewarmOffscreenAssets?: boolean;
   prewarmBackgroundImages?: boolean;
   prewarmLazyImages?: boolean;
@@ -16,6 +18,17 @@ export interface FeatherPerfAssetOptions {
   idlePreloadDelayMs?: number;
   loadingClass?: string;
   readyClass?: string;
+}
+
+export interface FeatherPerfLottieOptions {
+  enabled?: boolean;
+  criticalSelectors?: string[];
+  deferOffscreen?: boolean;
+  freezeOffscreen?: boolean;
+  waitForFirstFrame?: boolean;
+  lookaheadPx?: number;
+  attachTimeoutMs?: number;
+  pollIntervalMs?: number;
 }
 
 export interface FeatherPerfOptions {
@@ -28,6 +41,7 @@ export interface FeatherPerfOptions {
   exclude?: Array<string | RegExp>;
   criticalSelectors?: string[];
   assets?: boolean | FeatherPerfAssetOptions;
+  lottie?: boolean | FeatherPerfLottieOptions;
 }
 
 export type SupportedHeavyPackage = 'gsap' | 'ScrollTrigger' | 'lottie-web';

@@ -19,10 +19,12 @@ export interface AssetReadinessOptions {
   criticalSelectors?: string[];
   waitForCriticalImages?: boolean;
   waitForFonts?: boolean;
+  waitForCriticalLottie?: boolean;
   revealWhenReady?: boolean;
   includeViewportImages?: boolean;
   viewportMarginPx?: number;
   maxCriticalWaitMs?: number;
+  lottieReadyTimeoutMs?: number;
   prewarmOffscreenAssets?: boolean;
   prewarmBackgroundImages?: boolean;
   prewarmLazyImages?: boolean;
@@ -32,5 +34,17 @@ export interface AssetReadinessOptions {
   idlePreloadDelayMs?: number;
   loadingClass?: string;
   readyClass?: string;
+  debug?: boolean;
+}
+
+export interface LottieOptimizerOptions {
+  enabled?: boolean;
+  criticalSelectors?: string[];
+  deferOffscreen?: boolean;
+  freezeOffscreen?: boolean;
+  waitForFirstFrame?: boolean;
+  lookaheadPx?: number;
+  attachTimeoutMs?: number;
+  pollIntervalMs?: number;
   debug?: boolean;
 }

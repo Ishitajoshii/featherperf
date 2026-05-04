@@ -89,7 +89,7 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
         return null;
       }
 
-      return `export { deferModuleEntry, initAssetReadiness } from ${JSON.stringify(getRuntimeEntryHref())};`;
+      return `export { deferModuleEntry, initAssetReadiness, initLottieOptimizer } from ${JSON.stringify(getRuntimeEntryHref())};`;
     },
     transformIndexHtml(html) {
       return injectHtml(html, options);

@@ -1,4 +1,5 @@
 import { createRuntimeLogger } from './debug.js';
+import { waitForCriticalLottie } from './lottie.js';
 import type { AssetReadinessOptions } from './types.js';
 
 const DEFAULT_CRITICAL_SELECTORS = [
@@ -9,6 +10,7 @@ const DEFAULT_CRITICAL_SELECTORS = [
 ];
 
 const DEFAULT_MAX_CRITICAL_WAIT_MS = 3500;
+const DEFAULT_LOTTIE_READY_TIMEOUT_MS = 2500;
 const DEFAULT_VIEWPORT_MARGIN_PX = 200;
 const DEFAULT_PREWARM_LOOKAHEAD_PX = 1800;
 const DEFAULT_PREWARM_BATCH_SIZE = 24;
@@ -367,6 +369,7 @@ export function initAssetReadiness(options: AssetReadinessOptions = {}): void {
   const criticalSelectors = options.criticalSelectors ?? DEFAULT_CRITICAL_SELECTORS;
   const waitForCriticalImages = options.waitForCriticalImages ?? true;
   const waitForPageFonts = options.waitForFonts ?? true;
+  const waitForPageLottie = options.waitForCriticalLottie ?? false;
   const revealWhenReady = options.revealWhenReady ?? false;
   const includeViewportImages = options.includeViewportImages ?? true;
   const prewarmOffscreenAssets = options.prewarmOffscreenAssets ?? true;
@@ -385,13 +388,22 @@ export function initAssetReadiness(options: AssetReadinessOptions = {}): void {
 
     const readinessPromises = [
       ...imagePromises,
-      ...(waitForPageFonts ? [waitForFonts()] : [])
+      ...(waitForPageFonts ? [waitForFonts()] : []),
+      ...(waitForPageLottie
+        ? [
+            waitForCriticalLottie({
+              criticalSelectors,
+              timeoutMs: options.lottieReadyTimeoutMs ?? DEFAULT_LOTTIE_READY_TIMEOUT_MS,
+              debug: options.debug
+            })
+          ]
+        : [])
     ];
 
     logger.log(
       `waiting for ${imagePromises.length} critical image(s)${
         waitForPageFonts ? ' and fonts' : ''
-      }`
+      }${waitForPageLottie ? ' and critical Lottie' : ''}`
     );
 
     if (readinessPromises.length > 0) {
