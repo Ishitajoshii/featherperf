@@ -4,13 +4,43 @@ import { collectDeferredImportCandidates } from '../dist/ast.js';
 import { featherperf } from '../dist/plugin.js';
 import { checkSafety } from '../dist/safety.js';
 import { transformCode } from '../dist/transform.js';
+import { injectHtml } from '../dist/html.js';
 
 test('virtual runtime module points at the resolved runtime entry', () => {
   const plugin = featherperf();
   const virtualModule = plugin.load?.('\0virtual:featherperf-runtime');
 
   assert.equal(typeof virtualModule, 'string');
-  assert.match(virtualModule, /export \{ deferModuleEntry \} from "file:\/\/\/.*runtime\/dist\/index\.js";?/i);
+  assert.match(
+    virtualModule,
+    /export \{ deferModuleEntry, initAssetReadiness \} from "file:\/\/\/.*runtime\/dist\/index\.js";?/i
+  );
+});
+
+test('injectHtml leaves pages unchanged until asset readiness is enabled', () => {
+  const html = '<html><head></head><body><main></main></body></html>';
+
+  assert.equal(injectHtml(html, {}), html);
+});
+
+test('injectHtml adds asset readiness bootstrap when enabled', () => {
+  const html = '<html><head></head><body><main></main></body></html>';
+  const transformed = injectHtml(html, {
+    debug: true,
+    assets: {
+      enabled: true,
+      revealWhenReady: true,
+      criticalSelectors: ['#hero'],
+      maxCriticalWaitMs: 2500
+    }
+  });
+
+  assert.match(transformed, /data-featherperf-assets/);
+  assert.match(transformed, /featherperf-assets-loading/);
+  assert.match(transformed, /initAssetReadiness/);
+  assert.match(transformed, /"criticalSelectors":\["#hero"\]/);
+  assert.match(transformed, /"maxCriticalWaitMs":2500/);
+  assert.match(transformed, /"debug":true/);
 });
 
 test('transformCode rewrites a single-binding deferred import', () => {

@@ -17,6 +17,7 @@ FeatherPerf addresses that specific problem. It is not a generic lazy-loader for
 - keep first-render content light
 - defer safe non-critical motion
 - wake that motion only when the section is near view or the page is otherwise quiet
+- optionally hold first reveal until critical images and fonts are actually ready
 
 ## Live Demo
 
@@ -173,7 +174,16 @@ featherperf({
   interactionQuietWindowMs: 750,
   include: ['src/components/motion/'],
   exclude: [/hero/i, 'src/components/header'],
-  criticalSelectors: ['#app', '#hero', '[data-critical]']
+  criticalSelectors: ['#app', '#hero', '[data-critical]'],
+  assets: {
+    enabled: true,
+    criticalSelectors: ['#hero', '[data-critical]', 'img[fetchpriority="high"]'],
+    waitForCriticalImages: true,
+    waitForFonts: true,
+    includeViewportImages: true,
+    revealWhenReady: true,
+    maxCriticalWaitMs: 3500
+  }
 })
 ```
 
@@ -185,6 +195,32 @@ featherperf({
 - `include`: optional importer path filters
 - `exclude`: importer path filters for critical files
 - `criticalSelectors`: selectors that should never be deferred
+- `assets`: optional critical asset readiness gate for image-heavy pages
+
+## Asset Readiness
+
+The `assets` option is the first step toward broader asset-heavy site support. When enabled, FeatherPerf injects a small runtime that waits for critical images to load/decode and for fonts to become ready before dispatching `featherperf:assets-ready`.
+
+`revealWhenReady` is opt-in. When enabled, FeatherPerf adds a temporary loading class to the document and hides the body until critical assets resolve or `maxCriticalWaitMs` is reached. This is useful for pages that already use a loader and want to avoid revealing half-decoded hero or above-the-fold images.
+
+```ts
+featherperf({
+  assets: {
+    enabled: true,
+    revealWhenReady: true,
+    criticalSelectors: ['#home', '.hero', '[data-critical]'],
+    maxCriticalWaitMs: 3500
+  }
+})
+```
+
+For a less intrusive setup, leave `revealWhenReady` off and listen for the readiness event yourself:
+
+```ts
+window.addEventListener('featherperf:assets-ready', () => {
+  document.documentElement.classList.add('app-assets-ready');
+});
+```
 
 ## Evaluate In 5 Minutes
 
@@ -217,6 +253,7 @@ FeatherPerf is ready to demonstrate and evaluate, with:
 
 - AST-based importer analysis
 - runtime scheduling for near-viewport and quiet-window execution
+- opt-in critical image/font readiness for asset-heavy pages
 - tests for transform and runtime behavior
 - a hosted benchmark wrapper with before/after proof
 

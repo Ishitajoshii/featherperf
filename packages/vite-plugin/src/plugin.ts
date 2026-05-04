@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Plugin } from 'vite';
 import { collectDeferredImportCandidates } from './ast.js';
 import { PLUGIN_NAME } from './constants.js';
+import { injectHtml } from './html.js';
 import { checkSafety } from './safety.js';
 import { transformCode } from './transform.js';
 import type { DeferredImportCandidate, FeatherPerfOptions } from './types.js';
@@ -88,7 +89,10 @@ export function featherperf(options: FeatherPerfOptions = {}): Plugin {
         return null;
       }
 
-      return `export { deferModuleEntry } from ${JSON.stringify(getRuntimeEntryHref())};`;
+      return `export { deferModuleEntry, initAssetReadiness } from ${JSON.stringify(getRuntimeEntryHref())};`;
+    },
+    transformIndexHtml(html) {
+      return injectHtml(html, options);
     },
     async transform(code, id) {
       const cleanId = stripQuery(id);

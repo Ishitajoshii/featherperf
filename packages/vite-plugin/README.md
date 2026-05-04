@@ -20,7 +20,13 @@ export default defineConfig({
   plugins: [
     featherperf({
       lookaheadPx: 300,
-      idleTimeoutMs: 1500
+      idleTimeoutMs: 1500,
+      assets: {
+        enabled: true,
+        revealWhenReady: true,
+        criticalSelectors: ['#hero', '[data-critical]'],
+        maxCriticalWaitMs: 3500
+      }
     })
   ]
 });
@@ -38,12 +44,37 @@ export default defineConfig({
       featherperf({
         include: ['src/pages/', 'src/components/motion/'],
         exclude: [/hero/i],
-        criticalSelectors: ['body', 'main', '.hero']
+        criticalSelectors: ['body', 'main', '.hero'],
+        assets: {
+          enabled: true,
+          revealWhenReady: true,
+          criticalSelectors: ['.hero', '[data-critical]']
+        }
       })
     ]
   }
 });
 ```
+
+## Asset Readiness
+
+Enable `assets` for image-heavy pages that should not reveal until critical images and fonts are ready:
+
+```ts
+featherperf({
+  assets: {
+    enabled: true,
+    revealWhenReady: true,
+    criticalSelectors: ['#home', '.hero', '[data-critical]'],
+    waitForCriticalImages: true,
+    waitForFonts: true,
+    includeViewportImages: true,
+    maxCriticalWaitMs: 3500
+  }
+})
+```
+
+FeatherPerf emits `featherperf:assets-ready` when the gate resolves. `revealWhenReady` is optional; without it, the event still fires but the plugin does not hide the page.
 
 ## Docs
 
