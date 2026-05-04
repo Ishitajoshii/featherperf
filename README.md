@@ -180,14 +180,24 @@ featherperf({
     criticalSelectors: ['#hero', '[data-critical]', 'img[fetchpriority="high"]'],
     waitForCriticalImages: true,
     waitForFonts: true,
+    waitForCriticalLottie: true,
     includeViewportImages: true,
     revealWhenReady: true,
     maxCriticalWaitMs: 3500,
+    lottieReadyTimeoutMs: 2500,
     prewarmOffscreenAssets: true,
     prewarmBackgroundImages: true,
     prewarmLazyImages: true,
     prewarmLookaheadPx: 1800,
     maxConcurrentPreloads: 4
+  },
+  lottie: {
+    enabled: true,
+    criticalSelectors: ['#hero', '[data-critical]'],
+    deferOffscreen: true,
+    freezeOffscreen: true,
+    waitForFirstFrame: true,
+    lookaheadPx: 600
   }
 })
 ```
@@ -201,11 +211,13 @@ featherperf({
 - `exclude`: importer path filters for critical files
 - `criticalSelectors`: selectors that should never be deferred
 - `assets`: optional critical asset readiness gate for image-heavy pages
+- `assets.waitForCriticalLottie`: includes critical Lottie first-frame readiness in the reveal gate
 - `assets.prewarmOffscreenAssets`: starts bounded preloading after critical readiness
 - `assets.prewarmBackgroundImages`: preloads CSS background images near the viewport
 - `assets.prewarmLazyImages`: nudges near-viewport lazy images to load before they are visible
 - `assets.prewarmLookaheadPx`: how far ahead of the viewport FeatherPerf should prewarm
 - `assets.maxConcurrentPreloads`: caps background/image preload concurrency
+- `lottie`: optional optimizer for `window.lottie.loadAnimation`
 
 ## Asset Readiness And Prewarming
 
@@ -230,6 +242,30 @@ featherperf({
   }
 })
 ```
+
+## Lottie Optimizer
+
+Enable `lottie` to patch `window.lottie.loadAnimation` when a site uses the browser-global `lottie-web` API. FeatherPerf defers offscreen animations until they are near the viewport, pauses animations that leave view, and marks containers ready after the first frame or DOM load event.
+
+```ts
+featherperf({
+  assets: {
+    enabled: true,
+    revealWhenReady: true,
+    waitForCriticalLottie: true,
+    criticalSelectors: ['#home', '.hero', '[data-critical]']
+  },
+  lottie: {
+    enabled: true,
+    criticalSelectors: ['#home', '.hero', '[data-critical]'],
+    deferOffscreen: true,
+    freezeOffscreen: true,
+    waitForFirstFrame: true
+  }
+})
+```
+
+For the most reliable critical detection, mark Lottie containers that affect first reveal with `data-featherperf-lottie` or include their parent section in `criticalSelectors`.
 
 For a less intrusive setup, leave `revealWhenReady` off and listen for the readiness event yourself:
 
@@ -272,6 +308,7 @@ FeatherPerf is ready to demonstrate and evaluate, with:
 - runtime scheduling for near-viewport and quiet-window execution
 - opt-in critical image/font readiness for asset-heavy pages
 - bounded near-viewport image and CSS background prewarming
+- offscreen Lottie deferral and first-frame readiness for global `lottie-web`
 - tests for transform and runtime behavior
 - a hosted benchmark wrapper with before/after proof
 

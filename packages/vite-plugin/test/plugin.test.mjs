@@ -13,7 +13,7 @@ test('virtual runtime module points at the resolved runtime entry', () => {
   assert.equal(typeof virtualModule, 'string');
   assert.match(
     virtualModule,
-    /export \{ deferModuleEntry, initAssetReadiness \} from "file:\/\/\/.*runtime\/dist\/index\.js";?/i
+    /export \{ deferModuleEntry, initAssetReadiness, initLottieOptimizer \} from "file:\/\/\/.*runtime\/dist\/index\.js";?/i
   );
 });
 
@@ -40,6 +40,24 @@ test('injectHtml adds asset readiness bootstrap when enabled', () => {
   assert.match(transformed, /initAssetReadiness/);
   assert.match(transformed, /"criticalSelectors":\["#hero"\]/);
   assert.match(transformed, /"maxCriticalWaitMs":2500/);
+  assert.match(transformed, /"debug":true/);
+});
+
+test('injectHtml adds lottie optimizer bootstrap when enabled', () => {
+  const html = '<html><head></head><body><main></main></body></html>';
+  const transformed = injectHtml(html, {
+    debug: true,
+    lottie: {
+      enabled: true,
+      deferOffscreen: true,
+      freezeOffscreen: true,
+      criticalSelectors: ['#hero']
+    }
+  });
+
+  assert.match(transformed, /data-featherperf-lottie/);
+  assert.match(transformed, /initLottieOptimizer/);
+  assert.match(transformed, /"criticalSelectors":\["#hero"\]/);
   assert.match(transformed, /"debug":true/);
 });
 

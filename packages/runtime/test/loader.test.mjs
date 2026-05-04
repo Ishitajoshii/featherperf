@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { initAssetReadiness } from '../dist/assets.js';
 import { deferModuleEntry } from '../dist/loader.js';
+import { initLottieOptimizer } from '../dist/lottie.js';
 
 test('deferModuleEntry runs immediately during server rendering', () => {
   const originalWindow = globalThis.window;
@@ -436,4 +437,152 @@ test('initAssetReadiness prewarms near-viewport image and background assets afte
   assert.equal(image.loading, 'eager');
   assert.equal(image.fetchPriority, 'auto');
   assert.deepEqual(requestedUrls, ['https://example.test/background.webp']);
+});
+
+test('initLottieOptimizer defers offscreen lottie loadAnimation until near viewport', () => {
+  const originalWindow = globalThis.window;
+  const originalDocument = globalThis.document;
+  const originalPerformance = globalThis.performance;
+  const originalIntersectionObserver = globalThis.IntersectionObserver;
+  const originalCustomEvent = globalThis.CustomEvent;
+
+  let loadCount = 0;
+  let observerCallback;
+
+  class FakeContainer {
+    constructor() {
+      this.dataset = {};
+    }
+
+    matches() {
+      return false;
+    }
+
+    closest() {
+      return null;
+    }
+
+    querySelector() {
+      return null;
+    }
+
+    getBoundingClientRect() {
+      return {
+        top: 4000,
+        left: 0,
+        right: 100,
+        bottom: 4100
+      };
+    }
+  }
+
+  class FakeIntersectionObserver {
+    constructor(callback) {
+      observerCallback = callback;
+    }
+
+    observe() {}
+    disconnect() {}
+  }
+
+  const container = new FakeContainer();
+  const animation = {
+    addEventListener(eventName, callback) {
+      if (eventName === 'DOMLoaded') {
+        callback();
+      }
+    },
+    removeEventListener() {},
+    play() {},
+    pause() {}
+  };
+
+  globalThis.performance = {
+    now: () => 0
+  };
+  globalThis.CustomEvent = class {
+    constructor(type, init = {}) {
+      this.type = type;
+      this.detail = init.detail;
+    }
+  };
+  globalThis.IntersectionObserver = FakeIntersectionObserver;
+  globalThis.window = {
+    innerHeight: 800,
+    innerWidth: 1200,
+    IntersectionObserver: FakeIntersectionObserver,
+    lottie: {
+      loadAnimation() {
+        loadCount += 1;
+        return animation;
+      }
+    },
+    setTimeout(callback) {
+      callback();
+      return 1;
+    },
+    requestAnimationFrame(callback) {
+      callback();
+      return 1;
+    },
+    dispatchEvent() {},
+    addEventListener() {}
+  };
+  globalThis.document = {
+    documentElement: {
+      clientHeight: 800,
+      clientWidth: 1200
+    },
+    querySelectorAll() {
+      return [];
+    }
+  };
+
+  try {
+    initLottieOptimizer({
+      deferOffscreen: true,
+      freezeOffscreen: true,
+      lookaheadPx: 600,
+      attachTimeoutMs: 0
+    });
+
+    const proxy = globalThis.window.lottie.loadAnimation({ container });
+
+    assert.equal(loadCount, 0);
+
+    observerCallback([{ isIntersecting: true }]);
+
+    assert.equal(loadCount, 1);
+    assert.equal(typeof proxy.play, 'function');
+  } finally {
+    if (typeof originalWindow !== 'undefined') {
+      globalThis.window = originalWindow;
+    } else {
+      Reflect.deleteProperty(globalThis, 'window');
+    }
+
+    if (typeof originalDocument !== 'undefined') {
+      globalThis.document = originalDocument;
+    } else {
+      Reflect.deleteProperty(globalThis, 'document');
+    }
+
+    if (typeof originalPerformance !== 'undefined') {
+      globalThis.performance = originalPerformance;
+    } else {
+      Reflect.deleteProperty(globalThis, 'performance');
+    }
+
+    if (typeof originalIntersectionObserver !== 'undefined') {
+      globalThis.IntersectionObserver = originalIntersectionObserver;
+    } else {
+      Reflect.deleteProperty(globalThis, 'IntersectionObserver');
+    }
+
+    if (typeof originalCustomEvent !== 'undefined') {
+      globalThis.CustomEvent = originalCustomEvent;
+    } else {
+      Reflect.deleteProperty(globalThis, 'CustomEvent');
+    }
+  }
 });

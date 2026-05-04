@@ -28,6 +28,12 @@ export default defineConfig({
         maxCriticalWaitMs: 3500,
         prewarmOffscreenAssets: true,
         prewarmBackgroundImages: true
+      },
+      lottie: {
+        enabled: true,
+        criticalSelectors: ['#hero', '[data-critical]'],
+        deferOffscreen: true,
+        freezeOffscreen: true
       }
     })
   ]
@@ -70,8 +76,10 @@ featherperf({
     criticalSelectors: ['#home', '.hero', '[data-critical]'],
     waitForCriticalImages: true,
     waitForFonts: true,
+    waitForCriticalLottie: true,
     includeViewportImages: true,
     maxCriticalWaitMs: 3500,
+    lottieReadyTimeoutMs: 2500,
     prewarmOffscreenAssets: true,
     prewarmBackgroundImages: true,
     prewarmLazyImages: true,
@@ -84,6 +92,29 @@ featherperf({
 FeatherPerf emits `featherperf:assets-ready` when the gate resolves. `revealWhenReady` is optional; without it, the event still fires but the plugin does not hide the page.
 
 After readiness, FeatherPerf prewarms near-viewport lazy images and CSS background image URLs by default. This keeps below-the-fold sections from looking blank when a user scrolls quickly, while `maxConcurrentPreloads` prevents the page from flooding the network.
+
+## Lottie
+
+Enable `lottie` when the site uses the browser-global `lottie-web` API:
+
+```ts
+featherperf({
+  assets: {
+    enabled: true,
+    waitForCriticalLottie: true,
+    criticalSelectors: ['#home', '.hero', '[data-critical]']
+  },
+  lottie: {
+    enabled: true,
+    criticalSelectors: ['#home', '.hero', '[data-critical]'],
+    deferOffscreen: true,
+    freezeOffscreen: true,
+    waitForFirstFrame: true
+  }
+})
+```
+
+FeatherPerf defers offscreen `loadAnimation()` calls until the container is near view, pauses animations that leave view, and dispatches `featherperf:lottie-ready` after the first frame. Mark critical containers with `data-featherperf-lottie` when automatic detection is not enough.
 
 ## Docs
 
